@@ -42,10 +42,10 @@ export function Loader({
 								size === "sm"
 									? "w-2 h-2"
 									: size === "md"
-									? "w-3 h-3"
-									: size === "lg"
-									? "w-4 h-4"
-									: "w-5 h-5"
+										? "w-3 h-3"
+										: size === "lg"
+											? "w-4 h-4"
+											: "w-5 h-5",
 							)}
 							animate={{
 								scale: [1, 1.2, 1],
@@ -79,7 +79,7 @@ export function Loader({
 				<motion.div
 					className={cn(
 						"bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/50 rounded-full",
-						sizeClasses[size]
+						sizeClasses[size],
 					)}
 					animate={{
 						scale: [1, 1.3, 1],
@@ -110,7 +110,7 @@ export function Loader({
 				<motion.div
 					className={cn(
 						"border-4 border-[#76ABAE]/20 border-t-[#76ABAE] rounded-full",
-						sizeClasses[size]
+						sizeClasses[size],
 					)}
 					animate={{ rotate: 360 }}
 					transition={{
@@ -140,7 +140,7 @@ export function Loader({
 				<motion.div
 					className={cn(
 						"border-2 border-[#76ABAE]/20 rounded-full absolute inset-0",
-						sizeClasses[size]
+						sizeClasses[size],
 					)}
 					animate={{ rotate: 360 }}
 					transition={{
@@ -153,7 +153,7 @@ export function Loader({
 				<motion.div
 					className={cn(
 						"border-2 border-transparent border-t-[#76ABAE] border-r-[#76ABAE] rounded-full",
-						sizeClasses[size]
+						sizeClasses[size],
 					)}
 					animate={{ rotate: -360 }}
 					transition={{
@@ -169,10 +169,10 @@ export function Loader({
 						size === "sm"
 							? "w-1 h-1"
 							: size === "md"
-							? "w-2 h-2"
-							: size === "lg"
-							? "w-3 h-3"
-							: "w-4 h-4"
+								? "w-2 h-2"
+								: size === "lg"
+									? "w-3 h-3"
+									: "w-4 h-4",
 					)}
 					animate={{
 						scale: [1, 1.5, 1],
@@ -209,7 +209,7 @@ export function LoaderOverlay({
 			initial={{ opacity: 0 }}
 			animate={{ opacity: 1 }}
 			exit={{ opacity: 0 }}
-			className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+			className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
 		>
 			<div className="text-center">
 				<Loader variant={variant} size={size} text={text} />
