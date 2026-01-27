@@ -1,10 +1,18 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Comfortaa } from "next/font/google";
+import { Lexend, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { LayoutContent } from "./layout-content";
 
-const comfortaa = Comfortaa({ subsets: ["latin"] });
+const lexend = Lexend({ 
+	subsets: ["latin"],
+	variable: "--font-lexend",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+	subsets: ["latin"],
+	variable: "--font-jetbrains-mono",
+});
 
 export const metadata: Metadata = {
 	title: "TalentSync - AI-Powered Job Matching",
@@ -18,7 +26,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className={comfortaa.className} suppressHydrationWarning>
+		<html lang="en" className={`${lexend.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
 			<head>
 				<meta name="application-name" content="TalentSync AI" />
 				<meta name="apple-mobile-web-app-capable" content="yes" />

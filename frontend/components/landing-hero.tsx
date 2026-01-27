@@ -11,24 +11,10 @@ import {
 	CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-function calMobile() {
-	if (typeof window === "undefined") return false;
-	return window.innerWidth < 640;
-}
+import { useState } from "react";
 
 function LandingHero() {
-	const [isMobile, setIsMobile] = useState(calMobile());
 	const [mode, setMode] = useState<"seeker" | "recruiter">("seeker");
-
-	useEffect(() => {
-		function handleResize() {
-			setIsMobile(calMobile());
-		}
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
 
 	const highlight =
 		mode === "seeker"
@@ -36,7 +22,7 @@ function LandingHero() {
 			: ["Bulk parsing", "Candidate signal ranking", "Cold outreach drafts"];
 
 	return (
-		<div className="relative min-h-[100vh] flex items-center pt-32 md:pt-40 pb-16 overflow-hidden px-4">
+		<div className="relative min-h-[100vh] flex items-center pt-24 md:pt-40 pb-16 overflow-hidden px-4">
 			{/* Ambient shapes */}
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute -top-32 -right-40 w-[38rem] h-[38rem] bg-[#76ABAE]/20 blur-[140px] rounded-full" />
@@ -56,9 +42,9 @@ function LandingHero() {
 								<Sparkles className="h-3.5 w-3.5 text-[#76ABAE]" />{" "}
 								<span>AI talent intelligence</span>
 							</div>
-							<h1 className="font-bold tracking-tight text-4xl sm:text-5xl md:text-6xl xl:text-7xl leading-[1.05] bg-clip-text text-transparent bg-gradient-to-b from-[#F5F7F7] via-[#E5EFEF] to-[#76ABAE]">
+							<h1 className="font-bold tracking-tight text-3xl sm:text-5xl md:text-6xl xl:text-7xl leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-[#F5F7F7] via-[#E5EFEF] to-[#76ABAE]">
 								Turn Resumes Into{" "}
-								<span className="">
+								<span className="relative inline-block">
 									<span className="pr-1">Decisions</span>
 									{/* decorative underline - allow it to overflow and ignore pointer events */}
 									<span className="absolute inset-x-0 bottom-1 h-2 bg-[#76ABAE]/30 blur-sm rounded pointer-events-none" />
@@ -69,12 +55,12 @@ function LandingHero() {
 								seekers and recruiters—faster than opening a doc.
 							</p>
 							{/* Mode switch */}
-							<div className="mt-8 inline-flex p-1 rounded-xl bg-white/5 ring-1 ring-white/10 backdrop-blur">
+							<div className="mt-8 flex w-full sm:w-auto sm:inline-flex p-1 rounded-xl bg-white/5 ring-1 ring-white/10 backdrop-blur">
 								{(["seeker", "recruiter"] as const).map((m) => (
 									<button
 										key={m}
 										onClick={() => setMode(m)}
-										className={`relative px-5 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+										className={`flex-1 sm:flex-none relative px-5 py-2.5 text-sm font-medium rounded-lg transition-colors ${
 											mode === m
 												? "bg-[#76ABAE] text-white shadow-[0_0_0_1px_#76ABAE40]"
 												: "text-[#EEEEEE]/60 hover:text-[#EEEEEE]"
@@ -91,10 +77,11 @@ function LandingHero() {
 											? "/dashboard/seeker"
 											: "/dashboard/recruiter"
 									}
+									className="w-full sm:w-auto"
 								>
 									<Button
 										size="lg"
-										className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white min-w-[190px]"
+										className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white w-full sm:min-w-[190px]"
 									>
 										{mode === "seeker" ? (
 											<FileText className="mr-2 h-5 w-5" />
@@ -105,18 +92,18 @@ function LandingHero() {
 										<ArrowRight className="ml-2 h-4 w-4" />
 									</Button>
 								</Link>
-								<Link href="/dashboard/seeker">
+								<Link href="/dashboard/seeker" className="w-full sm:w-auto">
 									<Button
 										size="lg"
 										variant="outline"
-										className="border-white/15 text-[#76ABAE]/90 hover:text-white hover:bg-white/10"
+										className="border-white/15 text-[#76ABAE]/90 hover:text-white hover:bg-white/10 w-full sm:w-auto"
 									>
 										<PlayCircle className="mr-2 h-5 w-5" /> Live Demo
 									</Button>
 								</Link>
 							</div>
 							{/* Metrics */}
-							<div className="mt-10 grid grid-cols-3 gap-4 max-w-md mx-auto lg:mx-0 text-left">
+							<div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4 max-w-md mx-auto lg:mx-0 text-left">
 								{[
 									{ label: "Resumes Parsed", value: "12K+" },
 									{ label: "Avg. Time Saved", value: "6h/wk" },
@@ -124,12 +111,12 @@ function LandingHero() {
 								].map((item) => (
 									<div
 										key={item.label}
-										className="rounded-lg bg-white/5 ring-1 ring-white/10 px-4 py-3"
+										className="rounded-lg bg-white/5 ring-1 ring-white/10 px-3 py-3 sm:px-4"
 									>
 										<p className="text-lg font-semibold text-[#EEEEEE]">
 											{item.value}
 										</p>
-										<p className="text-[10px] uppercase tracking-wide text-[#EEEEEE]/50 font-medium">
+										<p className="text-[10px] uppercase tracking-wide text-[#EEEEEE]/50 font-medium whitespace-nowrap">
 											{item.label}
 										</p>
 									</div>
@@ -137,12 +124,12 @@ function LandingHero() {
 							</div>
 						</motion.div>
 					</div>
-					{/* Right preview */}
+					{/* Right preview - Hidden on Mobile */}
 					<motion.div
 						initial={{ opacity: 0, y: 30 }}
 						animate={{ opacity: 1, y: 0 }}
 						transition={{ duration: 0.8, delay: 0.15 }}
-						className="lg:col-span-5 w-full"
+						className="hidden lg:block lg:col-span-5 w-full"
 					>
 						<div className="relative">
 							<div className="absolute -inset-1 bg-gradient-to-tr from-[#76ABAE]/40 via-transparent to-transparent rounded-2xl blur opacity-60" />
@@ -198,50 +185,47 @@ function LandingHero() {
 					<p>No ML training on your data</p>
 				</motion.div>
 
-				{isMobile && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						transition={{ delay: 0.7, duration: 0.8 }}
-						className="mt-10 flex flex-col items-center justify-center gap-4 text-[#EEEEEE]/60 text-sm"
-					>
-						<div className="relative mt-4 flex flex-col items-center">
-							<div className="backdrop-blur-md bg-white/10 rounded-full p-3 shadow-lg border border-white/20">
-								<svg width="32" height="48" viewBox="0 0 32 48" fill="none">
-									<rect
-										x="4"
-										y="4"
-										width="24"
-										height="40"
-										rx="12"
-										fill="#76ABAE"
-										fillOpacity="0.15"
-										stroke="#76ABAE"
-										strokeWidth="2"
-									/>
-									<motion.circle
-										cx="16"
-										initial={{ cy: 14 }}
-										animate={{ cy: [14, 30, 14] }}
-										transition={{
-											repeat: Infinity,
-											duration: 1.5,
-											ease: "easeInOut",
-										}}
-										r="4"
-										fill="#76ABAE"
-									/>
-								</svg>
-							</div>
-							<span className="mt-2 text-xs text-[#EEEEEE]/70">
-								Scroll down
-							</span>
+				{/* Mobile Scroll Indicator - CSS Controlled */}
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.7, duration: 0.8 }}
+					className="block md:hidden mt-10 flex flex-col items-center justify-center gap-4 text-[#EEEEEE]/60 text-sm"
+				>
+					<div className="relative mt-4 flex flex-col items-center">
+						<div className="backdrop-blur-md bg-white/10 rounded-full p-3 shadow-lg border border-white/20">
+							<svg width="32" height="48" viewBox="0 0 32 48" fill="none">
+								<rect
+									x="4"
+									y="4"
+									width="24"
+									height="40"
+									rx="12"
+									fill="#76ABAE"
+									fillOpacity="0.15"
+									stroke="#76ABAE"
+									strokeWidth="2"
+								/>
+								<motion.circle
+									cx="16"
+									initial={{ cy: 14 }}
+									animate={{ cy: [14, 30, 14] }}
+									transition={{
+										repeat: Infinity,
+										duration: 1.5,
+										ease: "easeInOut",
+									}}
+									r="4"
+									fill="#76ABAE"
+								/>
+							</svg>
 						</div>
-					</motion.div>
-				)}
+						<span className="mt-2 text-xs text-[#EEEEEE]/70">Scroll down</span>
+					</div>
+				</motion.div>
 			</div>
 		</div>
 	);
 }
 
-export { calMobile, LandingHero };
+export { LandingHero };

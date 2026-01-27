@@ -10,10 +10,8 @@ const config: Config = {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: [
-  				'Comfortaa',
-  				'sans-serif'
-  			]
+  			sans: ['var(--font-lexend)', 'sans-serif'],
+  			mono: ['var(--font-jetbrains-mono)', 'monospace'],
   		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
