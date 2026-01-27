@@ -69,6 +69,9 @@ This repository is a monorepo containing a **Next.js Frontend** and a **FastAPI 
   - `main.py`: Entry point (do not run via uvicorn for checks).
 - **Formatting:** PEP 8 standard. NO Emojis in strings/comments.
 
+### Note:
+- please ignore `server.py` file thats a legacy file that should be removed or touched. it is unrealted to everything.
+
 ---
 
 ## Database (PostgreSQL)
