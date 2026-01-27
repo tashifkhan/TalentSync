@@ -1,61 +1,69 @@
 "use client";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Code, Server, Cpu } from "lucide-react";
+import { Code, Server, Cpu, Database } from "lucide-react";
 
 const stack = [
 	{
-		category: "Frontend",
+		category: "Frontend Experience",
 		icon: Code,
-		color: "border-[#76ABAE]",
+		gradient: "from-[#76ABAE]/20 to-teal-500/10",
+		border: "hover:border-[#76ABAE]/50",
 		items: [
-			{ name: "Next.js", desc: "Hybrid rendering & route ergonomics." },
-			{ name: "Tailwind CSS", desc: "Utility-first rapid design system." },
-			{ name: "Framer Motion", desc: "Declarative animation primitives." },
+			{ name: "Next.js 14", desc: "App Router, Server Components & Streaming" },
+			{ name: "Tailwind CSS", desc: "Atomic utility-first design system" },
+			{ name: "Framer Motion", desc: "Fluid, physics-based animations" },
 		],
 	},
 	{
 		category: "Backend & Data",
 		icon: Server,
-		color: "border-orange-500",
+		gradient: "from-orange-500/20 to-amber-500/10",
+		border: "hover:border-orange-500/50",
 		items: [
-			{ name: "FastAPI", desc: "Async Python API throughput." },
-			{ name: "PostgreSQL", desc: "Relational durability + indexing." },
+			{ name: "FastAPI", desc: "High-performance async Python runtime" },
+			{ name: "PostgreSQL", desc: "Advanced relationship modeling & indexing" },
+			{ name: "Redis", desc: "In-memory caching & session management" },
 		],
 	},
 	{
-		category: "AI / NLP",
+		category: "Intelligence Layer",
 		icon: Cpu,
-		color: "border-purple-500",
+		gradient: "from-purple-500/20 to-indigo-500/10",
+		border: "hover:border-purple-500/50",
 		items: [
-			{ name: "NLP", desc: "Entity + semantic extraction." },
-			{ name: "ML", desc: "Predictive ranking & scoring." },
-			{ name: "GenAI", desc: "Assistive generation surfaces." },
-			{ name: "LangChain", desc: "Composable inference orchestration." },
+			{ name: "NLP Pipeline", desc: "SpaCy & custom named entity recognition" },
+			{ name: "Vector Search", desc: "Semantic similarity & embeddings" },
+			{ name: "LLM Orchestration", desc: "LangChain context-aware inference" },
 		],
 	},
 ];
 
 export default function TechStackGrid() {
 	return (
-		<section id="stack" className="py-20 px-6 scroll-mt-28">
+		<section id="stack" className="py-24 px-6 scroll-mt-28">
 			<div className="max-w-6xl mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 24 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.6 }}
-					className="text-center max-w-3xl mx-auto mb-14"
+					className="text-center max-w-3xl mx-auto mb-16"
 				>
-					<h2 className="text-3xl md:text-5xl font-bold text-[#EEEEEE] tracking-tight">
+					<div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-white/5 border border-white/10 text-[#EEEEEE]/60 text-xs font-medium uppercase tracking-wider">
+						<Database className="h-3.5 w-3.5" />
+						Under The Hood
+					</div>
+					<h2 className="text-3xl md:text-5xl font-bold text-[#EEEEEE] tracking-tight mb-6">
 						Architecture & Tooling
 					</h2>
-					<p className="mt-5 text-lg text-[#EEEEEE]/70 leading-relaxed">
+					<p className="text-lg text-[#EEEEEE]/60 leading-relaxed">
 						Composable layers optimize ingest, transformation, and feedback
 						surfaces while preserving extensibility.
 					</p>
 				</motion.div>
-				<div className="grid md:grid-cols-3 gap-6">
+
+				<div className="grid md:grid-cols-3 gap-8">
 					{stack.map((c, i) => {
 						const Icon = c.icon;
 						return (
@@ -64,28 +72,42 @@ export default function TechStackGrid() {
 								initial={{ opacity: 0, y: 26 }}
 								whileInView={{ opacity: 1, y: 0 }}
 								viewport={{ once: true }}
-								transition={{ duration: 0.55, delay: i * 0.07 }}
+								transition={{ duration: 0.55, delay: i * 0.1 }}
 							>
 								<Card
-									className={`h-full p-7 bg-white/5 border-white/10 backdrop-blur-md border-t-4 ${c.color} relative overflow-hidden`}
+									className={`h-full p-8 bg-[#1a2026]/40 border-white/10 backdrop-blur-md relative overflow-hidden group transition-all duration-500 border-t-0 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/50 ${c.border}`}
 								>
-									<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-[radial-gradient(circle_at_80%_120%,#76ABAE22,transparent_60%)]" />
-									<div className="flex items-center gap-3 mb-5">
-										<Icon className="h-7 w-7 text-[#76ABAE]" />
-										<h3 className="text-xl font-semibold text-[#EEEEEE]">
-											{c.category}
-										</h3>
+									{/* Gradient Background */}
+									<div
+										className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+									/>
+
+									<div className="relative z-10">
+										<div className="flex items-center gap-4 mb-8">
+											<div className="h-12 w-12 rounded-xl bg-white/5 ring-1 ring-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+												<Icon className="h-6 w-6 text-[#EEEEEE]" />
+											</div>
+											<h3 className="text-xl font-bold text-[#EEEEEE]">
+												{c.category}
+											</h3>
+										</div>
+
+										<ul className="space-y-6">
+											{c.items.map((it) => (
+												<li
+													key={it.name}
+													className="relative pl-4 border-l-2 border-white/10 group-hover:border-white/20 transition-colors"
+												>
+													<div className="font-semibold text-[#EEEEEE] text-sm mb-1">
+														{it.name}
+													</div>
+													<div className="text-xs text-[#EEEEEE]/50 leading-snug">
+														{it.desc}
+													</div>
+												</li>
+											))}
+										</ul>
 									</div>
-									<ul className="space-y-3">
-										{c.items.map((it) => (
-											<li key={it.name} className="text-sm text-[#EEEEEE]/70">
-												<span className="text-[#EEEEEE] font-medium">
-													{it.name}:
-												</span>{" "}
-												{it.desc}
-											</li>
-										))}
-									</ul>
 								</Card>
 							</motion.div>
 						);

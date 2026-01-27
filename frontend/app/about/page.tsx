@@ -26,38 +26,41 @@ export const metadata = {
 
 export default function AboutPage() {
 	return (
-		<main className="min-h-screen flex flex-col bg-[#1d2228] relative overflow-hidden">
-			{/* Ambient background */}
-			<div className="pointer-events-none absolute inset-0">
-				<div className="absolute inset-0 opacity-[0.12] [background:radial-gradient(circle_at_20%_25%,#76ABAE22,transparent_60%),radial-gradient(circle_at_80%_70%,#76ABAE22,transparent_55%)]" />
-				<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:70px_70px] mix-blend-overlay opacity-20" />
+		<main className="min-h-screen flex flex-col bg-[#11161b] relative overflow-hidden selection:bg-[#76ABAE]/30 text-[#EEEEEE]">
+			{/* Global Ambient Background */}
+			<div className="fixed inset-0 pointer-events-none z-0">
+				<div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#76ABAE]/20 to-transparent opacity-50" />
+				<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:6rem_6rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 			</div>
-			{/* Sections */}
-			<ScrollProgress />
-			<AmbientBackground />
-			<AboutHero />
-			<SectionNav />
-			<ProblemStats />
-			<SectionDivider />
-			<MarketGrowth />
-			<SectionDivider subtle />
-			<WorkflowInteractive />
-			<SectionDivider />
-			<Pillars />
-			<SectionDivider subtle />
-			<TechStackGrid />
-			<SectionDivider />
-			<DualValue />
-			<SectionDivider subtle />
-			<CompetitiveEdgeTable />
-			<SectionDivider />
-			<TargetIndustries />
-			<SectionDivider subtle />
-			<DatabaseArchitecture />
-			<SectionDivider />
-			<WorkflowStrip />
-			<TeamFooter />
-			<BackToTop />
+
+			{/* Content */}
+			<div className="relative z-10 flex flex-col gap-12 md:gap-24">
+				<ScrollProgress />
+				{/* <AmbientBackground /> - Removed as we have per-section backgrounds now or global minimalist one */}
+				<AboutHero />
+				<SectionNav />
+				<ProblemStats />
+				{/* <SectionDivider /> - Relying more on spacing and subtle borders */}
+				<MarketGrowth />
+				{/* <SectionDivider subtle /> */}
+				<WorkflowInteractive />
+				{/* <SectionDivider /> */}
+				<Pillars />
+				{/* <SectionDivider subtle /> */}
+				<TechStackGrid />
+				{/* <SectionDivider /> */}
+				<DualValue />
+				{/* <SectionDivider subtle /> */}
+				<CompetitiveEdgeTable />
+				{/* <SectionDivider /> */}
+				<TargetIndustries />
+				{/* <SectionDivider subtle /> */}
+				<DatabaseArchitecture />
+				{/* <SectionDivider /> */}
+				<WorkflowStrip />
+				<TeamFooter />
+				<BackToTop />
+			</div>
 		</main>
 	);
 }

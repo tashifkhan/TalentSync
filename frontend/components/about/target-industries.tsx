@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { Crosshair } from "lucide-react";
 
 const industries = [
 	{
@@ -33,37 +34,43 @@ const industries = [
 
 export default function TargetIndustries() {
 	return (
-		<section id="industries" className="py-20 px-6 scroll-mt-28">
+		<section id="industries" className="py-24 px-6 scroll-mt-28">
 			<div className="max-w-6xl mx-auto">
 				<motion.div
 					initial={{ opacity: 0, y: 24 }}
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.6 }}
-					className="text-center max-w-3xl mx-auto mb-14"
+					className="text-center max-w-3xl mx-auto mb-16"
 				>
-					<h2 className="text-3xl md:text-5xl font-bold text-[#EEEEEE] tracking-tight">
+					<div className="inline-flex items-center gap-2 px-3 py-1 mb-6 rounded-full bg-white/5 border border-white/10 text-[#EEEEEE]/60 text-xs font-medium uppercase tracking-wider">
+						<Crosshair className="h-3.5 w-3.5" />
+						Focused Impact
+					</div>
+					<h2 className="text-3xl md:text-5xl font-bold text-[#EEEEEE] tracking-tight mb-6">
 						Target Adoption Vectors
 					</h2>
-					<p className="mt-5 text-lg text-[#EEEEEE]/70 leading-relaxed">
+					<p className="text-lg text-[#EEEEEE]/60 leading-relaxed">
 						High-volume recruiting + structured compliance needs accelerate ROI
 						realization across initial sectors.
 					</p>
 				</motion.div>
-				<Card className="p-8 bg-white/5 border-white/10 backdrop-blur-md">
-					<h3 className="text-xl font-semibold text-center text-[#EEEEEE] mb-8">
-						Sector Share & Focus
-					</h3>
-					<div className="flex flex-col lg:flex-row gap-12 items-center justify-center">
+
+				<Card className="p-8 md:p-12 bg-[#1a2026]/40 border-0 ring-1 ring-white/5 backdrop-blur-md relative overflow-hidden">
+					<div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+
+					<div className="flex flex-col lg:flex-row gap-16 items-center justify-center relative z-10">
+						{/* Donut Chart */}
 						<motion.div
-							initial={{ opacity: 0, scale: 0.85 }}
-							whileInView={{ opacity: 1, scale: 1 }}
+							initial={{ opacity: 0, scale: 0.9, rotate: -20 }}
+							whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
 							viewport={{ once: true }}
-							transition={{ duration: 0.9 }}
-							className="relative"
+							transition={{ duration: 0.8, ease: "easeOut" }}
+							className="relative shrink-0"
 						>
+							<div className="absolute inset-0 blur-[60px] bg-[#76ABAE]/20 rounded-full" />
 							<div
-								className="w-72 h-72 md:w-80 md:h-80 rounded-full relative overflow-hidden"
+								className="w-72 h-72 md:w-80 md:h-80 rounded-full relative overflow-hidden shadow-2xl shadow-black/50 border-4 border-[#1a2026]"
 								style={{
 									background: `conic-gradient(${industries
 										.map(
@@ -76,71 +83,61 @@ export default function TargetIndustries() {
 													industries
 														.slice(0, idx + 1)
 														.reduce((a, c) => a + c.pct, 0) * 3.6
-												}deg`
+												}deg`,
 										)
 										.join(",")})`,
 								}}
 							>
 								<div className="absolute inset-0 flex items-center justify-center">
-									<div className="w-28 h-28 md:w-32 md:h-32 rounded-full bg-[#1d2228] border border-white/10 flex flex-col items-center justify-center">
-										<span className="text-2xl font-bold text-[#EEEEEE]">
+									<div className="w-24 h-24 md:w-36 md:h-36 rounded-full bg-[#1a2026] flex flex-col items-center justify-center border-4 border-[#1a2026] shadow-inner">
+										<span className="text-3xl font-bold text-[#EEEEEE]">
 											100%
 										</span>
-										<span className="text-[10px] text-[#EEEEEE]/50 uppercase tracking-wide">
+										<span className="text-[10px] text-[#EEEEEE]/40 uppercase tracking-widest font-medium">
 											Market
 										</span>
 									</div>
 								</div>
 							</div>
 						</motion.div>
-						<div className="flex-1 space-y-4 w-full max-w-md">
-							{industries.map((ind, i) => (
-								<motion.div
-									key={ind.name}
-									initial={{ opacity: 0, x: 24 }}
-									whileInView={{ opacity: 1, x: 0 }}
-									viewport={{ once: true }}
-									transition={{ duration: 0.5, delay: i * 0.05 }}
-									className="flex items-center gap-3 group p-2 rounded-lg hover:bg-white/5 cursor-pointer"
-								>
-									<div
-										className="h-4 w-4 rounded-full"
-										style={{ background: ind.color }}
-									/>
-									<div className="flex-1">
-										<div className="font-medium text-[#EEEEEE] group-hover:text-[#76ABAE] transition-colors">
-											{ind.name}
+
+						{/* Legend */}
+						<div className="flex-1 w-full max-w-lg">
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+								{industries.map((ind, i) => (
+									<motion.div
+										key={ind.name}
+										initial={{ opacity: 0, x: 20 }}
+										whileInView={{ opacity: 1, x: 0 }}
+										viewport={{ once: true }}
+										transition={{ duration: 0.5, delay: i * 0.05 }}
+										className="group p-4 rounded-xl bg-white/5 border border-white/5 hover:border-white/10 hover:bg-white/[0.07] transition-all cursor-default"
+									>
+										<div className="flex items-center gap-3 mb-2">
+											<div
+												className="h-3 w-3 rounded-full shadow-[0_0_10px]"
+												style={{
+													backgroundColor: ind.color,
+													boxShadow: `0 0 10px ${ind.color}66`,
+												}}
+											/>
+											<div className="flex-1 font-medium text-[#EEEEEE]">
+												{ind.name}
+											</div>
+											<div
+												className="font-bold text-[#EEEEEE]"
+												style={{ color: ind.color }}
+											>
+												{ind.pct}%
+											</div>
 										</div>
-										<div className="text-xs text-[#EEEEEE]/50">{ind.desc}</div>
-									</div>
-									<div className="text-[#76ABAE] font-bold text-sm">
-										{ind.pct}%
-									</div>
-								</motion.div>
-							))}
+										<p className="text-xs text-[#EEEEEE]/50 pl-6 leading-relaxed">
+											{ind.desc}
+										</p>
+									</motion.div>
+								))}
+							</div>
 						</div>
-					</div>
-					<div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-10">
-						{industries.map((ind, i) => (
-							<motion.div
-								key={ind.name + "card"}
-								initial={{ opacity: 0, scale: 0.9 }}
-								whileInView={{ opacity: 1, scale: 1 }}
-								viewport={{ once: true }}
-								transition={{ duration: 0.45, delay: i * 0.04 }}
-								className="p-4 rounded-lg bg-white/5 border border-white/10 text-center hover:border-white/20 transition"
-							>
-								<div
-									className="text-lg font-semibold text-[#EEEEEE] mb-1"
-									style={{ color: ind.color }}
-								>
-									{ind.pct}%
-								</div>
-								<div className="text-xs text-[#EEEEEE]/60 leading-snug">
-									{ind.name}
-								</div>
-							</motion.div>
-						))}
 					</div>
 				</Card>
 			</div>

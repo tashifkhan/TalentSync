@@ -7,6 +7,7 @@ import {
 	Zap,
 	Brain,
 	CheckCircle2,
+	ArrowRight,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -14,32 +15,58 @@ export function AboutHero() {
 	return (
 		<section
 			id="top"
-			className="relative pt-36 pb-24 overflow-hidden scroll-mt-28"
+			className="relative min-h-[90vh] flex items-center justify-center overflow-hidden scroll-mt-28"
 		>
-			<div className="pointer-events-none absolute inset-0">
-				<div className="absolute -top-40 -right-20 w-[40rem] h-[40rem] bg-[#76ABAE]/15 blur-[140px] rounded-full" />
-				<div className="absolute -bottom-40 -left-20 w-[30rem] h-[30rem] bg-[#76ABAE]/10 blur-[120px] rounded-full" />
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(118,171,174,0.15),transparent_70%)]" />
+			{/* Dynamic Background */}
+			<div className="absolute inset-0 pointer-events-none">
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60rem] h-[60rem] bg-[#76ABAE]/10 blur-[160px] rounded-full mix-blend-screen animate-pulse" />
+				<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(118,171,174,0.05),transparent_60%)]" />
 			</div>
+
 			<div className="relative z-10 container mx-auto max-w-6xl px-6">
 				<motion.div
-					initial={{ opacity: 0, y: 24 }}
+					initial={{ opacity: 0, y: 30 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.7 }}
-					className="text-center max-w-3xl mx-auto"
+					transition={{ duration: 0.8, ease: "easeOut" }}
+					className="text-center max-w-4xl mx-auto"
 				>
-					<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 ring-1 ring-white/10 backdrop-blur text-xs text-[#EEEEEE]/70 mb-6">
-						<Sparkles className="h-3.5 w-3.5 text-[#76ABAE]" />{" "}
-						<span>About TalentSync</span>
-					</div>
-					<h1 className="text-4xl md:text-6xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-[#F5F7F7] via-[#E5EFEF] to-[#76ABAE] leading-[1.05]">
-						Building Signal For Hiring
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						transition={{ delay: 0.2, duration: 0.5 }}
+						className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-sm font-medium text-[#EEEEEE]/90 mb-8 shadow-lg shadow-[#76ABAE]/5 hover:bg-white/10 transition-colors cursor-default"
+					>
+						<Sparkles className="h-4 w-4 text-[#76ABAE]" />
+						<span className="tracking-wide">About TalentSync</span>
+					</motion.div>
+
+					<h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-[#F5F7F7] via-[#E5EFEF] to-[#76ABAE]/80 leading-[1.1] mb-8 pb-2">
+						Building Signal <br className="hidden md:block" />
+						<span className="text-[#76ABAE] inline-block filter drop-shadow-sm">
+							For Hiring
+						</span>
 					</h1>
-					<p className="mt-6 text-lg md:text-xl text-[#EEEEEE]/70 leading-relaxed">
-						We transform unstructured career data into structured, contextual
-						intelligence for seekers & teams. Faster decisions. Better matches.
-						Less noise.
+
+					<p className="text-xl md:text-2xl text-[#EEEEEE]/60 leading-relaxed max-w-2xl mx-auto font-light">
+						We transform unstructured career data into{" "}
+						<span className="text-[#EEEEEE] font-medium">
+							structured, contextual intelligence
+						</span>{" "}
+						for seekers & teams.
 					</p>
+
+					<motion.div
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ delay: 0.4, duration: 0.6 }}
+						className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+					>
+						<div className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#76ABAE]/50" />
+						<span className="text-sm uppercase tracking-[0.2em] text-[#76ABAE]/80 font-semibold">
+							The Future of Recruiting
+						</span>
+						<div className="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#76ABAE]/50" />
+					</motion.div>
 				</motion.div>
 			</div>
 		</section>
@@ -51,59 +78,69 @@ const pillars = [
 		title: "Context > Keywords",
 		desc: "We care about trajectory, scope, domain & impact—not buzzwords.",
 		icon: Brain,
+		color: "from-purple-500/20 to-blue-500/20",
 	},
 	{
 		title: "Actionable Output",
 		desc: "Feedback becomes resumes, outreach, interview prep & prioritization.",
 		icon: Zap,
+		color: "from-amber-500/20 to-orange-500/20",
 	},
 	{
 		title: "Dual-Sided",
 		desc: "Seamless workflows for both seekers and hiring teams create compounding value.",
 		icon: Users,
+		color: "from-emerald-500/20 to-teal-500/20",
 	},
 	{
 		title: "Signal Preservation",
 		desc: "Reduce loss across parsing, matching & evaluation pipelines.",
 		icon: Target,
+		color: "from-pink-500/20 to-rose-500/20",
 	},
 ];
 
 export function Pillars() {
 	return (
-		<section id="pillars" className="relative py-24 scroll-mt-28">
+		<section id="pillars" className="relative py-32 scroll-mt-28">
 			<div className="container mx-auto px-6 max-w-6xl">
-				<motion.h2
-					initial={{ opacity: 0, y: 24 }}
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 0.4 }}
-					transition={{ duration: 0.6 }}
-					className="text-3xl md:text-5xl font-bold tracking-tight text-[#EEEEEE] text-center mb-14"
+					viewport={{ once: true }}
+					className="mb-20 text-center"
 				>
-					Principles We Build Around
-				</motion.h2>
-				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+					<h2 className="text-4xl md:text-5xl font-bold tracking-tight text-[#EEEEEE] mb-4">
+						Core Principles
+					</h2>
+					<div className="h-1 w-20 bg-[#76ABAE] mx-auto rounded-full opacity-60" />
+				</motion.div>
+
+				<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
 					{pillars.map((p, i) => (
 						<motion.div
 							key={p.title}
-							initial={{ opacity: 0, y: 24 }}
+							initial={{ opacity: 0, y: 30 }}
 							whileInView={{ opacity: 1, y: 0 }}
-							viewport={{ once: true, amount: 0.4 }}
-							transition={{ duration: 0.55, delay: i * 0.05 }}
-							className="group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-white/5 to-white/[0.02] p-6 backdrop-blur-sm hover:border-[#76ABAE]/40 hover:shadow-[0_0_0_1px_#76ABAE40,0_4px_40px_-8px_#76ABAE40] transition-all"
+							viewport={{ once: true }}
+							transition={{ delay: i * 0.1, duration: 0.5 }}
+							className="group relative md:min-h-[280px] p-8 rounded-3xl border border-white/5 bg-[#1a2026]/40 backdrop-blur-sm hover:bg-[#1a2026]/80 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#76ABAE]/10"
 						>
-							<div className="flex flex-col gap-4">
-								<div className="h-12 w-12 rounded-xl flex items-center justify-center bg-[#76ABAE]/15 ring-1 ring-inset ring-[#76ABAE]/40 text-[#76ABAE]">
-									<p.icon className="h-6 w-6" />
+							<div
+								className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${p.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+							/>
+
+							<div className="relative z-10 flex flex-col h-full">
+								<div className="h-14 w-14 rounded-2xl flex items-center justify-center bg-white/5 ring-1 ring-white/10 group-hover:bg-[#76ABAE]/20 group-hover:ring-[#76ABAE]/40 transition-all duration-300 mb-6 text-[#76ABAE]">
+									<p.icon className="h-7 w-7" />
 								</div>
-								<h3 className="text-lg font-semibold text-[#EEEEEE] leading-tight">
+								<h3 className="text-xl font-bold text-[#EEEEEE] mb-3 group-hover:text-white transition-colors">
 									{p.title}
 								</h3>
-								<p className="text-sm text-[#EEEEEE]/60 leading-relaxed">
+								<p className="text-[#EEEEEE]/60 text-sm leading-relaxed group-hover:text-[#EEEEEE]/80 transition-colors">
 									{p.desc}
 								</p>
 							</div>
-							<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-[radial-gradient(circle_at_80%_120%,#76ABAE22,transparent_60%)]" />
 						</motion.div>
 					))}
 				</div>
@@ -141,53 +178,66 @@ const timeline = [
 
 export function WorkflowStrip() {
 	return (
-		<section id="flow" className="relative py-20 scroll-mt-28">
-			<div className="container mx-auto px-6 max-w-7xl">
-				<motion.h2
-					initial={{ opacity: 0, y: 24 }}
+		<section id="flow" className="relative py-32 scroll-mt-28 overflow-hidden">
+			{/* Background Elements */}
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[500px] bg-[#76ABAE]/5 -rotate-6 blur-3xl pointer-events-none" />
+
+			<div className="container mx-auto px-6 max-w-7xl relative z-10">
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
 					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 0.4 }}
-					transition={{ duration: 0.6 }}
-					className="text-3xl md:text-5xl font-bold tracking-tight text-[#F4F8F8] text-center mb-16"
+					viewport={{ once: true }}
+					className="text-center mb-24"
 				>
-					From Raw Text To Decisions
-				</motion.h2>
-				<div className="overflow-hidden rounded-2xl border border-white/10 backdrop-blur-xl relative">
-					<div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,#76ABAE14,transparent_65%),radial-gradient(circle_at_80%_75%,#76ABAE10,transparent_60%)] opacity-70" />
-					<div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:60px_60px] opacity-20" />
-					<div className="relative grid md:grid-cols-5">
+					<h2 className="text-4xl md:text-6xl font-bold tracking-tight text-[#EEEEEE]">
+						From Raw Text To <span className="text-[#76ABAE]">Decisions</span>
+					</h2>
+				</motion.div>
+
+				<div className="relative">
+					{/* Connecting Line (Desktop) */}
+					<div className="hidden md:block absolute top-[2.25rem] left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#76ABAE]/30 to-transparent" />
+
+					<div className="grid md:grid-cols-5 gap-12 md:gap-4 relative">
 						{timeline.map((t, i) => (
-							<div
+							<motion.div
 								key={t.phase}
-								className="group/phase relative p-6 md:p-8 border-t md:border-t-0 border-white/5 md:border-l first:md:border-l-0 border-dashed md:border-white/10 flex flex-col"
+								initial={{ opacity: 0, y: 20 }}
+								whileInView={{ opacity: 1, y: 0 }}
+								viewport={{ once: true }}
+								transition={{ delay: i * 0.15 }}
+								className="relative flex flex-col items-center group"
 							>
-								{/* Hover glow */}
-								<div className="pointer-events-none absolute inset-0 opacity-0 group-hover/phase:opacity-100 transition duration-500 bg-[radial-gradient(circle_at_50%_35%,#76ABAE22,transparent_65%)]" />
-								<div className="flex items-center gap-3 mb-5 relative">
-									<div className="relative">
-										<div className="h-8 w-8 rounded-lg bg-[#0d1619]/80 ring-1 ring-inset ring-[#76ABAE]/40 flex items-center justify-center text-[#76ABAE] font-medium text-xs shadow-[0_0_0_1px_#76ABAE22,0_4px_18px_-4px_#76ABAE40]">
-											{i + 1}
-										</div>
-										<div className="absolute -inset-px rounded-lg bg-gradient-to-br from-[#76ABAE]/30 to-transparent opacity-0 group-hover/phase:opacity-100 blur-sm transition" />
-									</div>
-									<h3 className="text-base md:text-lg font-semibold text-[#F1F7F7] tracking-tight">
+								{/* Number Circle */}
+								<div className="h-10 w-10 md:h-14 md:w-14 rounded-full bg-[#11161b] border-2 border-[#76ABAE]/30 flex items-center justify-center z-10 shadow-[0_0_20px_-5px_#76ABAE] group-hover:scale-110 group-hover:border-[#76ABAE] transition-all duration-300 mb-6 md:mb-8">
+									<span className="text-[#76ABAE] font-bold text-lg md:text-xl">
+										{i + 1}
+									</span>
+								</div>
+
+								{/* Content Card */}
+								<div className="w-full bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md relative overflow-hidden group-hover:-translate-y-2 transition-transform duration-300">
+									<div className="absolute inset-0 bg-gradient-to-b from-[#76ABAE]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+									<h3 className="text-xl font-bold text-[#EEEEEE] mb-4 text-center relative z-10">
 										{t.phase}
 									</h3>
+
+									<ul className="space-y-3 relative z-10">
+										{t.points.map((p) => (
+											<li
+												key={p}
+												className="flex items-start gap-3 text-sm text-[#EEEEEE]/70"
+											>
+												<CheckCircle2 className="h-4 w-4 text-[#76ABAE] mt-0.5 flex-shrink-0" />
+												<span className="group-hover:text-[#EEEEEE] transition-colors">
+													{p}
+												</span>
+											</li>
+										))}
+									</ul>
 								</div>
-								<ul className="space-y-2 relative">
-									{t.points.map((p) => (
-										<li
-											key={p}
-											className="flex items-start gap-2 text-[13px] md:text-sm text-[#E6F3F3]/75 leading-relaxed"
-										>
-											<CheckCircle2 className="h-4 w-4 text-[#76ABAE] mt-0.5 flex-shrink-0" />
-											<span className="group-hover/phase:text-[#F5FCFC] transition-colors">
-												{p}
-											</span>
-										</li>
-									))}
-								</ul>
-							</div>
+							</motion.div>
 						))}
 					</div>
 				</div>
@@ -198,38 +248,48 @@ export function WorkflowStrip() {
 
 export function TeamFooter() {
 	return (
-		<section className="pt-24 pb-16">
-			<div className="container mx-auto px-6 max-w-5xl text-center">
-				<motion.h2
-					initial={{ opacity: 0, y: 24 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true, amount: 0.4 }}
-					transition={{ duration: 0.6 }}
-					className="text-3xl md:text-5xl font-bold tracking-tight text-[#EEEEEE]"
+		<section className="py-24 relative overflow-hidden">
+			<div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#76ABAE15,transparent_50%)]" />
+
+			<div className="container mx-auto px-6 max-w-5xl text-center relative z-10">
+				<motion.div
+					initial={{ opacity: 0, scale: 0.95 }}
+					whileInView={{ opacity: 1, scale: 1 }}
+					viewport={{ once: true }}
+					className="bg-gradient-to-br from-[#1d2228] to-[#11161b] border border-white/10 rounded-[3rem] p-12 md:p-20 shadow-2xl relative overflow-hidden"
 				>
-					We're Just Getting Started
-				</motion.h2>
-				<p className="mt-6 text-[#EEEEEE]/60 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-					TalentSync is evolving fast. We're expanding deeper into structured
-					career intelligence, recruiter collaboration, and predictive hiring
-					signals.
-				</p>
-				<div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-					<a
-						href="/"
-						className="px-6 py-3 rounded-lg bg-[#76ABAE] text-white text-sm font-medium hover:bg-[#76ABAE]/90 transition"
-					>
-						Back Home
-					</a>
-					<a
-						href="/dashboard/seeker"
-						className="px-6 py-3 rounded-lg border border-white/15 text-[#EEEEEE]/80 hover:text-white hover:bg-white/10 text-sm font-medium transition"
-					>
-						Try It Now
-					</a>
-				</div>
-				<p className="mt-10 text-[10px] uppercase tracking-wider text-[#EEEEEE]/40">
-					© {new Date().getFullYear()} TalentSync AI
+					<div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+					<div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#76ABAE]/20 to-transparent" />
+
+					<h2 className="text-4xl md:text-6xl font-bold tracking-tight text-[#EEEEEE] mb-8">
+						Ready to <span className="text-[#76ABAE]">Sync?</span>
+					</h2>
+					<p className="text-lg md:text-xl text-[#EEEEEE]/60 max-w-2xl mx-auto mb-12">
+						Join us in redefining career intelligence. Simple, powerful, and
+						built for the future of work.
+					</p>
+
+					<div className="flex flex-col sm:flex-row gap-5 justify-center">
+						<a
+							href="/dashboard/seeker"
+							className="group relative px-8 py-4 rounded-xl bg-[#76ABAE] text-white font-semibold text-lg overflow-hidden transition-transform active:scale-95"
+						>
+							<div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+							<span className="relative flex items-center gap-2">
+								Get Started Now <ArrowRight className="h-5 w-5" />
+							</span>
+						</a>
+						<a
+							href="/"
+							className="px-8 py-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-[#EEEEEE] font-medium text-lg transition-colors"
+						>
+							Back to Home
+						</a>
+					</div>
+				</motion.div>
+
+				<p className="mt-16 text-xs uppercase tracking-[0.2em] text-[#EEEEEE]/30">
+					© {new Date().getFullYear()} TalentSync AI • Redefining Recruitment
 				</p>
 			</div>
 		</section>
