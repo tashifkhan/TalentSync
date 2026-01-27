@@ -64,7 +64,7 @@ function ResendVerificationContent() {
 			}
 
 			setSuccess(
-				"Verification email sent! Please check your inbox (and spam folder)."
+				"Verification email sent! Please check your inbox (and spam folder).",
 			);
 		} catch (err: any) {
 			setError(err.message || "An unexpected error occurred.");
@@ -85,7 +85,7 @@ function ResendVerificationContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
 					>
 						<Loader variant="pulse" size="xl" text="Loading verification..." />
 					</motion.div>
@@ -127,7 +127,7 @@ function ResendVerificationContent() {
 			</AnimatePresence>
 
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex flex-col items-center justify-center p-4">
+				<div className="min-h-screen flex flex-col items-center justify-center p-4">
 					<motion.div
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
@@ -271,9 +271,9 @@ export default function ResendVerificationPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#393E46] to-[#76ABAE] flex items-center justify-center p-6">
+				<div className="min-h-screen flex items-center justify-center p-6">
 					<div className="w-full max-w-md">
-						<Card className="border-[#76ABAE]/20 bg-[#222831]/90 backdrop-blur-sm shadow-2xl">
+						<Card className="border-[#76ABAE]/20 bg-[#181C20]/90 backdrop-blur-sm shadow-2xl">
 							<CardHeader className="text-center">
 								<CardTitle className="text-2xl font-bold text-[#EEEEEE]">
 									Loading...

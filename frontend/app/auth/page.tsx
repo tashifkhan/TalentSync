@@ -137,7 +137,7 @@ function AuthContent() {
 					>
 						Resend verification email
 					</Link>
-				</div>
+				</div>,
 			);
 		}
 	}, [searchParams]);
@@ -167,13 +167,13 @@ function AuthContent() {
 						Please verify your email before signing in.{" "}
 						<Link
 							href={`/auth/resend-verification?email=${encodeURIComponent(
-								loginForm.email
+								loginForm.email,
 							)}`}
 							className="text-[#76ABAE] hover:underline font-medium"
 						>
 							Resend verification email
 						</Link>
-					</div>
+					</div>,
 				);
 			} else {
 				setError("Invalid email or password");
@@ -243,14 +243,14 @@ function AuthContent() {
 						<div className="mt-3">
 							<Link
 								href={`/auth/resend-verification?email=${encodeURIComponent(
-									registerForm.email
+									registerForm.email,
 								)}`}
 								className="text-[#76ABAE] hover:underline font-medium text-sm"
 							>
 								Didn't receive the email? Resend verification
 							</Link>
 						</div>
-					</div>
+					</div>,
 				);
 
 				// Clear the form
@@ -275,7 +275,7 @@ function AuthContent() {
 
 	if (status === "loading") {
 		return (
-			<div className="flex items-center justify-center min-h-screen text-white bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+			<div className="flex items-center justify-center min-h-screen text-white">
 				Loading authentication...
 			</div>
 		);
@@ -283,7 +283,7 @@ function AuthContent() {
 
 	if (session) {
 		return (
-			<div className="flex items-center justify-center min-h-screen text-white bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+			<div className="flex items-center justify-center min-h-screen text-white">
 				Redirecting to dashboard...
 			</div>
 		);
@@ -296,7 +296,7 @@ function AuthContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -342,7 +342,7 @@ function AuthContent() {
 			</AnimatePresence>
 
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] relative overflow-visible">
+				<div className="min-h-screen relative overflow-visible">
 					{/* Animated background elements */}
 					<div className="absolute inset-0 overflow-hidden">
 						<div className="absolute -top-10 -left-10 w-72 h-72 bg-[#76ABAE]/10 rounded-full blur-3xl animate-pulse"></div>
@@ -906,9 +906,9 @@ export default function AuthPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#393E46] to-[#76ABAE] flex items-center justify-center p-6">
+				<div className="min-h-screen flex items-center justify-center p-6">
 					<div className="w-full max-w-md">
-						<Card className="border-[#76ABAE]/20 bg-[#222831]/90 backdrop-blur-sm shadow-2xl">
+						<Card className="border-[#76ABAE]/20 bg-[#181C20]/90 backdrop-blur-sm shadow-2xl">
 							<CardHeader className="text-center">
 								<CardTitle className="text-2xl font-bold text-[#EEEEEE]">
 									Loading...

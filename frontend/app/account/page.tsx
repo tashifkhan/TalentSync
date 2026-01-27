@@ -158,7 +158,7 @@ export default function AccountPage() {
 
 	if (status === "loading") {
 		return (
-			<div className="flex items-center justify-center min-h-screen text-white bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+			<div className="flex items-center justify-center min-h-screen text-white">
 				Loading...
 			</div>
 		);
@@ -166,7 +166,7 @@ export default function AccountPage() {
 
 	if (!session) {
 		return (
-			<div className="flex items-center justify-center min-h-screen text-white bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+			<div className="flex items-center justify-center min-h-screen text-white">
 				Redirecting to login...
 			</div>
 		);
@@ -179,7 +179,7 @@ export default function AccountPage() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
 					>
 						<Loader variant="pulse" size="xl" text="Loading your account..." />
 					</motion.div>
@@ -187,7 +187,7 @@ export default function AccountPage() {
 			</AnimatePresence>
 
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] py-8">
+				<div className="min-h-screen py-8">
 					<motion.div
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
@@ -254,7 +254,7 @@ export default function AccountPage() {
 													<p className="text-[#EEEEEE]/60 text-sm">
 														Managed by your{" "}
 														{session.user?.image?.includes(
-															"googleusercontent.com"
+															"googleusercontent.com",
 														)
 															? "Google"
 															: "GitHub"}{" "}
@@ -335,8 +335,8 @@ export default function AccountPage() {
 														{session.user?.image?.includes("googleusercontent")
 															? "Google OAuth"
 															: session.user?.image?.includes("github")
-															? "GitHub OAuth"
-															: "Email Sign-in"}
+																? "GitHub OAuth"
+																: "Email Sign-in"}
 													</p>
 												</div>
 												<div className="text-green-400 text-sm">Active</div>
@@ -522,7 +522,7 @@ export default function AccountPage() {
 													<div className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-[#76ABAE]/30 transition-colors cursor-pointer">
 														<div className="flex items-center justify-between mb-2">
 															<div className="flex items-center gap-2">
-																<div className="w-8 h-8 bg-[#222831] rounded-lg flex items-center justify-center border border-white/20">
+																<div className="w-8 h-8 bg-[#181C20] rounded-lg flex items-center justify-center border border-white/20">
 																	<span className="text-[#EEEEEE] text-xs font-bold">
 																		G
 																	</span>
@@ -651,7 +651,7 @@ export default function AccountPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}

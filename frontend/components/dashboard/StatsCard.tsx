@@ -38,7 +38,7 @@ export default function StatsCard({
 			transition={{ duration: 0.5, delay }}
 		>
 			<Card
-				className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/90 to-[#222831]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
+				className="backdrop-blur-sm bg-[#181C20]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
 				onClick={onClick}
 			>
 				<CardContent className="p-6">

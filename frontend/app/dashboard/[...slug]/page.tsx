@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function PlaceholderSection() {
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+		<div className="min-h-screen">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
 				{/* Back button */}
 				<motion.div

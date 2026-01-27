@@ -82,7 +82,7 @@ interface ModalManagerProps {
 	setDeletingResume: (resume: { id: string; name: string } | null) => void;
 	deletingInterview: { id: string; role: string; companyName: string } | null;
 	setDeletingInterview: (
-		interview: { id: string; role: string; companyName: string } | null
+		interview: { id: string; role: string; companyName: string } | null,
 	) => void;
 	deletingColdMail: {
 		id: string;
@@ -90,7 +90,7 @@ interface ModalManagerProps {
 		companyName: string;
 	} | null;
 	setDeletingColdMail: (
-		coldMail: { id: string; recipientName: string; companyName: string } | null
+		coldMail: { id: string; recipientName: string; companyName: string } | null,
 	) => void;
 
 	// Handlers
@@ -146,7 +146,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -240,7 +240,7 @@ export default function ModalManager({
 																	)}
 																	<span className="text-xs text-[#EEEEEE]/40">
 																		{new Date(
-																			resume.uploadDate
+																			resume.uploadDate,
 																		).toLocaleDateString()}
 																	</span>
 																</div>
@@ -321,7 +321,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -386,7 +386,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -452,7 +452,7 @@ export default function ModalManager({
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
@@ -533,7 +533,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -603,7 +603,7 @@ export default function ModalManager({
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
@@ -657,7 +657,7 @@ export default function ModalManager({
 																		className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-white/10"
 																		onClick={() =>
 																			copyToClipboard(
-																				`Subject: ${email.subject}\n\n${email.body}`
+																				`Subject: ${email.subject}\n\n${email.body}`,
 																			)
 																		}
 																	>
@@ -692,7 +692,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -759,7 +759,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-[#181C20]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}

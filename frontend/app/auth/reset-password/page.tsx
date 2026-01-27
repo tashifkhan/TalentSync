@@ -49,7 +49,7 @@ function ResetPasswordContent() {
 			setToken(tokenFromUrl);
 		} else {
 			setError(
-				"No reset token found in the URL. Please use the link sent to your email."
+				"No reset token found in the URL. Please use the link sent to your email.",
 			);
 		}
 	}, [searchParams]);
@@ -107,7 +107,7 @@ function ResetPasswordContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -153,7 +153,7 @@ function ResetPasswordContent() {
 			</AnimatePresence>
 
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex flex-col items-center justify-center p-4">
+				<div className="min-h-screen flex flex-col items-center justify-center p-4">
 					<motion.div
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
@@ -190,15 +190,15 @@ function ResetPasswordContent() {
 									{success
 										? "Password Reset!"
 										: error
-										? "Reset Failed"
-										: "Reset Your Password"}
+											? "Reset Failed"
+											: "Reset Your Password"}
 								</CardTitle>
 								<CardDescription className="text-[#EEEEEE]/60">
 									{success
 										? "Your password has been successfully reset. Redirecting to login..."
 										: error
-										? "Please try again or request a new reset link."
-										: "Enter your new password below."}
+											? "Please try again or request a new reset link."
+											: "Enter your new password below."}
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -313,7 +313,7 @@ export default function ResetPasswordPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center">
+				<div className="min-h-screen flex items-center justify-center">
 					<div className="text-[#EEEEEE]">Loading...</div>
 				</div>
 			}

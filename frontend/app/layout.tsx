@@ -4,7 +4,7 @@ import { Lexend, JetBrains_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { LayoutContent } from "./layout-content";
 
-const lexend = Lexend({ 
+const lexend = Lexend({
 	subsets: ["latin"],
 	variable: "--font-lexend",
 });
@@ -26,7 +26,11 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en" className={`${lexend.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+		<html
+			lang="en"
+			className={`${lexend.variable} ${jetbrainsMono.variable}`}
+			suppressHydrationWarning
+		>
 			<head>
 				<meta name="application-name" content="TalentSync AI" />
 				<meta name="apple-mobile-web-app-capable" content="yes" />
@@ -37,7 +41,7 @@ export default function RootLayout({
 				<meta name="theme-color" content="#76ABAE" />
 				<link rel="manifest" href="/manifest.json" />
 			</head>
-			<body className="bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+			<body className="bg-[#181C20]">
 				<Providers>
 					<LayoutContent>{children}</LayoutContent>
 				</Providers>

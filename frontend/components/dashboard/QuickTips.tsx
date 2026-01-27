@@ -55,7 +55,7 @@ export default function QuickTips() {
 			transition={{ duration: 0.5, delay: 0.7 }}
 			className="mb-12"
 		>
-			<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl">
+			<Card className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-2xl">
 				<CardHeader>
 					<CardTitle className="text-white flex items-center gap-2">
 						<Zap className="h-5 w-5 text-[#76ABAE]" />

@@ -52,7 +52,7 @@ export default function FeatureCard({
 			animate={{ opacity: 1, x: 0 }}
 			transition={{ duration: 0.5, delay }}
 		>
-			<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
+			<Card className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
 				<CardHeader className="pb-4">
 					<div className="flex items-center justify-between mb-2">
 						<CardTitle className="text-white flex items-center gap-3 text-xl">

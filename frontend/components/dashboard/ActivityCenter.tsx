@@ -58,7 +58,7 @@ export default function ActivityCenter({
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5, delay: 0.8 }}
 		>
-			<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl">
+			<Card className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-2xl">
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<div>

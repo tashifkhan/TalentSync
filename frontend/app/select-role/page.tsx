@@ -72,7 +72,7 @@ export default function SelectRolePage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center">
+		<div className="min-h-screen flex items-center justify-center">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}

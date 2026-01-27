@@ -53,7 +53,7 @@ export default function ResumesSection({
 				{resumes.slice(0, 6).map((resume) => (
 					<Card
 						key={resume.id}
-						className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-lg hover:shadow-xl transition-all duration-300 group"
+						className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-lg hover:shadow-xl transition-all duration-300 group"
 					>
 						<CardHeader className="pb-3">
 							<CardTitle className="text-white flex items-center justify-between">

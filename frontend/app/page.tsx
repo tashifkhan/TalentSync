@@ -10,7 +10,7 @@ import {
 
 export default function Home() {
 	return (
-		<main className="min-h-screen flex flex-col bg-[#181C20] relative overflow-hidden pb-24">
+		<main className="min-h-screen flex flex-col relative overflow-hidden pb-24">
 			{/* Ambient background effects */}
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute inset-0 opacity-[0.15] [background:radial-gradient(circle_at_20%_25%,#76ABAE22,transparent_60%),radial-gradient(circle_at_80%_70%,#76ABAE22,transparent_55%)]" />
