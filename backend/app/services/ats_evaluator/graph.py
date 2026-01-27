@@ -3,25 +3,16 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from dotenv import load_dotenv
+
 from fastapi import HTTPException
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langgraph.graph import MessagesState, START, END, StateGraph
+from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.agents.web_content_agent import return_markdown
+from app.core.llm import MODEL_NAME, get_llm
 from app.data.prompt.jd_evaluator import jd_evaluator_prompt_template as ATS_PROMPT
-from app.core.llm import MODEL_NAME
-
-try:
-    from app.core.llm import llm as default_llm
-
-except Exception:
-    default_llm = None
-
-
-load_dotenv()
 
 
 def _try_init_tavily() -> list:
@@ -61,14 +52,15 @@ class ATSEvaluatorGraph:
         if llm is not None:
             self.llm = llm
 
-        elif default_llm is not None:
-            self.llm = default_llm
-
         else:
-            self.llm = ChatGoogleGenerativeAI(
-                model=self.config.model,
-                temperature=self.config.temperature,
-            )
+            default_llm = get_llm()
+            if default_llm is not None:
+                self.llm = default_llm
+            else:
+                self.llm = ChatGoogleGenerativeAI(
+                    model=self.config.model,
+                    temperature=self.config.temperature,
+                )
 
         self.tools = _try_init_tavily()
         self.llm_with_tools = (

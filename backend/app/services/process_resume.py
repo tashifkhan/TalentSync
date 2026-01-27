@@ -3,17 +3,17 @@ import fitz
 import pymupdf4llm
 import re
 from app.core.llm import MODEL_NAME
+from app.core.settings import get_settings
+
+settings = get_settings()
 
 
 def _fallback_convert_to_text(file_bytes: bytes) -> str:
     """Fallback method to convert document bytes to plain text."""
     from google import genai
     from google.genai import types
-    from dotenv import load_dotenv
 
-    load_dotenv()
-
-    client = genai.Client()
+    client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
     prompt = (
         "Youn are a document conversion AI. Convert the following document to plain text.\n",
@@ -93,10 +93,6 @@ def is_valid_resume(text):
 
 if __name__ == "__main__":
     # Example usage
-    with open(
-        "/Users/taf/Projects/TalentSync/TalentSync-Normies/backend/app/services/Tashif Ahmad Khan Resume.pdf",
-        "rb",
-    ) as f:
-        file_bytes = f.read()
-    text = process_document(file_bytes, "Tashif Ahmad Khan Resume.pdf")
-    print(text)
+    # Note: Absolute path in example usage is local to the developer's machine
+    # We leave it as is or comment it out
+    pass

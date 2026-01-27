@@ -1,26 +1,19 @@
 from __future__ import annotations
 
-from typing import Optional, List
-
-from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.messages import HumanMessage
-from langgraph.graph import StateGraph, START, END, MessagesState
-from langchain_core.prompts import ChatPromptTemplate
-from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_tavily import TavilySearch
-
 import json
 import re
+from typing import List, Optional
 
-from app.core.llm import llm
-from app.core.llm import MODEL_NAME
+from langchain_core.messages import HumanMessage
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_tavily import TavilySearch
+from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.prebuilt import ToolNode, tools_condition
 
-from app.services.ats import ats_evaluate_service
 from app.agents.web_content_agent import return_markdown
-
-
-load_dotenv()
+from app.core.llm import MODEL_NAME, get_llm
+from app.services.ats import ats_evaluate_service
 
 
 class GraphBuilder:
@@ -37,6 +30,7 @@ class GraphBuilder:
             tools: list of tool instances to expose to the model
             model_name: model identifier for ChatGoogleGenerativeAI
         """
+        llm = get_llm()
         if llm:
             self.llm = llm
         else:
