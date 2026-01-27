@@ -71,6 +71,15 @@ This repository is a monorepo containing a **Next.js Frontend** and a **FastAPI 
 
 ---
 
+## Database (PostgreSQL)
+It is situated in the next app and controled using prisma and the next api routes.
+- **Database:** PostgreSQL is used for storing data.
+- **Prisma:** Prisma is used for database ORM.
+- **API Routes:** Next.js API routes are used for database operations.
+
+---
+
+
 ## General Workflow for Agents
 
 1.  **Explore:** Use `ls -F` and `read` to understand the file structure before editing.
