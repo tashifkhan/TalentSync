@@ -65,16 +65,16 @@ export function HowItWorks() {
 									<div className="sm:col-span-5 flex sm:justify-end">
 										<div className="flex items-center gap-4 sm:gap-6">
 											<div className="relative">
-												<div className="absolute inset-0 rounded-xl bg-[#76ABAE]/40 blur-lg opacity-0 sm:group-hover:opacity-60 transition" />
-												<div className="h-14 w-14 rounded-xl flex items-center justify-center bg-[#76ABAE]/15 ring-1 ring-inset ring-[#76ABAE]/40 text-[#76ABAE]">
+												<div className="absolute inset-0 rounded-xl bg-[#76ABAE]/40 blur-lg opacity-20 sm:opacity-0 sm:group-hover:opacity-60 transition" />
+												<div className="h-14 w-14 rounded-xl flex items-center justify-center bg-white/5 sm:bg-[#76ABAE]/15 ring-1 ring-white/10 sm:ring-[#76ABAE]/40 text-[#76ABAE]">
 													<s.icon className="h-7 w-7" />
 												</div>
 											</div>
 											<div className="sm:hidden">
-												<h3 className="text-lg font-semibold text-[#EEEEEE] leading-tight">
+												<h3 className="text-xl font-bold text-[#EEEEEE] leading-tight">
 													{s.title}
 												</h3>
-												<p className="mt-1 text-sm text-[#EEEEEE]/60 leading-relaxed">
+												<p className="mt-1 text-sm text-[#EEEEEE]/70 leading-relaxed">
 													{s.body}
 												</p>
 											</div>

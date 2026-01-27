@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export function FinalCTA() {
 	return (
-		<section className="relative py-28 md:py-40">
+		<section className="relative py-20 md:py-40">
 			<div className="absolute inset-0 [mask-image:linear-gradient(to_top,black,transparent)] opacity-70">
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#76ABAE22,transparent_70%)]" />
 			</div>
