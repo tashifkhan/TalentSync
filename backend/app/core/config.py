@@ -1,6 +1,6 @@
-import os
-from dotenv import load_dotenv
+from app.core.settings import get_settings
 
-load_dotenv()
+settings = get_settings()
 
-google_api_key = os.getenv("GOOGLE_API_KEY")
+# Backward compatibility
+google_api_key = settings.GOOGLE_API_KEY
