@@ -455,10 +455,6 @@ export default function HiringAssistant() {
 										</motion.div>
 									</CardContent>
 								</Card>
-								<CommonQuestionsPanel
-									commonQuestions={commonQuestions}
-									addCommonQuestion={addCommonQuestion}
-								/>
 							</motion.div>
 							{/* Questions Section */}
 							<motion.div
@@ -473,6 +469,12 @@ export default function HiringAssistant() {
 									removeQuestion={removeQuestion}
 									updateQuestion={updateQuestion}
 								/>
+									<div className="mt-4">
+										<CommonQuestionsPanel
+											commonQuestions={commonQuestions}
+											addCommonQuestion={addCommonQuestion}
+										/>
+									</div>
 							</motion.div>
 							{/* Answers Section */}
 							<motion.div
