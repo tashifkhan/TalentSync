@@ -25,9 +25,9 @@ export default function JobDescriptionForm({
 			<div className="space-y-2">
 				<Label
 					htmlFor="jd_text"
-					className="text-[#EEEEEE] text-sm font-medium flex items-center"
+					className="text-brand-light text-sm font-medium flex items-center"
 				>
-					<Briefcase className="h-4 w-4 mr-2 text-[#76ABAE]" />
+					<Briefcase className="h-4 w-4 mr-2 text-brand-primary" />
 					Job Description (Text)
 				</Label>
 				<Textarea
@@ -36,7 +36,7 @@ export default function JobDescriptionForm({
 					onChange={(e) => handleInputChange("jd_text", e.target.value)}
 					placeholder="Paste the job description here..."
 					rows={6}
-					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:outline-none focus:ring-2 focus:ring-[#76ABAE] resize-none"
+					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-brand-light placeholder-brand-light/30 focus:outline-none focus:ring-2 focus:ring-brand-primary resize-none"
 				/>
 			</div>
 
@@ -46,7 +46,7 @@ export default function JobDescriptionForm({
 					<div className="w-full border-t border-white/10"></div>
 				</div>
 				<div className="relative flex justify-center text-xs">
-					<span className="px-2 bg-[#31363F] text-[#EEEEEE]/60">OR</span>
+					<span className="px-2 bg-surface text-brand-light/60">OR</span>
 				</div>
 			</div>
 
@@ -54,9 +54,9 @@ export default function JobDescriptionForm({
 			<div className="space-y-2">
 				<Label
 					htmlFor="jd_link"
-					className="text-[#EEEEEE] text-sm font-medium flex items-center"
+					className="text-brand-light text-sm font-medium flex items-center"
 				>
-					<LinkIcon className="h-4 w-4 mr-2 text-[#76ABAE]" />
+					<LinkIcon className="h-4 w-4 mr-2 text-brand-primary" />
 					Job Description (Link)
 				</Label>
 				<Input
@@ -65,7 +65,7 @@ export default function JobDescriptionForm({
 					value={formData.jd_link}
 					onChange={(e) => handleInputChange("jd_link", e.target.value)}
 					placeholder="https://example.com/job-posting"
-					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:outline-none focus:ring-2 focus:ring-[#76ABAE]"
+					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-brand-light placeholder-brand-light/30 focus:outline-none focus:ring-2 focus:ring-brand-primary"
 				/>
 			</div>
 
@@ -73,11 +73,11 @@ export default function JobDescriptionForm({
 			<div className="space-y-2">
 				<Label
 					htmlFor="company_name"
-					className="text-[#EEEEEE] text-sm font-medium flex items-center"
+					className="text-brand-light text-sm font-medium flex items-center"
 				>
-					<Building className="h-4 w-4 mr-2 text-[#76ABAE]" />
+					<Building className="h-4 w-4 mr-2 text-brand-primary" />
 					Company Name{" "}
-					<span className="text-[#EEEEEE]/40 ml-1">(Optional)</span>
+					<span className="text-brand-light/40 ml-1">(Optional)</span>
 				</Label>
 				<Input
 					id="company_name"
@@ -85,7 +85,7 @@ export default function JobDescriptionForm({
 					value={formData.company_name}
 					onChange={(e) => handleInputChange("company_name", e.target.value)}
 					placeholder="e.g., Google"
-					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:outline-none focus:ring-2 focus:ring-[#76ABAE]"
+					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-brand-light placeholder-brand-light/30 focus:outline-none focus:ring-2 focus:ring-brand-primary"
 				/>
 			</div>
 
@@ -93,11 +93,11 @@ export default function JobDescriptionForm({
 			<div className="space-y-2">
 				<Label
 					htmlFor="company_website"
-					className="text-[#EEEEEE] text-sm font-medium flex items-center"
+					className="text-brand-light text-sm font-medium flex items-center"
 				>
-					<Globe className="h-4 w-4 mr-2 text-[#76ABAE]" />
+					<Globe className="h-4 w-4 mr-2 text-brand-primary" />
 					Company Website{" "}
-					<span className="text-[#EEEEEE]/40 ml-1">(Optional)</span>
+					<span className="text-brand-light/40 ml-1">(Optional)</span>
 				</Label>
 				<Input
 					id="company_website"
@@ -105,7 +105,7 @@ export default function JobDescriptionForm({
 					value={formData.company_website}
 					onChange={(e) => handleInputChange("company_website", e.target.value)}
 					placeholder="https://company.com"
-					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[#EEEEEE] placeholder-[#EEEEEE]/30 focus:outline-none focus:ring-2 focus:ring-[#76ABAE]"
+					className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-brand-light placeholder-brand-light/30 focus:outline-none focus:ring-2 focus:ring-brand-primary"
 				/>
 			</div>
 		</div>

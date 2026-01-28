@@ -49,25 +49,25 @@ const stats = [
 		title: "Total Users",
 		value: "1,234",
 		icon: Users,
-		color: "text-[#76ABAE]",
+		color: "text-brand-primary",
 	},
 	{
 		title: "Resumes Processed",
 		value: "5,678",
 		icon: FileText,
-		color: "text-[#76ABAE]",
+		color: "text-brand-primary",
 	},
 	{
 		title: "Job Matches",
 		value: "892",
 		icon: Briefcase,
-		color: "text-[#76ABAE]",
+		color: "text-brand-primary",
 	},
 	{
 		title: "Success Rate",
 		value: "94%",
 		icon: TrendingUp,
-		color: "text-[#76ABAE]",
+		color: "text-brand-primary",
 	},
 ];
 
@@ -87,7 +87,7 @@ export default function AdminDashboard() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-background-overlay flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -109,7 +109,7 @@ export default function AdminDashboard() {
 							<Link href="/">
 								<Button
 									variant="ghost"
-									className="text-[#EEEEEE] hover:text-[#76ABAE]"
+									className="text-brand-light hover:text-brand-primary"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									Back to Home
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
 							transition={{ duration: 0.8, delay: 0.2 }}
 							className="mt-12"
 						>
-							<h1 className="text-4xl font-bold text-[#EEEEEE] mb-8">
+							<h1 className="text-4xl font-bold text-brand-light mb-8">
 								Admin Dashboard
 							</h1>
 
@@ -136,10 +136,10 @@ export default function AdminDashboard() {
 										<CardContent className="flex items-center p-6">
 											<stat.icon className={`h-8 w-8 ${stat.color} mr-4`} />
 											<div>
-												<p className="text-sm font-medium text-[#EEEEEE]/60">
+												<p className="text-sm font-medium text-brand-light/60">
 													{stat.title}
 												</p>
-												<h3 className="text-2xl font-bold text-[#EEEEEE]">
+												<h3 className="text-2xl font-bold text-brand-light">
 													{stat.value}
 												</h3>
 											</div>
@@ -151,7 +151,7 @@ export default function AdminDashboard() {
 							<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 								<Card className="backdrop-blur-lg bg-white/5 border-white/10">
 									<CardHeader>
-										<CardTitle className="text-[#EEEEEE]">
+										<CardTitle className="text-brand-light">
 											Weekly Resume Uploads
 										</CardTitle>
 									</CardHeader>
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
 
 								<Card className="backdrop-blur-lg bg-white/5 border-white/10">
 									<CardHeader>
-										<CardTitle className="text-[#EEEEEE]">Top Roles</CardTitle>
+										<CardTitle className="text-brand-light">Top Roles</CardTitle>
 									</CardHeader>
 									<CardContent>
 										<div className="h-[300px]">

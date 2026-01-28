@@ -81,7 +81,7 @@ export default function UploadResume({
 				<div>
 					<label
 						htmlFor="resume-file"
-						className="block text-sm font-medium text-gray-700 mb-2"
+						className="block text-sm font-medium text-muted-foreground mb-2"
 					>
 						Select Resume File
 					</label>
@@ -90,10 +90,10 @@ export default function UploadResume({
 						type="file"
 						accept=".pdf,.doc,.docx,.txt,.md"
 						onChange={handleFileChange}
-						className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+						className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-info/10 file:text-info hover:file:bg-info/20"
 						disabled={isUploading}
 					/>
-					<p className="mt-1 text-xs text-gray-500">
+					<p className="mt-1 text-xs text-muted-foreground">
 						Supported formats: PDF, DOC, DOCX, TXT, MD
 					</p>
 				</div>
@@ -101,7 +101,7 @@ export default function UploadResume({
 				<div>
 					<label
 						htmlFor="custom-name"
-						className="block text-sm font-medium text-gray-700 mb-2"
+						className="block text-sm font-medium text-muted-foreground mb-2"
 					>
 						Custom Name
 					</label>
@@ -111,7 +111,7 @@ export default function UploadResume({
 						value={customName}
 						onChange={(e) => setCustomName(e.target.value)}
 						placeholder="Enter a name for this resume"
-						className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+						className="block w-full px-3 py-2 border border-border rounded-md shadow-sm focus:outline-none focus:ring-info focus:border-info"
 						disabled={isUploading}
 						required
 					/>
@@ -123,12 +123,12 @@ export default function UploadResume({
 						type="checkbox"
 						checked={showInCentral}
 						onChange={(e) => setShowInCentral(e.target.checked)}
-						className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+						className="h-4 w-4 text-info focus:ring-info border-border rounded"
 						disabled={isUploading}
 					/>
 					<label
 						htmlFor="show-in-central"
-						className="ml-2 block text-sm text-gray-700"
+						className="ml-2 block text-sm text-muted-foreground"
 					>
 						Show in central repository
 					</label>
@@ -137,7 +137,7 @@ export default function UploadResume({
 				<button
 					type="submit"
 					disabled={isUploading || !file || !customName.trim()}
-					className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-info hover:bg-info/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-info disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{isUploading ? (
 						<>

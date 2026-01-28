@@ -315,9 +315,9 @@ export default function HiringAssistant() {
 					<LoadingOverlay isGenerating={isGenerating} />
 					{/* Background decorative elements */}
 					<div className="absolute inset-0 overflow-hidden pointer-events-none">
-						<div className="absolute -top-20 -right-20 md:-top-40 md:-right-40 w-40 h-40 md:w-80 md:h-80 bg-[#76ABAE]/10 rounded-full blur-3xl"></div>
-						<div className="absolute -bottom-20 -left-20 md:-bottom-40 md:-left-40 w-40 h-40 md:w-80 md:h-80 bg-[#76ABAE]/5 rounded-full blur-3xl"></div>
-						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-96 md:h-96 bg-[#76ABAE]/5 rounded-full blur-3xl"></div>
+						<div className="absolute -top-20 -right-20 md:-top-40 md:-right-40 w-40 h-40 md:w-80 md:h-80 bg-brand-primary/10 rounded-full blur-3xl"></div>
+						<div className="absolute -bottom-20 -left-20 md:-bottom-40 md:-left-40 w-40 h-40 md:w-80 md:h-80 bg-brand-primary/5 rounded-full blur-3xl"></div>
+						<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-96 md:h-96 bg-brand-primary/5 rounded-full blur-3xl"></div>
 					</div>
 					<div className="container mx-auto px-4 py-6 relative z-10 max-w-7xl">
 						{/* Header with back button */}
@@ -331,7 +331,7 @@ export default function HiringAssistant() {
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-[#EEEEEE] hover:text-[#76ABAE] hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10 hover:border-[#76ABAE]/30 h-10"
+									className="text-brand-light hover:text-brand-primary hover:bg-white/10 transition-all duration-300 backdrop-blur-sm border border-white/10 hover:border-brand-primary/30 h-10"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									<span className="hidden sm:inline">Back to Dashboard</span>
@@ -346,13 +346,13 @@ export default function HiringAssistant() {
 							transition={{ duration: 0.8, delay: 0.2 }}
 							className="text-center mb-8 sm:mb-12"
 						>
-							<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-[#76ABAE]/10 rounded-2xl mb-4 sm:mb-6">
-								<Users className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+							<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
+								<Users className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 							</div>
-							<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#EEEEEE] mb-3 sm:mb-4 leading-tight">
+							<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 								AI Hiring Assistant
 							</h1>
-							<p className="text-[#EEEEEE]/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+							<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 								Generate personalized interview answers using AI to help you
 								prepare for your next opportunity.
 							</p>
@@ -368,7 +368,7 @@ export default function HiringAssistant() {
 							>
 								<Card className="backdrop-blur-xl bg-white/5 border border-white/10 shadow-2xl hover:bg-white/10 transition-all duration-500">
 									<CardHeader className="pb-4">
-										<CardTitle className="text-[#EEEEEE] text-lg md:text-xl font-semibold">
+										<CardTitle className="text-brand-light text-lg md:text-xl font-semibold">
 											Interview Details
 										</CardTitle>
 									</CardHeader>
@@ -409,10 +409,10 @@ export default function HiringAssistant() {
 													!formData.role ||
 													!formData.company
 												}
-												className="relative w-full h-14 bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/80 hover:from-[#76ABAE]/90 hover:to-[#76ABAE]/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+												className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 											>
 												{isGenerating ? (
-													<div className="absolute inset-0 bg-gradient-to-r from-[#76ABAE]/20 via-[#76ABAE]/40 to-[#76ABAE]/20 animate-pulse"></div>
+													<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse"></div>
 												) : null}
 												<div className="relative z-10 flex items-center justify-center">
 													{isGenerating ? (

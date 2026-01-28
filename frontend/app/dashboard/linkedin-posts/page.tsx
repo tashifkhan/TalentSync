@@ -186,7 +186,7 @@ export default function LinkedInPostsGenerator() {
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-[#EEEEEE] hover:text-[#76ABAE] hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
+									className="text-brand-light hover:text-brand-primary hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									<span className="hidden sm:inline">Back to Dashboard</span>
@@ -203,13 +203,13 @@ export default function LinkedInPostsGenerator() {
 								transition={{ duration: 0.8, delay: 0.2 }}
 								className="text-center mb-8 sm:mb-12"
 							>
-								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-[#76ABAE]/20 to-[#76ABAE]/10 rounded-2xl mb-4 sm:mb-6 shadow-lg">
-									<Hash className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-2xl mb-4 sm:mb-6 shadow-lg">
+									<Hash className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
-								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#EEEEEE] mb-3 sm:mb-4 leading-tight">
+								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 									LinkedIn Post Generator
 								</h1>
-								<p className="text-[#EEEEEE]/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 									Create engaging LinkedIn posts with AI assistance to build
 									your professional network.
 								</p>
@@ -226,39 +226,39 @@ export default function LinkedInPostsGenerator() {
 								>
 									<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 										<CardHeader className="pb-4">
-											<CardTitle className="text-[#EEEEEE] text-xl sm:text-2xl font-semibold">
+											<CardTitle className="text-brand-light text-xl sm:text-2xl font-semibold">
 												Post Parameters
 											</CardTitle>
-											<p className="text-[#EEEEEE]/60 text-sm">
+											<p className="text-brand-light/60 text-sm">
 												Configure your LinkedIn post generation settings
 											</p>
 										</CardHeader>
 										<CardContent className="space-y-6">
 											{/* Section: Core Topic & Audience */}
-											<div className="space-y-4 pb-2 border-b border-[#76ABAE]/10">
+											<div className="space-y-4 pb-2 border-b border-brand-primary/10">
 												<div>
-													<Label className="mb-1 block text-[#EEEEEE] font-medium">
+													<Label className="mb-1 block text-brand-light font-medium">
 														Topic *
 													</Label>
 													<Input
 														value={form.topic}
 														onChange={(e) => update("topic", e.target.value)}
 														placeholder="e.g. Remote team productivity"
-														className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50"
+														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 													/>
 												</div>
 												<div>
-													<Label className="mb-1 block text-[#EEEEEE] font-medium">
+													<Label className="mb-1 block text-brand-light font-medium">
 														Tone
 													</Label>
 													<Select
 														value={form.tone}
 														onValueChange={(value) => update("tone", value)}
 													>
-														<SelectTrigger className="w-full bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50">
+														<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
 															<SelectValue placeholder="Select tone" />
 														</SelectTrigger>
-														<SelectContent className="bg-[#31363F] border-[#76ABAE]/30 text-[#EEEEEE] shadow-xl">
+														<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
 															{[
 																"Professional",
 																"Conversational",
@@ -269,7 +269,7 @@ export default function LinkedInPostsGenerator() {
 																<SelectItem
 																	key={t}
 																	value={t}
-																	className="focus:bg-[#76ABAE]/20 focus:text-[#EEEEEE] cursor-pointer"
+																	className="focus:bg-brand-primary/20 focus:text-brand-light cursor-pointer"
 																>
 																	{t}
 																</SelectItem>
@@ -278,34 +278,34 @@ export default function LinkedInPostsGenerator() {
 													</Select>
 												</div>
 												<div>
-													<Label className="mb-1 block text-[#EEEEEE] font-medium">
+													<Label className="mb-1 block text-brand-light font-medium">
 														Audience (comma separated)
 													</Label>
 													<Input
 														value={form.audience}
 														onChange={(e) => update("audience", e.target.value)}
 														placeholder="Developers, Engineering Managers"
-														className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50"
+														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 													/>
 												</div>
 												<div className="grid grid-cols-2 gap-4 pt-2">
 													<div>
-														<Label className="mb-1 block text-[#EEEEEE] font-medium">
+														<Label className="mb-1 block text-brand-light font-medium">
 															Length
 														</Label>
 														<Select
 															value={form.length}
 															onValueChange={(value) => update("length", value)}
 														>
-															<SelectTrigger className="w-full bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50">
+															<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
 																<SelectValue placeholder="Select length" />
 															</SelectTrigger>
-															<SelectContent className="bg-[#31363F] border-[#76ABAE]/30 text-[#EEEEEE] shadow-xl">
+															<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
 																{["Short", "Medium", "Long", "Any"].map((l) => (
 																	<SelectItem
 																		key={l}
 																		value={l}
-																		className="focus:bg-[#76ABAE]/20 focus:text-[#EEEEEE] cursor-pointer"
+																		className="focus:bg-brand-primary/20 focus:text-brand-light cursor-pointer"
 																	>
 																		{l}
 																	</SelectItem>
@@ -314,7 +314,7 @@ export default function LinkedInPostsGenerator() {
 														</Select>
 													</div>
 													<div>
-														<Label className="mb-1 block text-[#EEEEEE] font-medium">
+														<Label className="mb-1 block text-brand-light font-medium">
 															Hashtags
 														</Label>
 														<Select
@@ -323,15 +323,15 @@ export default function LinkedInPostsGenerator() {
 																update("hashtags_option", value)
 															}
 														>
-															<SelectTrigger className="w-full bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50">
+															<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
 																<SelectValue placeholder="Select hashtag option" />
 															</SelectTrigger>
-															<SelectContent className="bg-[#31363F] border-[#76ABAE]/30 text-[#EEEEEE] shadow-xl">
+															<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
 																{["suggest", "none"].map((o) => (
 																	<SelectItem
 																		key={o}
 																		value={o}
-																		className="focus:bg-[#76ABAE]/20 focus:text-[#EEEEEE] capitalize cursor-pointer"
+																		className="focus:bg-brand-primary/20 focus:text-brand-light capitalize cursor-pointer"
 																	>
 																		{o}
 																	</SelectItem>
@@ -342,19 +342,19 @@ export default function LinkedInPostsGenerator() {
 												</div>
 											</div>
 											{/* end core topic wrapper */}
-											<div className="pt-2 space-y-4 border-t border-[#76ABAE]/10">
-												<Label className="mb-1 block text-[#EEEEEE] font-medium">
+											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
+												<Label className="mb-1 block text-brand-light font-medium">
 													CTA Text (optional)
 												</Label>
 												<Input
 													value={form.cta_text}
 													onChange={(e) => update("cta_text", e.target.value)}
 													placeholder="e.g. Share your experience below!"
-													className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50"
+													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 												/>
 											</div>
-											<div className="pt-2 space-y-4 border-t border-[#76ABAE]/10">
-												<Label className="mb-1 block text-[#EEEEEE] font-medium">
+											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
+												<Label className="mb-1 block text-brand-light font-medium">
 													Mimic Examples (style hints)
 												</Label>
 												<Textarea
@@ -363,25 +363,25 @@ export default function LinkedInPostsGenerator() {
 														update("mimic_examples", e.target.value)
 													}
 													placeholder="Paste a post snippet to emulate style"
-													className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50 min-h-[80px]"
+													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50 min-h-[80px]"
 												/>
 											</div>
-											<div className="pt-2 space-y-4 border-t border-[#76ABAE]/10">
-												<Label className="mb-1 block text-[#EEEEEE] font-medium">
+											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
+												<Label className="mb-1 block text-brand-light font-medium">
 													Language
 												</Label>
 												<Input
 													value={form.language}
 													onChange={(e) => update("language", e.target.value)}
 													placeholder="e.g. en, es (auto by default)"
-													className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50"
+													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 												/>
 											</div>
-											<div className="pt-2 space-y-4 border-t border-[#76ABAE]/10">
+											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
 												<div>
-													<Label className="mb-1 flex items-center gap-2 text-[#EEEEEE] font-medium">
+													<Label className="mb-1 flex items-center gap-2 text-brand-light font-medium">
 														GitHub Project URL{" "}
-														<Github className="h-4 w-4 text-[#76ABAE]" />
+														<Github className="h-4 w-4 text-brand-primary" />
 													</Label>
 													<Input
 														value={form.github_project_url}
@@ -389,13 +389,13 @@ export default function LinkedInPostsGenerator() {
 															update("github_project_url", e.target.value)
 														}
 														placeholder="https://github.com/your/repo"
-														className="bg-[#181C20]/50 border-[#76ABAE]/30 text-[#EEEEEE] placeholder:text-[#AAAAAA] focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE]/50"
+														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 													/>
 												</div>
-												<div className="space-y-2 pt-2 border-t border-[#76ABAE]/10">
-													<Label className="flex justify-between text-xs uppercase tracking-wide text-[#AAAAAA]">
+												<div className="space-y-2 pt-2 border-t border-brand-primary/10">
+													<Label className="flex justify-between text-xs uppercase tracking-wide text-text-placeholder">
 														Post Count{" "}
-														<span className="text-[#76ABAE] font-semibold">
+														<span className="text-brand-primary font-semibold">
 															{form.post_count}
 														</span>
 													</Label>
@@ -407,10 +407,10 @@ export default function LinkedInPostsGenerator() {
 														onValueChange={(v) => update("post_count", v[0])}
 													/>
 												</div>
-												<div className="space-y-2 pt-2 border-t border-[#76ABAE]/10">
-													<Label className="flex justify-between text-xs uppercase tracking-wide text-[#AAAAAA]">
+												<div className="space-y-2 pt-2 border-t border-brand-primary/10">
+													<Label className="flex justify-between text-xs uppercase tracking-wide text-text-placeholder">
 														Emoji Level{" "}
-														<span className="text-[#76ABAE] font-semibold">
+														<span className="text-brand-primary font-semibold">
 															{form.emoji_level}
 														</span>
 													</Label>
@@ -422,9 +422,9 @@ export default function LinkedInPostsGenerator() {
 														onValueChange={(v) => update("emoji_level", v[0])}
 													/>
 												</div>
-												<div className="flex items-center justify-between border border-[#76ABAE]/30 rounded-md px-3 py-2 bg-[#181C20]/20 mt-2">
+												<div className="flex items-center justify-between border border-brand-primary/30 rounded-md px-3 py-2 bg-background-overlay/20 mt-2">
 													<div>
-														<p className="text-sm font-medium text-[#EEEEEE]">
+														<p className="text-sm font-medium text-brand-light">
 															Enable Research
 														</p>
 														<p className="text-xs text-[#BBBBBB]">
@@ -436,7 +436,7 @@ export default function LinkedInPostsGenerator() {
 														onCheckedChange={(checked) =>
 															update("enable_research", checked)
 														}
-														className="data-[state=checked]:bg-[#76ABAE] data-[state=unchecked]:bg-[#444]"
+														className="data-[state=checked]:bg-brand-primary data-[state=unchecked]:bg-[#444]"
 													/>
 												</div>
 											</div>
@@ -449,11 +449,11 @@ export default function LinkedInPostsGenerator() {
 												<Button
 													onClick={generate}
 													disabled={isGenerating || !form.topic.trim()}
-													className="relative w-full h-14 bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/80 hover:from-[#76ABAE]/90 hover:to-[#76ABAE]/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 												>
 													{/* Animated background for loading state */}
 													{isGenerating && (
-														<div className="absolute inset-0 bg-gradient-to-r from-[#76ABAE]/20 via-[#76ABAE]/40 to-[#76ABAE]/20 animate-pulse"></div>
+														<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse"></div>
 													)}
 
 													{/* Button content */}
@@ -514,18 +514,18 @@ export default function LinkedInPostsGenerator() {
 									<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 										<CardHeader className="flex flex-row items-center justify-between pb-6">
 											<div>
-												<CardTitle className="text-[#EEEEEE] text-xl sm:text-2xl font-semibold mb-2 flex items-center gap-3">
+												<CardTitle className="text-brand-light text-xl sm:text-2xl font-semibold mb-2 flex items-center gap-3">
 													Generated Posts
 													{posts.length > 0 && (
 														<Badge
 															variant="secondary"
-															className="bg-[#76ABAE]/20 text-[#76ABAE] border-[#76ABAE]/40 text-xs"
+															className="bg-brand-primary/20 text-brand-primary border-brand-primary/40 text-xs"
 														>
 															{posts.length} post{posts.length !== 1 ? "s" : ""}
 														</Badge>
 													)}
 												</CardTitle>
-												<p className="text-[#EEEEEE]/60 text-sm">
+												<p className="text-brand-light/60 text-sm">
 													{posts.length > 0
 														? "Your AI-crafted LinkedIn posts are ready"
 														: "Generated posts will appear here"}
@@ -537,7 +537,7 @@ export default function LinkedInPostsGenerator() {
 													size="sm"
 													disabled={!posts.length}
 													onClick={downloadAll}
-													className="border-[#76ABAE]/50 text-[#76ABAE] hover:bg-[#76ABAE]/10 backdrop-blur-sm transition-all duration-200 hover:scale-105 disabled:opacity-50"
+													className="border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 backdrop-blur-sm transition-all duration-200 hover:scale-105 disabled:opacity-50"
 												>
 													<Download className="h-4 w-4 mr-1" />
 													<span className="hidden sm:inline">All</span>
@@ -546,14 +546,14 @@ export default function LinkedInPostsGenerator() {
 										</CardHeader>
 										<CardContent className="space-y-6">
 											{!posts.length && !isGenerating && (
-												<div className="text-sm text-[#AAAAAA]/80 p-8 border border-dashed border-[#76ABAE]/30 rounded-xl text-center bg-[#181C20]/20 backdrop-blur-sm">
+												<div className="text-sm text-text-placeholder/80 p-8 border border-dashed border-brand-primary/30 rounded-xl text-center bg-background-overlay/20 backdrop-blur-sm">
 													<div className="flex flex-col items-center space-y-3">
-														<Hash className="h-8 w-8 text-[#76ABAE]/50" />
+														<Hash className="h-8 w-8 text-brand-primary/50" />
 														<div>
-															<p className="font-medium text-[#EEEEEE]/80">
+															<p className="font-medium text-brand-light/80">
 																No posts yet
 															</p>
-															<p className="text-xs text-[#AAAAAA]/70 mt-1">
+															<p className="text-xs text-text-placeholder/70 mt-1">
 																Configure parameters then click Generate
 															</p>
 														</div>
@@ -566,17 +566,17 @@ export default function LinkedInPostsGenerator() {
 														initial={{ opacity: 0, scale: 0.95 }}
 														animate={{ opacity: 1, scale: 1 }}
 														exit={{ opacity: 0, scale: 0.95 }}
-														className="flex items-center gap-4 text-sm text-[#AAAAAA] p-6 border border-[#76ABAE]/30 rounded-xl bg-[#181C20]/30 backdrop-blur-sm"
+														className="flex items-center gap-4 text-sm text-text-placeholder p-6 border border-brand-primary/30 rounded-xl bg-background-overlay/30 backdrop-blur-sm"
 													>
 														<div className="flex items-center space-x-3">
 															<Loader variant="pulse" size="sm" />
-															<div className="animate-spin rounded-full h-4 w-4 border-2 border-[#76ABAE]/30 border-t-[#76ABAE]"></div>
+															<div className="animate-spin rounded-full h-4 w-4 border-2 border-brand-primary/30 border-t-brand-primary"></div>
 														</div>
 														<div>
-															<p className="font-medium text-[#EEEEEE]/90">
+															<p className="font-medium text-brand-light/90">
 																Generating posts...
 															</p>
-															<p className="text-xs text-[#AAAAAA]/70 mt-0.5">
+															<p className="text-xs text-text-placeholder/70 mt-0.5">
 																AI is crafting your LinkedIn content
 															</p>
 														</div>
@@ -592,16 +592,16 @@ export default function LinkedInPostsGenerator() {
 															initial={{ opacity: 0, y: 12 }}
 															animate={{ opacity: 1, y: 0 }}
 															transition={{ duration: 0.4, delay: i * 0.1 }}
-															className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-[#76ABAE]/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-[#76ABAE]/40 space-y-4"
+															className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-brand-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:border-brand-primary/40 space-y-4"
 														>
 															<div className="flex items-center justify-between mb-4">
 																<div className="flex items-center gap-3">
-																	<div className="flex items-center justify-center w-8 h-8 bg-[#76ABAE]/10 rounded-lg">
-																		<span className="text-sm font-bold text-[#76ABAE]">
+																	<div className="flex items-center justify-center w-8 h-8 bg-brand-primary/10 rounded-lg">
+																		<span className="text-sm font-bold text-brand-primary">
 																			{i + 1}
 																		</span>
 																	</div>
-																	<h3 className="text-sm font-semibold tracking-wide uppercase text-[#76ABAE]/90">
+																	<h3 className="text-sm font-semibold tracking-wide uppercase text-brand-primary/90">
 																		POST {i + 1}
 																	</h3>
 																</div>
@@ -609,15 +609,15 @@ export default function LinkedInPostsGenerator() {
 																	size="sm"
 																	variant="outline"
 																	onClick={() => copyPost(processedPost)}
-																	className="opacity-0 group-hover:opacity-100 transition-all duration-200 border-[#76ABAE]/50 text-[#76ABAE] hover:bg-[#76ABAE]/10 hover:border-[#76ABAE] backdrop-blur-sm hover:scale-105"
+																	className="opacity-0 group-hover:opacity-100 transition-all duration-200 border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary backdrop-blur-sm hover:scale-105"
 																>
 																	<Copy className="h-4 w-4 mr-1.5" />
 																	<span className="text-xs">Copy</span>
 																</Button>
 															</div>
 
-															<div className="bg-[#181C20]/40 rounded-lg p-4 border border-[#76ABAE]/10">
-																<p className="whitespace-pre-wrap text-[#EEEEEE] text-sm leading-relaxed font-medium">
+															<div className="bg-background-overlay/40 rounded-lg p-4 border border-brand-primary/10">
+																<p className="whitespace-pre-wrap text-brand-light text-sm leading-relaxed font-medium">
 																	{processedPost.text}
 																</p>
 															</div>
@@ -629,7 +629,7 @@ export default function LinkedInPostsGenerator() {
 																			<Badge
 																				key={idx}
 																				variant="outline"
-																				className="bg-[#76ABAE]/10 border-[#76ABAE]/40 text-[#76ABAE] hover:bg-[#76ABAE]/20 text-xs font-medium px-2.5 py-1 transition-colors duration-200"
+																				className="bg-brand-primary/10 border-brand-primary/40 text-brand-primary hover:bg-brand-primary/20 text-xs font-medium px-2.5 py-1 transition-colors duration-200"
 																			>
 																				#{h.replace(/^#/, "")}
 																			</Badge>
@@ -638,11 +638,11 @@ export default function LinkedInPostsGenerator() {
 																)}
 
 															{processedPost.cta_suggestion && (
-																<div className="bg-[#31363F]/60 rounded-lg p-3">
-																	<p className="text-xs font-medium text-[#76ABAE]/90 mb-1">
+																<div className="bg-surface/60 rounded-lg p-3">
+																	<p className="text-xs font-medium text-brand-primary/90 mb-1">
 																		CTA SUGGESTION
 																	</p>
-																	<div className="text-sm text-[#EEEEEE]/90 italic">
+																	<div className="text-sm text-brand-light/90 italic">
 																		{renderMarkdown(
 																			processedPost.cta_suggestion,
 																		)}
@@ -652,8 +652,8 @@ export default function LinkedInPostsGenerator() {
 
 															{processedPost.sources &&
 																processedPost.sources.length > 0 && (
-																	<div className="bg-[#31363F]/40 rounded-lg p-3 border border-[#76ABAE]/10">
-																		<p className="text-xs font-semibold text-[#76ABAE]/90 mb-2 uppercase tracking-wide">
+																	<div className="bg-surface/40 rounded-lg p-3 border border-brand-primary/10">
+																		<p className="text-xs font-semibold text-brand-primary/90 mb-2 uppercase tracking-wide">
 																			Research Sources
 																		</p>
 																		<ul className="space-y-1.5">
@@ -664,12 +664,12 @@ export default function LinkedInPostsGenerator() {
 																						key={idx}
 																						className="flex items-start gap-2"
 																					>
-																						<div className="w-1.5 h-1.5 bg-[#76ABAE]/60 rounded-full mt-2 flex-shrink-0"></div>
+																						<div className="w-1.5 h-1.5 bg-brand-primary/60 rounded-full mt-2 flex-shrink-0"></div>
 																						<a
 																							href={s.link}
 																							target="_blank"
 																							rel="noopener noreferrer"
-																							className="text-xs text-[#EEEEEE]/80 hover:text-[#76ABAE] transition-colors duration-200 underline decoration-dotted underline-offset-2 line-clamp-2"
+																							className="text-xs text-brand-light/80 hover:text-brand-primary transition-colors duration-200 underline decoration-dotted underline-offset-2 line-clamp-2"
 																						>
 																							{s.title}
 																						</a>

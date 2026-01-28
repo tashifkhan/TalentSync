@@ -81,7 +81,7 @@ function VerifyEmailContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-background-overlay flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -103,7 +103,7 @@ function VerifyEmailContent() {
 						<Link href="/auth">
 							<Button
 								variant="ghost"
-								className="text-[#EEEEEE] hover:text-[#76ABAE]"
+								className="text-brand-light hover:text-brand-primary"
 							>
 								<ArrowLeft className="mr-2 h-4 w-4" />
 								Back to Login
@@ -119,11 +119,11 @@ function VerifyEmailContent() {
 					>
 						<Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
 							<CardHeader className="text-center">
-								<MailCheck className="mx-auto h-12 w-12 text-[#76ABAE] mb-4" />
-								<CardTitle className="text-[#EEEEEE]">
+								<MailCheck className="mx-auto h-12 w-12 text-brand-primary mb-4" />
+								<CardTitle className="text-brand-light">
 									Verify Your Email
 								</CardTitle>
-								<CardDescription className="text-[#EEEEEE]/60 min-h-[40px]">
+								<CardDescription className="text-brand-light/60 min-h-[40px]">
 									{isLoading && "Verifying your email, please wait..."}
 									{success && success}
 									{error && !success && error}
@@ -152,11 +152,11 @@ function VerifyEmailContent() {
 								)}
 								{!isLoading && (
 									<div className="mt-6 text-center text-sm">
-										<p className="text-[#EEEEEE]/70">
+										<p className="text-brand-light/70">
 											{error ? "Try again or " : "Didn't receive a token? "}
 											<Link
 												href="/auth/resend-verification"
-												className="font-medium text-[#76ABAE] hover:underline"
+												className="font-medium text-brand-primary hover:underline"
 											>
 												Resend verification email
 											</Link>
@@ -184,7 +184,7 @@ function LoadingFallback() {
 				<Link href="/auth">
 					<Button
 						variant="ghost"
-						className="text-[#EEEEEE] hover:text-[#76ABAE]"
+						className="text-brand-light hover:text-brand-primary"
 					>
 						<ArrowLeft className="mr-2 h-4 w-4" />
 						Back to Login
@@ -200,9 +200,9 @@ function LoadingFallback() {
 			>
 				<Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
 					<CardHeader className="text-center">
-						<MailCheck className="mx-auto h-12 w-12 text-[#76ABAE] mb-4" />
-						<CardTitle className="text-[#EEEEEE]">Verify Your Email</CardTitle>
-						<CardDescription className="text-[#EEEEEE]/60 min-h-[40px]">
+						<MailCheck className="mx-auto h-12 w-12 text-brand-primary mb-4" />
+						<CardTitle className="text-brand-light">Verify Your Email</CardTitle>
+						<CardDescription className="text-brand-light/60 min-h-[40px]">
 							Loading...
 						</CardDescription>
 					</CardHeader>

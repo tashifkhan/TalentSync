@@ -26,25 +26,25 @@ export default function QuickTips() {
 			title: "Optimize Keywords",
 			description:
 				"Add industry-specific keywords to improve ATS compatibility",
-			bgColor: "from-[#76ABAE]/20 to-[#76ABAE]/10",
-			borderColor: "border-[#76ABAE]/30",
-			iconColor: "text-[#76ABAE]",
+			bgColor: "from-brand-primary/20 to-brand-primary/10",
+			borderColor: "border-brand-primary/30",
+			iconColor: "text-brand-primary",
 		},
 		{
 			icon: Calendar,
 			title: "Update Profile",
 			description: "Keep your profile fresh with recent achievements",
 			bgColor: "from-slate-500/20 to-slate-500/10",
-			borderColor: "border-slate-500/30",
-			iconColor: "text-slate-300",
+			borderColor: "border-text-muted-dark/30",
+			iconColor: "text-text-muted-light",
 		},
 		{
 			icon: MessageSquare,
 			title: "Network Smart",
 			description: "Use AI-generated cold emails to expand your network",
-			bgColor: "from-[#76ABAE]/20 to-[#76ABAE]/10",
-			borderColor: "border-[#76ABAE]/30",
-			iconColor: "text-[#76ABAE]",
+			bgColor: "from-brand-primary/20 to-brand-primary/10",
+			borderColor: "border-brand-primary/30",
+			iconColor: "text-brand-primary",
 		},
 	];
 
@@ -55,13 +55,13 @@ export default function QuickTips() {
 			transition={{ duration: 0.5, delay: 0.7 }}
 			className="mb-12"
 		>
-			<Card className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-2xl">
+			<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl">
 				<CardHeader>
 					<CardTitle className="text-white flex items-center gap-2">
-						<Zap className="h-5 w-5 text-[#76ABAE]" />
+						<Zap className="h-5 w-5 text-brand-primary" />
 						Quick Tips for Today
 					</CardTitle>
-					<CardDescription className="text-slate-300">
+					<CardDescription className="text-text-muted-light">
 						Personalized recommendations to boost your career
 					</CardDescription>
 				</CardHeader>
@@ -78,7 +78,7 @@ export default function QuickTips() {
 										{tip.title}
 									</span>
 								</div>
-								<p className="text-xs text-slate-300">{tip.description}</p>
+								<p className="text-xs text-text-muted-light">{tip.description}</p>
 							</div>
 						))}
 					</div>

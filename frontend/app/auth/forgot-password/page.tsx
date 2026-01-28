@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-background-overlay flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -93,18 +93,18 @@ export default function ForgotPasswordPage() {
 							className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border border-white/20 text-center max-w-sm mx-4"
 						>
 							<div className="relative mb-6">
-								<Loader variant="pulse" size="xl" className="text-[#76ABAE]" />
+								<Loader variant="pulse" size="xl" className="text-brand-primary" />
 							</div>
-							<h3 className="text-[#EEEEEE] font-semibold text-xl mb-3">
+							<h3 className="text-brand-light font-semibold text-xl mb-3">
 								Sending Reset Link
 							</h3>
-							<p className="text-[#EEEEEE]/70 text-sm leading-relaxed">
+							<p className="text-brand-light/70 text-sm leading-relaxed">
 								We're sending a password reset link to your email address...
 							</p>
 							<div className="mt-6 flex justify-center space-x-2">
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-75"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-150"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-75"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-150"></div>
 							</div>
 						</motion.div>
 					</motion.div>
@@ -122,7 +122,7 @@ export default function ForgotPasswordPage() {
 						<Link href="/auth">
 							<Button
 								variant="ghost"
-								className="text-[#EEEEEE] hover:text-[#76ABAE]"
+								className="text-brand-light hover:text-brand-primary"
 							>
 								<ArrowLeft className="mr-2 h-4 w-4" />
 								Back to Login
@@ -141,12 +141,12 @@ export default function ForgotPasswordPage() {
 								{success ? (
 									<CheckCircle className="mx-auto h-10 w-10 text-green-400 mb-4" />
 								) : (
-									<Send className="mx-auto h-10 w-10 text-[#76ABAE] mb-4" />
+									<Send className="mx-auto h-10 w-10 text-brand-primary mb-4" />
 								)}
-								<CardTitle className="text-[#EEEEEE]">
+								<CardTitle className="text-brand-light">
 									{success ? "Reset Link Sent!" : "Reset Your Password"}
 								</CardTitle>
-								<CardDescription className="text-[#EEEEEE]/60">
+								<CardDescription className="text-brand-light/60">
 									{success
 										? success
 										: "Enter your email address and we'll send you a link to reset your password."}
@@ -164,7 +164,7 @@ export default function ForgotPasswordPage() {
 									<div className="space-y-4">
 										<div className="text-center">
 											<Link href="/auth">
-												<Button className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white">
+												<Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
 													Back to Login
 												</Button>
 											</Link>
@@ -176,7 +176,7 @@ export default function ForgotPasswordPage() {
 													setSuccess(null);
 													setEmail("");
 												}}
-												className="text-[#EEEEEE] hover:text-[#76ABAE]"
+												className="text-brand-light hover:text-brand-primary"
 											>
 												Send Another Email
 											</Button>
@@ -185,11 +185,11 @@ export default function ForgotPasswordPage() {
 								) : (
 									<form onSubmit={handleSubmit} className="space-y-6">
 										<div className="space-y-2">
-											<Label htmlFor="email" className="text-[#EEEEEE]">
+											<Label htmlFor="email" className="text-brand-light">
 												Email Address
 											</Label>
 											<div className="relative">
-												<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#76ABAE]" />
+												<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-primary" />
 												<Input
 													id="email"
 													type="email"
@@ -197,13 +197,13 @@ export default function ForgotPasswordPage() {
 													value={email}
 													onChange={(e) => setEmail(e.target.value)}
 													required
-													className="pl-10 bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:bg-white/15"
+													className="pl-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
 											</div>
 										</div>
 										<Button
 											type="submit"
-											className="w-full bg-[#76ABAE] hover:bg-[#76ABAE]/90 flex items-center justify-center gap-2"
+											className="w-full bg-brand-primary hover:bg-brand-primary/90 flex items-center justify-center gap-2"
 											disabled={isLoading}
 										>
 											{isLoading && <Loader variant="spinner" size="sm" />}
@@ -213,11 +213,11 @@ export default function ForgotPasswordPage() {
 								)}
 
 								<div className="mt-6 text-center text-sm">
-									<p className="text-[#EEEEEE]/70">
+									<p className="text-brand-light/70">
 										Remember your password?{" "}
 										<Link
 											href="/auth"
-											className="font-medium text-[#76ABAE] hover:underline"
+											className="font-medium text-brand-primary hover:underline"
 										>
 											Sign in here
 										</Link>

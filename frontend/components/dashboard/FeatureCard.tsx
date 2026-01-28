@@ -52,20 +52,20 @@ export default function FeatureCard({
 			animate={{ opacity: 1, x: 0 }}
 			transition={{ duration: 0.5, delay }}
 		>
-			<Card className="backdrop-blur-sm bg-[#181C20]/95 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
+			<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
 				<CardHeader className="pb-4">
 					<div className="flex items-center justify-between mb-2">
 						<CardTitle className="text-white flex items-center gap-3 text-xl">
-							<div className="p-2 bg-[#76ABAE]/30 rounded-lg group-hover:bg-[#76ABAE]/40 transition-colors">
-								<Icon className="h-6 w-6 text-[#76ABAE]" />
+							<div className="p-2 bg-brand-primary/30 rounded-lg group-hover:bg-brand-primary/40 transition-colors">
+								<Icon className="h-6 w-6 text-brand-primary" />
 							</div>
 							{title}
 						</CardTitle>
-						<Badge className="bg-[#76ABAE]/30 text-[#76ABAE] border-[#76ABAE]/40">
+						<Badge className="bg-brand-primary/30 text-brand-primary border-brand-primary/40">
 							{badgeText}
 						</Badge>
 					</div>
-					<CardDescription className="text-slate-300 text-base">
+					<CardDescription className="text-text-muted-light text-base">
 						{description}
 					</CardDescription>
 				</CardHeader>
@@ -74,9 +74,9 @@ export default function FeatureCard({
 						{features.map((feature, index) => (
 							<div
 								key={index}
-								className="flex items-center text-sm text-slate-300"
+								className="flex items-center text-sm text-text-muted-light"
 							>
-								<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
+								<CheckCircle className="h-4 w-4 mr-2 text-success" />
 								{feature}
 							</div>
 						))}
@@ -85,8 +85,8 @@ export default function FeatureCard({
 						<Button
 							className={`w-full group text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-300 button-hover ${
 								buttonVariant === "default"
-									? "bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE]"
-									: "border-slate-500/30 text-slate-900 hover:bg-slate-500/10 hover:text-white"
+									? "bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary"
+									: "border-text-muted-dark/30 text-foreground hover:bg-text-muted-dark/10 hover:text-white"
 							}`}
 						>
 							<ButtonIcon className="mr-2 h-5 w-5" />

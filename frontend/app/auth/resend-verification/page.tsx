@@ -85,7 +85,7 @@ function ResendVerificationContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-[#181C20] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-background-overlay flex items-center justify-center z-50"
 					>
 						<Loader variant="pulse" size="xl" text="Loading verification..." />
 					</motion.div>
@@ -108,18 +108,18 @@ function ResendVerificationContent() {
 							className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border border-white/20 text-center max-w-sm mx-4"
 						>
 							<div className="relative mb-6">
-								<Loader variant="pulse" size="xl" className="text-[#76ABAE]" />
+								<Loader variant="pulse" size="xl" className="text-brand-primary" />
 							</div>
-							<h3 className="text-[#EEEEEE] font-semibold text-xl mb-3">
+							<h3 className="text-brand-light font-semibold text-xl mb-3">
 								Sending Verification
 							</h3>
-							<p className="text-[#EEEEEE]/70 text-sm leading-relaxed">
+							<p className="text-brand-light/70 text-sm leading-relaxed">
 								We're sending a verification email to your inbox...
 							</p>
 							<div className="mt-6 flex justify-center space-x-2">
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-75"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-150"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-75"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-150"></div>
 							</div>
 						</motion.div>
 					</motion.div>
@@ -137,7 +137,7 @@ function ResendVerificationContent() {
 						<Link href="/auth">
 							<Button
 								variant="ghost"
-								className="text-[#EEEEEE] hover:text-[#76ABAE]"
+								className="text-brand-light hover:text-brand-primary"
 							>
 								<ArrowLeft className="mr-2 h-4 w-4" />
 								Back to Login
@@ -156,19 +156,19 @@ function ResendVerificationContent() {
 								{success ? (
 									<CheckCircle className="mx-auto h-10 w-10 text-green-400 mb-4" />
 								) : (
-									<Send className="mx-auto h-10 w-10 text-[#76ABAE] mb-4" />
+									<Send className="mx-auto h-10 w-10 text-brand-primary mb-4" />
 								)}
-								<CardTitle className="text-[#EEEEEE]">
+								<CardTitle className="text-brand-light">
 									{success ? "Email Sent!" : "Resend Verification Email"}
 								</CardTitle>
-								<CardDescription className="text-[#EEEEEE]/60">
+								<CardDescription className="text-brand-light/60">
 									{success ? (
 										<div className="space-y-2">
 											<div>{success}</div>
 											{email && (
 												<div className="text-sm">
 													Sent to:{" "}
-													<span className="font-medium text-[#76ABAE]">
+													<span className="font-medium text-brand-primary">
 														{email}
 													</span>
 												</div>
@@ -177,7 +177,7 @@ function ResendVerificationContent() {
 									) : searchParams.get("email") ? (
 										<div className="space-y-2">
 											<div>Sending verification email to:</div>
-											<div className="font-medium text-[#76ABAE]">{email}</div>
+											<div className="font-medium text-brand-primary">{email}</div>
 										</div>
 									) : (
 										"Enter your email address to receive a new verification link."
@@ -196,7 +196,7 @@ function ResendVerificationContent() {
 									<div className="space-y-4">
 										<div className="text-center">
 											<Link href="/auth">
-												<Button className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white">
+												<Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
 													Back to Login
 												</Button>
 											</Link>
@@ -206,7 +206,7 @@ function ResendVerificationContent() {
 												variant="ghost"
 												onClick={() => handleResend()}
 												disabled={isLoading}
-												className="text-[#EEEEEE] hover:text-[#76ABAE]"
+												className="text-brand-light hover:text-brand-primary"
 											>
 												{isLoading ? "Sending..." : "Send Another Email"}
 											</Button>
@@ -215,11 +215,11 @@ function ResendVerificationContent() {
 								) : !searchParams.get("email") ? (
 									<form onSubmit={handleSubmit} className="space-y-6">
 										<div className="space-y-2">
-											<Label htmlFor="email" className="text-[#EEEEEE]">
+											<Label htmlFor="email" className="text-brand-light">
 												Email Address
 											</Label>
 											<div className="relative">
-												<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#76ABAE]" />
+												<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-primary" />
 												<Input
 													id="email"
 													type="email"
@@ -227,13 +227,13 @@ function ResendVerificationContent() {
 													value={email}
 													onChange={(e) => setEmail(e.target.value)}
 													required
-													className="pl-10 bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:bg-white/15"
+													className="pl-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
 											</div>
 										</div>
 										<Button
 											type="submit"
-											className="w-full bg-[#76ABAE] hover:bg-[#76ABAE]/90 flex items-center justify-center gap-2"
+											className="w-full bg-brand-primary hover:bg-brand-primary/90 flex items-center justify-center gap-2"
 											disabled={isLoading}
 										>
 											{isLoading && <Loader variant="spinner" size="sm" />}
@@ -242,7 +242,7 @@ function ResendVerificationContent() {
 									</form>
 								) : (
 									<div className="text-center space-y-4">
-										<div className="text-[#EEEEEE]/80">
+										<div className="text-brand-light/80">
 											{isLoading
 												? "Sending verification email..."
 												: "Processing your request..."}
@@ -251,7 +251,7 @@ function ResendVerificationContent() {
 											<Button
 												variant="ghost"
 												onClick={() => handleResend()}
-												className="text-[#76ABAE] hover:text-[#76ABAE]/80"
+												className="text-brand-primary hover:text-brand-primary/80"
 											>
 												Resend Email
 											</Button>
@@ -273,9 +273,9 @@ export default function ResendVerificationPage() {
 			fallback={
 				<div className="min-h-screen flex items-center justify-center p-6">
 					<div className="w-full max-w-md">
-						<Card className="border-[#76ABAE]/20 bg-[#181C20]/90 backdrop-blur-sm shadow-2xl">
+						<Card className="border-brand-primary/20 bg-background-overlay/90 backdrop-blur-sm shadow-2xl">
 							<CardHeader className="text-center">
-								<CardTitle className="text-2xl font-bold text-[#EEEEEE]">
+								<CardTitle className="text-2xl font-bold text-brand-light">
 									Loading...
 								</CardTitle>
 							</CardHeader>

@@ -518,7 +518,7 @@ export default function ColdMailGenerator() {
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-[#EEEEEE] hover:text-[#76ABAE] hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
+									className="text-brand-light hover:text-brand-primary hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									<span className="hidden sm:inline">Back to Dashboard</span>
@@ -535,13 +535,13 @@ export default function ColdMailGenerator() {
 								transition={{ duration: 0.8, delay: 0.2 }}
 								className="text-center mb-8 sm:mb-12"
 							>
-								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-[#76ABAE]/10 rounded-2xl mb-4 sm:mb-6">
-									<Mail className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
+									<Mail className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
-								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#EEEEEE] mb-3 sm:mb-4 leading-tight">
+								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 									Cold Mail Generator
 								</h1>
-								<p className="text-[#EEEEEE]/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 									Generate personalized cold emails using AI to connect with
 									potential employers and networking contacts.
 								</p>
@@ -558,10 +558,10 @@ export default function ColdMailGenerator() {
 								>
 									<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 										<CardHeader className="pb-4">
-											<CardTitle className="text-[#EEEEEE] text-xl sm:text-2xl font-semibold">
+											<CardTitle className="text-brand-light text-xl sm:text-2xl font-semibold">
 												Email Details
 											</CardTitle>
-											<p className="text-[#EEEEEE]/60 text-sm">
+											<p className="text-brand-light/60 text-sm">
 												Fill in the details to generate your personalized cold
 												email
 											</p>
@@ -627,11 +627,11 @@ export default function ColdMailGenerator() {
 														!formData.company_name ||
 														!formData.sender_name
 													}
-													className="relative w-full h-14 bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/80 hover:from-[#76ABAE]/90 hover:to-[#76ABAE]/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 												>
 													{/* Animated background for loading state */}
 													{isGenerating && (
-														<div className="absolute inset-0 bg-gradient-to-r from-[#76ABAE]/20 via-[#76ABAE]/40 to-[#76ABAE]/20 animate-pulse"></div>
+														<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse"></div>
 													)}
 
 													{/* Button content */}

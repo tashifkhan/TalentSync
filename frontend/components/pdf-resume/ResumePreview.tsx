@@ -16,19 +16,19 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 	return (
 		<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 			<CardHeader className="pb-4">
-				<CardTitle className="text-[#EEEEEE] text-xl font-semibold flex items-center gap-2">
-					<Eye className="h-5 w-5 text-[#76ABAE]" />
+				<CardTitle className="text-brand-light text-xl font-semibold flex items-center gap-2">
+					<Eye className="h-5 w-5 text-brand-primary" />
 					Resume Preview
 				</CardTitle>
-				<p className="text-[#EEEEEE]/60 text-sm">Preview of your resume data</p>
+				<p className="text-brand-light/60 text-sm">Preview of your resume data</p>
 			</CardHeader>
 			<CardContent className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
 				{/* Header */}
 				<div className="text-center border-b border-white/10 pb-4">
-					<h2 className="text-xl font-bold text-[#EEEEEE]">
+					<h2 className="text-xl font-bold text-brand-light">
 						{parsedData.name}
 					</h2>
-					<p className="text-[#EEEEEE]/70">
+					<p className="text-brand-light/70">
 						{[
 							parsedData.email,
 							parsedData.contact,
@@ -41,7 +41,7 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 							.join(" • ")}
 					</p>
 					{parsedData.predicted_field && (
-						<span className="inline-block mt-2 px-3 py-1 bg-[#76ABAE]/20 text-[#76ABAE] text-xs rounded-full border border-[#76ABAE]/30">
+						<span className="inline-block mt-2 px-3 py-1 bg-brand-primary/20 text-brand-primary text-xs rounded-full border border-brand-primary/30">
 							{parsedData.predicted_field}
 						</span>
 					)}
@@ -52,9 +52,9 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Education */}
 					{parsedData.education?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Education</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Education</h3>
 							{parsedData.education.map((edu: any, index: number) => (
-								<div key={index} className="text-[#EEEEEE]/70 mb-2">
+								<div key={index} className="text-brand-light/70 mb-2">
 									<span className="inline">
 										{renderMarkdown(edu.education_detail) ||
 											renderMarkdown(edu.degree)}
@@ -67,12 +67,12 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Skills */}
 					{parsedData.skills_analysis?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Skills</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Skills</h3>
 							<div className="flex flex-wrap gap-2">
 								{parsedData.skills_analysis.map((skill: any, index: number) => (
 									<span
 										key={index}
-										className="px-2 py-1 bg-white/10 text-[#EEEEEE]/80 text-xs rounded border border-white/20"
+										className="px-2 py-1 bg-white/10 text-brand-light/80 text-xs rounded border border-white/20"
 									>
 										{skill.skill_name}
 									</span>
@@ -84,12 +84,12 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Languages */}
 					{parsedData.languages?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Languages</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Languages</h3>
 							<div className="flex flex-wrap gap-2">
 								{parsedData.languages.map((lang: any, i: number) => (
 									<span
 										key={i}
-										className="px-2 py-1 bg-white/10 text-[#EEEEEE]/80 text-xs rounded border border-white/20"
+										className="px-2 py-1 bg-white/10 text-brand-light/80 text-xs rounded border border-white/20"
 									>
 										{lang.language || lang}
 									</span>
@@ -101,16 +101,16 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Work Experience */}
 					{parsedData.work_experience?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Experience</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Experience</h3>
 							{parsedData.work_experience.map((exp: any, index: number) => (
 								<div key={index} className="mb-3">
-									<p className="font-medium text-sm text-[#EEEEEE]">
+									<p className="font-medium text-sm text-brand-light">
 										{exp.role} - {exp.company_and_duration || exp.company}
 									</p>
 									{exp.bullet_points && (
-										<ul className="list-disc list-inside text-[#EEEEEE]/70 text-xs mt-1 space-y-1">
+										<ul className="list-disc list-inside text-brand-light/70 text-xs mt-1 space-y-1">
 											{exp.bullet_points.map((bp: string, bi: number) => (
-												<li key={bi} className="text-[#EEEEEE]/70">
+												<li key={bi} className="text-brand-light/70">
 													<span className="inline">{renderMarkdown(bp)}</span>
 												</li>
 											))}
@@ -124,10 +124,10 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Projects */}
 					{parsedData.projects?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Projects</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Projects</h3>
 							{parsedData.projects.map((proj: any, i: number) => (
-								<div key={i} className="mb-3 text-[#EEEEEE]/70">
-									<p className="font-medium text-sm text-[#EEEEEE]">
+								<div key={i} className="mb-3 text-brand-light/70">
+									<p className="font-medium text-sm text-brand-light">
 										{proj.title || proj.project_name}
 									</p>
 									{proj.technologies_used && (
@@ -151,7 +151,7 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 													href={proj.live_link}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="text-[#76ABAE] text-xs hover:underline"
+													className="text-brand-primary text-xs hover:underline"
 												>
 													Live
 												</Link>
@@ -161,7 +161,7 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 													href={proj.repo_link}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="text-[#76ABAE] text-xs hover:underline"
+													className="text-brand-primary text-xs hover:underline"
 												>
 													Repo
 												</Link>
@@ -176,12 +176,12 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Publications */}
 					{parsedData.publications?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">
+							<h3 className="font-semibold text-brand-light mb-2">
 								Publications
 							</h3>
 							{parsedData.publications.map((pub: any, i: number) => (
-								<div key={i} className="mb-2 text-[#EEEEEE]/70">
-									<p className="font-medium text-sm text-[#EEEEEE]">
+								<div key={i} className="mb-2 text-brand-light/70">
+									<p className="font-medium text-sm text-brand-light">
 										{pub.title}
 									</p>
 									<p className="text-xs">
@@ -194,7 +194,7 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 											href={pub.url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="text-[#76ABAE] text-xs hover:underline"
+											className="text-brand-primary text-xs hover:underline"
 										>
 											Link
 										</Link>
@@ -207,11 +207,11 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Positions of responsibility */}
 					{parsedData.positions_of_responsibility?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">Positions</h3>
+							<h3 className="font-semibold text-brand-light mb-2">Positions</h3>
 							{parsedData.positions_of_responsibility.map(
 								(pos: any, i: number) => (
-									<div key={i} className="mb-2 text-[#EEEEEE]/70">
-										<p className="font-medium text-sm text-[#EEEEEE]">
+									<div key={i} className="mb-2 text-brand-light/70">
+										<p className="font-medium text-sm text-brand-light">
 											{pos.title || pos.role} — {pos.organization}
 										</p>
 										{pos.duration && <p className="text-xs">{pos.duration}</p>}
@@ -229,12 +229,12 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Certifications */}
 					{parsedData.certifications?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">
+							<h3 className="font-semibold text-brand-light mb-2">
 								Certifications
 							</h3>
 							{parsedData.certifications.map((cert: any, i: number) => (
-								<div key={i} className="mb-2 text-[#EEEEEE]/70">
-									<p className="font-medium text-sm text-[#EEEEEE]">
+								<div key={i} className="mb-2 text-brand-light/70">
+									<p className="font-medium text-sm text-brand-light">
 										{cert.name}
 									</p>
 									<p className="text-xs">
@@ -253,12 +253,12 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 					{/* Achievements */}
 					{parsedData.achievements?.length > 0 && (
 						<div>
-							<h3 className="font-semibold text-[#EEEEEE] mb-2">
+							<h3 className="font-semibold text-brand-light mb-2">
 								Achievements
 							</h3>
 							{parsedData.achievements.map((ach: any, i: number) => (
-								<div key={i} className="mb-2 text-[#EEEEEE]/70">
-									<p className="font-medium text-sm text-[#EEEEEE]">
+								<div key={i} className="mb-2 text-brand-light/70">
+									<p className="font-medium text-sm text-brand-light">
 										{typeof ach === "string" ? ach : ach.title}
 										{ach.year ? ` — ${ach.year}` : ""}
 									</p>

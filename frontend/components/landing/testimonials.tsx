@@ -34,7 +34,7 @@ export function Testimonials() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, amount: 0.4 }}
 							transition={{ duration: 0.55 }}
-							className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#EEEEEE] to-[#76ABAE]"
+							className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-light to-brand-primary"
 						>
 							Real Outcomes
 						</motion.h2>
@@ -43,7 +43,7 @@ export function Testimonials() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, amount: 0.4 }}
 							transition={{ duration: 0.55, delay: 0.1 }}
-							className="mt-4 text-base md:text-lg text-[#EEEEEE]/70"
+							className="mt-4 text-base md:text-lg text-brand-light/70"
 						>
 							Individuals and teams use TalentSync to accelerate progress—not
 							just create files.
@@ -58,19 +58,19 @@ export function Testimonials() {
 							whileInView={{ opacity: 1, y: 0 }}
 							viewport={{ once: true, amount: 0.3 }}
 							transition={{ duration: 0.55, delay: i * 0.08 }}
-							className="relative group rounded-2xl p-6 bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-md hover:border-[#76ABAE]/40 hover:shadow-[0_0_0_1px_#76ABAE40,0_4px_40px_-8px_#76ABAE40] transition w-[85vw] max-w-[350px] flex-none snap-center md:w-auto md:max-w-none md:flex-1 md:snap-align-none"
+							className="relative group rounded-2xl p-6 bg-gradient-to-b from-white/5 to-white/[0.02] border border-white/10 backdrop-blur-md hover:border-brand-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--brand-primary)/0.40),0_4px_40px_-8px_hsl(var(--brand-primary)/0.40)] transition w-[85vw] max-w-[350px] flex-none snap-center md:w-auto md:max-w-none md:flex-1 md:snap-align-none"
 						>
 							<div className="flex flex-col h-full">
-								<Quote className="h-8 w-8 text-[#76ABAE] mb-4 opacity-80" />
-								<p className="text-sm md:text-base text-[#EEEEEE]/80 leading-relaxed line-clamp-4 md:line-clamp-none">
+								<Quote className="h-8 w-8 text-brand-primary mb-4 opacity-80" />
+								<p className="text-sm md:text-base text-brand-light/80 leading-relaxed line-clamp-4 md:line-clamp-none">
 									{t.quote}
 								</p>
 								<div className="mt-auto pt-4 border-t border-white/10">
-									<p className="text-[#EEEEEE] font-medium text-sm">{t.name}</p>
-									<p className="text-[#EEEEEE]/50 text-xs">{t.role}</p>
+									<p className="text-brand-light font-medium text-sm">{t.name}</p>
+									<p className="text-brand-light/50 text-xs">{t.role}</p>
 								</div>
 							</div>
-							<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-[radial-gradient(circle_at_0%_0%,#76ABAE22,transparent_70%)]" />
+							<div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition pointer-events-none bg-[radial-gradient(circle_at_0%_0%,hsl(var(--brand-primary)/0.13),transparent_70%)]" />
 						</motion.div>
 					))}
 				</div>
