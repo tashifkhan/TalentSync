@@ -22,7 +22,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Copy, Download, Hash, Github } from "lucide-react";
+import {
+	ArrowLeft,
+	Copy,
+	Download,
+	Hash,
+	Github,
+	MessageSquare,
+	Settings,
+	Sparkles,
+} from "lucide-react";
 import { renderMarkdown } from "@/lib/markdown-renderer";
 import { useGenerateLinkedInPosts } from "@/hooks/queries";
 import { GeneratedPost } from "@/services/linkedin.service";
@@ -182,7 +191,7 @@ export default function LinkedInPostsGenerator() {
 							transition={{ duration: 0.5 }}
 							className="mb-6 sm:mb-8"
 						>
-							<Link href="/dashboard">
+						<Link href="/dashboard/seeker">
 								<Button
 									variant="ghost"
 									size="sm"
@@ -203,12 +212,17 @@ export default function LinkedInPostsGenerator() {
 								transition={{ duration: 0.8, delay: 0.2 }}
 								className="text-center mb-8 sm:mb-12"
 							>
-								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 rounded-2xl mb-4 sm:mb-6 shadow-lg">
+								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
 									<Hash className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
-								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
-									LinkedIn Post Generator
-								</h1>
+								<div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
+									<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light leading-tight">
+										LinkedIn Post Generator
+									</h1>
+									<Badge className="bg-brand-primary/20 text-brand-primary border-brand-primary/30 text-xs font-medium">
+										BETA
+									</Badge>
+								</div>
 								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 									Create engaging LinkedIn posts with AI assistance to build
 									your professional network.
@@ -235,77 +249,79 @@ export default function LinkedInPostsGenerator() {
 										</CardHeader>
 										<CardContent className="space-y-6">
 											{/* Section: Core Topic & Audience */}
-											<div className="space-y-4 pb-2 border-b border-brand-primary/10">
+											<div className="space-y-4">
+												<div className="flex items-center gap-3 pb-3 border-b border-white/10">
+													<div className="flex items-center justify-center w-8 h-8 bg-brand-primary/10 rounded-lg">
+														<MessageSquare className="h-4 w-4 text-brand-primary" />
+													</div>
+													<div>
+														<h3 className="text-brand-light text-base font-semibold">
+															Content
+														</h3>
+														<p className="text-brand-light/60 text-xs">
+															Define your post topic and style
+														</p>
+													</div>
+												</div>
 												<div>
-													<Label className="mb-1 block text-brand-light font-medium">
-														Topic *
+													<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+														Topic <span className="text-red-400">*</span>
 													</Label>
 													<Input
 														value={form.topic}
 														onChange={(e) => update("topic", e.target.value)}
 														placeholder="e.g. Remote team productivity"
-														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
+														className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
 													/>
 												</div>
-												<div>
-													<Label className="mb-1 block text-brand-light font-medium">
-														Tone
-													</Label>
-													<Select
-														value={form.tone}
-														onValueChange={(value) => update("tone", value)}
-													>
-														<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
+												<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+													<div>
+														<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+															Tone
+														</Label>
+														<Select
+															value={form.tone}
+															onValueChange={(value) => update("tone", value)}
+														>
+														<SelectTrigger className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50 focus:ring-0 focus:border-brand-primary h-10 transition-colors">
 															<SelectValue placeholder="Select tone" />
 														</SelectTrigger>
-														<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
-															{[
-																"Professional",
-																"Conversational",
-																"Inspirational",
-																"Analytical",
-																"Friendly",
-															].map((t) => (
-																<SelectItem
-																	key={t}
-																	value={t}
-																	className="focus:bg-brand-primary/20 focus:text-brand-light cursor-pointer"
-																>
-																	{t}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-												</div>
-												<div>
-													<Label className="mb-1 block text-brand-light font-medium">
-														Audience (comma separated)
-													</Label>
-													<Input
-														value={form.audience}
-														onChange={(e) => update("audience", e.target.value)}
-														placeholder="Developers, Engineering Managers"
-														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
-													/>
-												</div>
-												<div className="grid grid-cols-2 gap-4 pt-2">
+														<SelectContent className="bg-brand-dark border-white/20 shadow-lg">
+																{[
+																	"Professional",
+																	"Conversational",
+																	"Inspirational",
+																	"Analytical",
+																	"Friendly",
+																].map((t) => (
+																	<SelectItem
+																		key={t}
+																		value={t}
+																		className="text-brand-light focus:bg-brand-primary/20 cursor-pointer"
+																	>
+																		{t}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													</div>
 													<div>
-														<Label className="mb-1 block text-brand-light font-medium">
+														<Label className="mb-1.5 block text-brand-light text-sm font-medium">
 															Length
 														</Label>
 														<Select
 															value={form.length}
 															onValueChange={(value) => update("length", value)}
 														>
-															<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
-																<SelectValue placeholder="Select length" />
-															</SelectTrigger>
-															<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
+														<SelectTrigger className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50 focus:ring-0 focus:border-brand-primary h-10 transition-colors">
+															<SelectValue placeholder="Select length" />
+														</SelectTrigger>
+														<SelectContent className="bg-brand-dark border-white/20 shadow-lg">
 																{["Short", "Medium", "Long", "Any"].map((l) => (
 																	<SelectItem
 																		key={l}
 																		value={l}
-																		className="focus:bg-brand-primary/20 focus:text-brand-light cursor-pointer"
+																		className="text-brand-light focus:bg-brand-primary/20 cursor-pointer"
 																	>
 																		{l}
 																	</SelectItem>
@@ -313,8 +329,38 @@ export default function LinkedInPostsGenerator() {
 															</SelectContent>
 														</Select>
 													</div>
+												</div>
+												<div>
+													<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+														Target Audience
+													</Label>
+													<Input
+														value={form.audience}
+														onChange={(e) => update("audience", e.target.value)}
+														placeholder="e.g. Developers, Engineering Managers"
+														className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
+													/>
+												</div>
+											</div>
+
+											{/* Section: Advanced Settings */}
+											<div className="space-y-4">
+												<div className="flex items-center gap-3 pb-3 border-b border-white/10">
+													<div className="flex items-center justify-center w-8 h-8 bg-brand-primary/10 rounded-lg">
+														<Settings className="h-4 w-4 text-brand-primary" />
+													</div>
 													<div>
-														<Label className="mb-1 block text-brand-light font-medium">
+														<h3 className="text-brand-light text-base font-semibold">
+															Settings
+														</h3>
+														<p className="text-brand-light/60 text-xs">
+															Fine-tune your post generation
+														</p>
+													</div>
+												</div>
+												<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+													<div>
+														<Label className="mb-1.5 block text-brand-light text-sm font-medium">
 															Hashtags
 														</Label>
 														<Select
@@ -323,112 +369,70 @@ export default function LinkedInPostsGenerator() {
 																update("hashtags_option", value)
 															}
 														>
-															<SelectTrigger className="w-full bg-background-overlay/50 border-brand-primary/30 text-brand-light focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50">
-																<SelectValue placeholder="Select hashtag option" />
-															</SelectTrigger>
-															<SelectContent className="bg-surface border-brand-primary/30 text-brand-light shadow-xl">
-																{["suggest", "none"].map((o) => (
-																	<SelectItem
-																		key={o}
-																		value={o}
-																		className="focus:bg-brand-primary/20 focus:text-brand-light capitalize cursor-pointer"
-																	>
-																		{o}
-																	</SelectItem>
-																))}
+														<SelectTrigger className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50 focus:ring-0 focus:border-brand-primary h-10 transition-colors">
+															<SelectValue placeholder="Hashtag option" />
+														</SelectTrigger>
+														<SelectContent className="bg-brand-dark border-white/20 shadow-lg">
+																<SelectItem value="suggest" className="text-brand-light focus:bg-brand-primary/20 cursor-pointer">
+																	Suggest
+																</SelectItem>
+																<SelectItem value="none" className="text-brand-light focus:bg-brand-primary/20 cursor-pointer">
+																	None
+																</SelectItem>
 															</SelectContent>
 														</Select>
 													</div>
+													<div>
+														<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+															Language
+														</Label>
+														<Input
+															value={form.language}
+															onChange={(e) => update("language", e.target.value)}
+															placeholder="Auto (e.g. en, es)"
+															className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary h-10"
+														/>
+													</div>
 												</div>
-											</div>
-											{/* end core topic wrapper */}
-											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
-												<Label className="mb-1 block text-brand-light font-medium">
-													CTA Text (optional)
-												</Label>
-												<Input
-													value={form.cta_text}
-													onChange={(e) => update("cta_text", e.target.value)}
-													placeholder="e.g. Share your experience below!"
-													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
-												/>
-											</div>
-											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
-												<Label className="mb-1 block text-brand-light font-medium">
-													Mimic Examples (style hints)
-												</Label>
-												<Textarea
-													value={form.mimic_examples}
-													onChange={(e) =>
-														update("mimic_examples", e.target.value)
-													}
-													placeholder="Paste a post snippet to emulate style"
-													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50 min-h-[80px]"
-												/>
-											</div>
-											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
-												<Label className="mb-1 block text-brand-light font-medium">
-													Language
-												</Label>
-												<Input
-													value={form.language}
-													onChange={(e) => update("language", e.target.value)}
-													placeholder="e.g. en, es (auto by default)"
-													className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
-												/>
-											</div>
-											<div className="pt-2 space-y-4 border-t border-brand-primary/10">
-												<div>
-													<Label className="mb-1 flex items-center gap-2 text-brand-light font-medium">
-														GitHub Project URL{" "}
-														<Github className="h-4 w-4 text-brand-primary" />
-													</Label>
-													<Input
-														value={form.github_project_url}
-														onChange={(e) =>
-															update("github_project_url", e.target.value)
-														}
-														placeholder="https://github.com/your/repo"
-														className="bg-background-overlay/50 border-brand-primary/30 text-brand-light placeholder:text-text-placeholder focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50"
-													/>
+												<div className="grid grid-cols-2 gap-4">
+													<div>
+														<div className="flex items-center justify-between mb-2">
+															<Label className="text-brand-light text-sm font-medium">
+																Post Count
+															</Label>
+															<span className="text-brand-primary text-sm font-medium">{form.post_count}</span>
+														</div>
+														<Slider
+															value={[form.post_count]}
+															min={1}
+															max={5}
+															step={1}
+															onValueChange={(v) => update("post_count", v[0])}
+														/>
+													</div>
+													<div>
+														<div className="flex items-center justify-between mb-2">
+															<Label className="text-brand-light text-sm font-medium">
+																Emoji Level
+															</Label>
+															<span className="text-brand-primary text-sm font-medium">{form.emoji_level}</span>
+														</div>
+														<Slider
+															value={[form.emoji_level]}
+															min={0}
+															max={3}
+															step={1}
+															onValueChange={(v) => update("emoji_level", v[0])}
+														/>
+													</div>
 												</div>
-												<div className="space-y-2 pt-2 border-t border-brand-primary/10">
-													<Label className="flex justify-between text-xs uppercase tracking-wide text-text-placeholder">
-														Post Count{" "}
-														<span className="text-brand-primary font-semibold">
-															{form.post_count}
-														</span>
-													</Label>
-													<Slider
-														value={[form.post_count]}
-														min={1}
-														max={5}
-														step={1}
-														onValueChange={(v) => update("post_count", v[0])}
-													/>
-												</div>
-												<div className="space-y-2 pt-2 border-t border-brand-primary/10">
-													<Label className="flex justify-between text-xs uppercase tracking-wide text-text-placeholder">
-														Emoji Level{" "}
-														<span className="text-brand-primary font-semibold">
-															{form.emoji_level}
-														</span>
-													</Label>
-													<Slider
-														value={[form.emoji_level]}
-														min={0}
-														max={3}
-														step={1}
-														onValueChange={(v) => update("emoji_level", v[0])}
-													/>
-												</div>
-												<div className="flex items-center justify-between border border-brand-primary/30 rounded-md px-3 py-2 bg-background-overlay/20 mt-2">
+												<div className="flex items-center justify-between py-3 px-4 bg-white/5 rounded-lg border border-white/10">
 													<div>
 														<p className="text-sm font-medium text-brand-light">
 															Enable Research
 														</p>
-														<p className="text-xs text-[#BBBBBB]">
-															Enhance posts with current insights
+														<p className="text-xs text-brand-light/60">
+															Enhance with current insights
 														</p>
 													</div>
 													<Switch
@@ -436,71 +440,102 @@ export default function LinkedInPostsGenerator() {
 														onCheckedChange={(checked) =>
 															update("enable_research", checked)
 														}
-														className="data-[state=checked]:bg-brand-primary data-[state=unchecked]:bg-[#444]"
+														className="data-[state=checked]:bg-brand-primary"
 													/>
 												</div>
 											</div>
-											{/* end advanced settings wrapper */}
-											{/* Enhanced generate button with advanced loader */}
-											<motion.div
-												whileHover={{ scale: 1.01 }}
-												whileTap={{ scale: 0.99 }}
-											>
-												<Button
-													onClick={generate}
-													disabled={isGenerating || !form.topic.trim()}
-													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-												>
-													{/* Animated background for loading state */}
-													{isGenerating && (
-														<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse"></div>
-													)}
 
-													{/* Button content */}
-													<div className="relative z-10 flex items-center justify-center">
-														{isGenerating ? (
-															<>
-																<div className="flex items-center space-x-3">
-																	<div className="relative">
-																		<Loader
-																			variant="spinner"
-																			size="sm"
-																			className="text-white"
-																		/>
-																		{/* Additional spinning ring */}
-																		<div className="absolute inset-0 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-																	</div>
-																	<div className="flex flex-col items-start">
-																		<span className="text-sm font-medium">
-																			Generating your posts...
-																		</span>
-																		<span className="text-xs text-white/80">
-																			This may take a few moments
-																		</span>
-																	</div>
-																</div>
-															</>
-														) : (
-															<>
-																<Hash className="mr-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300" />
-																<span className="text-base">
-																	Generate Posts
-																</span>
-															</>
-														)}
+											{/* Section: Optional Enhancements */}
+											<div className="space-y-4">
+												<div className="flex items-center gap-3 pb-3 border-b border-white/10">
+													<div className="flex items-center justify-center w-8 h-8 bg-brand-primary/10 rounded-lg">
+														<Sparkles className="h-4 w-4 text-brand-primary" />
 													</div>
+													<div>
+														<h3 className="text-brand-light text-base font-semibold">
+															Enhancements
+														</h3>
+														<p className="text-brand-light/60 text-xs">
+															Optional extras for better posts
+														</p>
+													</div>
+												</div>
+												<div>
+													<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+														CTA Text
+													</Label>
+													<Input
+														value={form.cta_text}
+														onChange={(e) => update("cta_text", e.target.value)}
+														placeholder="e.g. Share your experience below!"
+														className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary"
+													/>
+												</div>
+												<div>
+													<Label className="mb-1.5 flex items-center gap-2 text-brand-light text-sm font-medium">
+														GitHub Project
+														<Github className="h-3.5 w-3.5 text-brand-primary" />
+													</Label>
+													<Input
+														value={form.github_project_url}
+														onChange={(e) =>
+															update("github_project_url", e.target.value)
+														}
+														placeholder="https://github.com/your/repo"
+														className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary"
+													/>
+												</div>
+												<div>
+													<Label className="mb-1.5 block text-brand-light text-sm font-medium">
+														Style Reference
+													</Label>
+													<Textarea
+														value={form.mimic_examples}
+														onChange={(e) =>
+															update("mimic_examples", e.target.value)
+														}
+														placeholder="Paste a post snippet to emulate style..."
+														className="bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/40 focus:border-brand-primary min-h-[70px] resize-none"
+													/>
+												</div>
+											</div>
 
-													{/* Subtle shine effect on hover */}
-													<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out"></div>
-
-													{/* Progress indicator for loading */}
-													{isGenerating && (
-														<div className="absolute bottom-0 left-0 h-1 bg-white/30 animate-pulse w-full">
-															<div className="h-full bg-white/60 animate-pulse"></div>
+											{/* Generate Button */}
+											<div className="pt-4 border-t border-white/10">
+												<motion.div
+													whileHover={{ scale: 1.01 }}
+													whileTap={{ scale: 0.99 }}
+												>
+													<Button
+														onClick={generate}
+														disabled={isGenerating || !form.topic.trim()}
+														className="relative w-full h-12 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+													>
+														{isGenerating && (
+															<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse" />
+														)}
+														<div className="relative z-10 flex items-center justify-center">
+															{isGenerating ? (
+																<div className="flex items-center space-x-2">
+																	<Loader
+																		variant="spinner"
+																		size="sm"
+																		className="text-white"
+																	/>
+																	<span className="text-sm font-medium">
+																		Generating Posts...
+																	</span>
+																</div>
+															) : (
+																<>
+																	<Hash className="mr-2 h-4 w-4" />
+																	<span>Generate Posts</span>
+																</>
+															)}
 														</div>
-													)}
-												</Button>
-											</motion.div>
+													</Button>
+												</motion.div>
+											</div>
 										</CardContent>
 									</Card>
 								</motion.div>
