@@ -10,7 +10,7 @@ export function PdfResumeButton() {
       <Link href="/dashboard/pdf-resume">
         <Button
           size="lg"
-          className="bg-brandbg-brand-primary hover:bg-brand-primary/90brand-primary/90 text-white rounded-full shadow-xl p-4 transition-all duration-300 ease-in-out hover:scale-105 flex items-center"
+          className="bg-brand-primary hover:bg-brand-primary/90 text-white rounded-full shadow-xl p-4 transition-all duration-300 ease-in-out hover:scale-105 flex items-center"
         >
           <FileText className="h-6 w-6" />
           <span className="ml-2 hidden sm:inline">PDF Resume</span>
