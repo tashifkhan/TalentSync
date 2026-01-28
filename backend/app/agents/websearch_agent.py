@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import logging
-import os
 import random
 import time
 from typing import Any, Dict, List, Optional
 
 import requests
 from tavily import TavilyClient
-from dotenv import load_dotenv
 
 from app.agents.web_content_agent import return_markdown
+from app.core.llm import llm
+from app.core.settings import get_settings
 
-
-load_dotenv()
+settings = get_settings()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -60,7 +59,7 @@ def _get(url: str, params: Optional[Dict[str, Any]] = None) -> requests.Response
 
 
 # Tavily search client
-_TAVILY_API_KEY = os.getenv("TAVILY_API_KEY")
+_TAVILY_API_KEY = settings.TAVILY_API_KEY
 _tavily: Optional[TavilyClient] = (
     TavilyClient(api_key=_TAVILY_API_KEY) if _TAVILY_API_KEY else None
 )
@@ -119,11 +118,6 @@ def web_search_pipeline(query: str, max_results: int = 10) -> List[Dict[str, str
         return []
 
     return get_cleaned_texts(urls)
-
-
-# Agents (same external API)
-from app.core.llm import llm
-import asyncio
 
 
 class WebSearchAgent:
