@@ -83,7 +83,6 @@ class UIPublicationEntry(BaseModel):
 class UIPositionOfResponsibilityEntry(BaseModel):
     title: str
     organization: str
-    organization: str
     duration: Optional[str] = None
     description: Optional[str] = None
 
