@@ -13,8 +13,13 @@ def _fallback_convert_to_text(file_bytes: bytes) -> str:
     from google import genai
     from google.genai import types
 
-    client = genai.Client(api_key=settings.GOOGLE_API_KEY)
+    api_key = settings.GOOGLE_API_KEY
+    if not api_key:
+        raise RuntimeError(
+            "GOOGLE_API_KEY is not configured; cannot perform fallback document conversion."
+        )
 
+    client = genai.Client(api_key=api_key)
     prompt = (
         "Youn are a document conversion AI. Convert the following document to plain text.\n",
         "You don't talk about the conversion process, just provide the plain text output.\n",
