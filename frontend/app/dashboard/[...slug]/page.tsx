@@ -8,7 +8,7 @@ import Link from "next/link";
 
 export default function PlaceholderSection() {
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+		<div className="min-h-screen">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
 				{/* Back button */}
 				<motion.div
@@ -21,7 +21,7 @@ export default function PlaceholderSection() {
 						<Button
 							variant="ghost"
 							size="sm"
-							className="text-[#EEEEEE] hover:text-[#76ABAE] hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
+							className="text-brand-light hover:text-brand-primary hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
 						>
 							<ArrowLeft className="mr-2 h-4 w-4" />
 							<span className="hidden sm:inline">Back to Dashboard</span>
@@ -38,13 +38,13 @@ export default function PlaceholderSection() {
 						transition={{ duration: 0.8, delay: 0.2 }}
 						className="text-center mb-8 sm:mb-12"
 					>
-						<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-[#76ABAE]/10 rounded-2xl mb-4 sm:mb-6">
-							<Construction className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+						<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
+							<Construction className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 						</div>
-						<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#EEEEEE] mb-3 sm:mb-4 leading-tight">
+						<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 							Coming Soon
 						</h1>
-						<p className="text-[#EEEEEE]/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+						<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 							This section is currently under construction. We're working hard
 							to bring you something amazing.
 						</p>
@@ -59,10 +59,10 @@ export default function PlaceholderSection() {
 					>
 						<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 							<CardHeader className="pb-4">
-								<CardTitle className="text-[#EEEEEE] text-xl sm:text-2xl font-semibold">
+								<CardTitle className="text-brand-light text-xl sm:text-2xl font-semibold">
 									What's Coming?
 								</CardTitle>
-								<p className="text-[#EEEEEE]/60 text-sm mt-2">
+								<p className="text-brand-light/60 text-sm mt-2">
 									We're working on this feature to provide you with the best
 									experience
 								</p>
@@ -72,14 +72,14 @@ export default function PlaceholderSection() {
 									<motion.div
 										animate={{ scale: [1, 1.05, 1] }}
 										transition={{ duration: 2, repeat: Infinity }}
-										className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#76ABAE]/10 flex items-center justify-center mb-6"
+										className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-brand-primary/10 flex items-center justify-center mb-6"
 									>
-										<Construction className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+										<Construction className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 									</motion.div>
-									<h3 className="text-lg sm:text-xl font-semibold text-[#EEEEEE] mb-2">
+									<h3 className="text-lg sm:text-xl font-semibold text-brand-light mb-2">
 										Stay Tuned
 									</h3>
-									<p className="text-[#EEEEEE]/70 mb-8 max-w-md mx-auto">
+									<p className="text-brand-light/70 mb-8 max-w-md mx-auto">
 										We're currently developing this feature. Check back soon for
 										updates!
 									</p>
@@ -88,7 +88,7 @@ export default function PlaceholderSection() {
 											whileHover={{ scale: 1.01 }}
 											whileTap={{ scale: 0.99 }}
 										>
-											<Button className="bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/80 hover:from-[#76ABAE]/90 hover:to-[#76ABAE]/70 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+											<Button className="bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
 												Return to Dashboard
 											</Button>
 										</motion.div>

@@ -81,12 +81,12 @@ export function Avatar({
 		return (
 			<div
 				className={cn(
-					"rounded-full bg-[#76ABAE]/20 border-2 border-[#76ABAE]/30 flex items-center justify-center",
+					"rounded-full bg-brand-primary/20 border-2 border-brand-primary/30 flex items-center justify-center",
 					sizeClasses[size],
 					className
 				)}
 			>
-				<User className={cn("text-[#76ABAE]", iconSizes[size])} />
+				<User className={cn("text-brand-primary", iconSizes[size])} />
 			</div>
 		);
 	}
@@ -96,11 +96,11 @@ export function Avatar({
 			{isLoading && (
 				<div
 					className={cn(
-						"absolute inset-0 rounded-full bg-[#76ABAE]/10 border-2 border-[#76ABAE]/30 flex items-center justify-center animate-pulse",
+						"absolute inset-0 rounded-full bg-brand-primary/10 border-2 border-brand-primary/30 flex items-center justify-center animate-pulse",
 						sizeClasses[size]
 					)}
 				>
-					<User className={cn("text-[#76ABAE]/50", iconSizes[size])} />
+					<User className={cn("text-brand-primary/50", iconSizes[size])} />
 				</div>
 			)}
 			<img
@@ -108,7 +108,7 @@ export function Avatar({
 				src={getOptimizedImageUrl(src, retryCount === 0)}
 				alt={alt}
 				className={cn(
-					"rounded-full border-2 border-[#76ABAE]/30 object-cover transition-opacity duration-200",
+					"rounded-full border-2 border-brand-primary/30 object-cover transition-opacity duration-200",
 					sizeClasses[size],
 					isLoading ? "opacity-0" : "opacity-100"
 				)}

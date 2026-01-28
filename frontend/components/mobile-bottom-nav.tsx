@@ -57,7 +57,7 @@ const MobileBottomNav: React.FC = () => {
 				items={menuItems}
 				activeIndex={getActiveIndex()}
 				onItemClick={handleNavigation}
-				accentColor="#76ABAE"
+				accentColor="hsl(var(--brand-primary))"
 			/>
 		</div>
 	);

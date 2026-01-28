@@ -82,7 +82,7 @@ interface ModalManagerProps {
 	setDeletingResume: (resume: { id: string; name: string } | null) => void;
 	deletingInterview: { id: string; role: string; companyName: string } | null;
 	setDeletingInterview: (
-		interview: { id: string; role: string; companyName: string } | null
+		interview: { id: string; role: string; companyName: string } | null,
 	) => void;
 	deletingColdMail: {
 		id: string;
@@ -90,7 +90,7 @@ interface ModalManagerProps {
 		companyName: string;
 	} | null;
 	setDeletingColdMail: (
-		coldMail: { id: string; recipientName: string; companyName: string } | null
+		coldMail: { id: string; recipientName: string; companyName: string } | null,
 	) => void;
 
 	// Handlers
@@ -146,7 +146,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -154,17 +154,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowResumesModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<FileText className="mr-3 h-6 w-6 text-[#76ABAE]" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<FileText className="mr-3 h-6 w-6 text-brand-primary" />
 										Your Resumes ({resumes.length})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Manage your uploaded resumes - rename or delete them as
 										needed.
 									</p>
@@ -177,7 +177,7 @@ export default function ModalManager({
 											<Loader
 												variant="spinner"
 												size="lg"
-												className="text-[#76ABAE]"
+												className="text-brand-primary"
 											/>
 										</div>
 									) : resumes && resumes.length > 0 ? (
@@ -198,7 +198,7 @@ export default function ModalManager({
 																	onChange={(e) =>
 																		setNewResumeName(e.target.value)
 																	}
-																	className="bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/40"
+																	className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
 																	placeholder="Enter new name"
 																/>
 																<Button
@@ -206,7 +206,7 @@ export default function ModalManager({
 																	onClick={() =>
 																		handleRenameResume(resume.id, newResumeName)
 																	}
-																	className="bg-[#76ABAE] hover:bg-[#76ABAE]/80 text-white"
+																	className="bg-brand-primary hover:bg-brand-primary/80 text-white"
 																>
 																	Save
 																</Button>
@@ -217,30 +217,30 @@ export default function ModalManager({
 																		setEditingResume(null);
 																		setNewResumeName("");
 																	}}
-																	className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+																	className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 																>
 																	Cancel
 																</Button>
 															</div>
 														) : (
 															<div>
-																<h3 className="font-semibold text-[#EEEEEE] truncate">
+																<h3 className="font-semibold text-brand-light truncate">
 																	{resume.customName}
 																</h3>
 																<div className="flex items-center space-x-4 mt-1">
 																	{resume.candidateName && (
-																		<span className="text-xs text-[#EEEEEE]/60">
+																		<span className="text-xs text-brand-light/60">
 																			{resume.candidateName}
 																		</span>
 																	)}
 																	{resume.predictedField && (
-																		<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
+																		<Badge className="bg-brand-primary/10 text-brand-primary border border-brand-primary/30 text-xs">
 																			{resume.predictedField}
 																		</Badge>
 																	)}
-																	<span className="text-xs text-[#EEEEEE]/40">
+																	<span className="text-xs text-brand-light/40">
 																		{new Date(
-																			resume.uploadDate
+																			resume.uploadDate,
 																		).toLocaleDateString()}
 																	</span>
 																</div>
@@ -260,7 +260,7 @@ export default function ModalManager({
 																	});
 																	setNewResumeName(resume.customName);
 																}}
-																className="text-[#76ABAE] hover:text-[#EEEEEE] hover:bg-white/10"
+																className="text-brand-primary hover:text-brand-light hover:bg-white/10"
 															>
 																<Edit className="h-4 w-4" />
 															</Button>
@@ -273,7 +273,7 @@ export default function ModalManager({
 																		name: resume.customName,
 																	})
 																}
-																className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+																className="text-destructive hover:text-destructive hover:bg-destructive/10"
 															>
 																<Trash2 className="h-4 w-4" />
 															</Button>
@@ -284,16 +284,16 @@ export default function ModalManager({
 										</div>
 									) : (
 										<div className="text-center py-12">
-											<FileText className="h-16 w-16 text-[#76ABAE]/50 mx-auto mb-4" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<FileText className="h-16 w-16 text-brand-primary/50 mx-auto mb-4" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No resumes uploaded yet
 											</h3>
-											<p className="text-[#EEEEEE]/60 mb-6">
+											<p className="text-brand-light/60 mb-6">
 												Upload your first resume to get started with AI-powered
 												analysis
 											</p>
 											<Link href="/dashboard/seeker">
-												<Button className="bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] text-white">
+												<Button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary text-white">
 													<FileText className="mr-2 h-4 w-4" />
 													Upload Resume
 												</Button>
@@ -321,7 +321,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -329,17 +329,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setDeletingResume(null)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
 										Delete Resume
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Are you sure you want to delete "{deletingResume?.name}"?
 										This action cannot be undone.
 									</p>
@@ -350,7 +350,7 @@ export default function ModalManager({
 									<Button
 										variant="outline"
 										onClick={() => setDeletingResume(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 									>
 										Cancel
 									</Button>
@@ -361,7 +361,7 @@ export default function ModalManager({
 												setDeletingResume(null);
 											}
 										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
+										className="bg-destructive hover:bg-destructive/90 text-white"
 									>
 										Delete
 									</Button>
@@ -386,7 +386,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -394,17 +394,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowInterviewsModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Users className="mr-3 h-6 w-6 text-[#76ABAE]" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Users className="mr-3 h-6 w-6 text-brand-primary" />
 										Interview Sessions ({interviewsData.length})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Your practice interview sessions with questions and answers
 									</p>
 								</div>
@@ -421,11 +421,11 @@ export default function ModalManager({
 										</div>
 									) : interviewsData.length === 0 ? (
 										<div className="text-center py-8">
-											<Users className="h-16 w-16 mx-auto mb-4 text-[#76ABAE]/50" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<Users className="h-16 w-16 mx-auto mb-4 text-brand-primary/50" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No interview sessions found
 											</h3>
-											<p className="text-[#EEEEEE]/60">
+											<p className="text-brand-light/60">
 												Start practicing to see your sessions here
 											</p>
 										</div>
@@ -439,11 +439,11 @@ export default function ModalManager({
 													{/* Session Header */}
 													<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 														<div className="min-w-0 flex-1">
-															<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2 flex items-center">
-																<Briefcase className="mr-2 h-5 w-5 text-[#76ABAE]" />
+															<h3 className="text-lg font-semibold text-brand-light mb-2 flex items-center">
+																<Briefcase className="mr-2 h-5 w-5 text-brand-primary" />
 																{session.role} at {session.companyName}
 															</h3>
-															<p className="text-[#EEEEEE]/60 text-sm">
+															<p className="text-brand-light/60 text-sm">
 																{new Date(session.createdAt).toLocaleDateString(
 																	"en-US",
 																	{
@@ -452,18 +452,18 @@ export default function ModalManager({
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
 														<div className="flex items-center gap-2 shrink-0">
-															<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
+															<Badge className="bg-brand-primary/10 text-brand-primary border border-brand-primary/30 text-xs">
 																{session.questionsAndAnswers.length} Questions
 															</Badge>
 															<Button
 																size="sm"
 																variant="ghost"
-																className="h-8 w-8 p-0 hover:bg-red-500/20 text-red-400 hover:text-red-300"
+																className="h-8 w-8 p-0 hover:bg-destructive/20 text-destructive hover:text-destructive"
 																onClick={() =>
 																	setDeletingInterview({
 																		id: session.id,
@@ -482,18 +482,18 @@ export default function ModalManager({
 														{session.questionsAndAnswers.map((qa, index) => (
 															<div
 																key={index}
-																className="border-l-2 border-[#76ABAE] pl-4"
+																className="border-l-2 border-brand-primary pl-4"
 															>
 																<div className="mb-2">
-																	<p className="font-semibold text-[#EEEEEE] mb-1 text-sm sm:text-base">
-																		<span className="text-[#76ABAE] font-semibold">
+																	<p className="font-semibold text-brand-light mb-1 text-sm sm:text-base">
+																		<span className="text-brand-primary font-semibold">
 																			Q{index + 1}:
 																		</span>{" "}
 																		{qa.question}
 																	</p>
 																</div>
 																<div className="backdrop-blur-lg bg-white/5 rounded-lg p-4 border border-white/10 relative">
-																	<p className="text-[#EEEEEE]/80 text-sm leading-relaxed pr-10">
+																	<p className="text-brand-light/80 text-sm leading-relaxed pr-10">
 																		{qa.answer}
 																	</p>
 																	<Button
@@ -502,7 +502,7 @@ export default function ModalManager({
 																		className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-white/10"
 																		onClick={() => copyToClipboard(qa.answer)}
 																	>
-																		<Copy className="h-4 w-4 text-[#76ABAE]" />
+																		<Copy className="h-4 w-4 text-brand-primary" />
 																	</Button>
 																</div>
 															</div>
@@ -533,7 +533,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -541,17 +541,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowColdMailsModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Mail className="mr-3 h-6 w-6 text-[#76ABAE]" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Mail className="mr-3 h-6 w-6 text-brand-primary" />
 										Cold Emails ({coldMailsData.length})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Your generated cold emails for networking and outreach
 									</p>
 								</div>
@@ -568,11 +568,11 @@ export default function ModalManager({
 										</div>
 									) : coldMailsData.length === 0 ? (
 										<div className="text-center py-8">
-											<Mail className="h-16 w-16 mx-auto mb-4 text-[#76ABAE]/50" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<Mail className="h-16 w-16 mx-auto mb-4 text-brand-primary/50" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No cold emails found
 											</h3>
-											<p className="text-[#EEEEEE]/60">
+											<p className="text-brand-light/60">
 												Generate your first cold email to see it here
 											</p>
 										</div>
@@ -586,15 +586,15 @@ export default function ModalManager({
 													{/* Session Header */}
 													<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 														<div className="min-w-0 flex-1">
-															<h3 className="text-lg font-semibold text-[#EEEEEE] mb-1 flex items-center">
-																<User className="mr-2 h-5 w-5 text-[#76ABAE]" />
+															<h3 className="text-lg font-semibold text-brand-light mb-1 flex items-center">
+																<User className="mr-2 h-5 w-5 text-brand-primary" />
 																To: {session.recipientName}
 															</h3>
-															<p className="text-[#EEEEEE]/80 text-sm mb-1">
+															<p className="text-brand-light/80 text-sm mb-1">
 																{session.recipientDesignation} at{" "}
 																{session.companyName}
 															</p>
-															<p className="text-[#EEEEEE]/40 text-xs">
+															<p className="text-brand-light/40 text-xs">
 																{new Date(session.createdAt).toLocaleDateString(
 																	"en-US",
 																	{
@@ -603,19 +603,19 @@ export default function ModalManager({
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
 														<div className="flex items-center gap-2 shrink-0">
-															<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
+															<Badge className="bg-brand-primary/10 text-brand-primary border border-brand-primary/30 text-xs">
 																{session.emails.length} Email
 																{session.emails.length !== 1 ? "s" : ""}
 															</Badge>
 															<Button
 																size="sm"
 																variant="ghost"
-																className="h-8 w-8 p-0 hover:bg-red-500/20 text-red-400 hover:text-red-300"
+																className="h-8 w-8 p-0 hover:bg-destructive/20 text-destructive hover:text-destructive"
 																onClick={() =>
 																	setDeletingColdMail({
 																		id: session.id,
@@ -634,12 +634,12 @@ export default function ModalManager({
 														{session.emails.map((email, index) => (
 															<div
 																key={email.id}
-																className="border-l-2 border-[#76ABAE] pl-4"
+																className="border-l-2 border-brand-primary pl-4"
 															>
 																<div className="mb-2">
-																	<p className="font-semibold text-[#EEEEEE] mb-1 flex items-center gap-2 text-sm sm:text-base">
-																		<Mail className="h-4 w-4 text-[#76ABAE]" />
-																		<span className="text-[#76ABAE] font-semibold">
+																	<p className="font-semibold text-brand-light mb-1 flex items-center gap-2 text-sm sm:text-base">
+																		<Mail className="h-4 w-4 text-brand-primary" />
+																		<span className="text-brand-primary font-semibold">
 																			Subject:
 																		</span>
 																		<span className="truncate">
@@ -648,7 +648,7 @@ export default function ModalManager({
 																	</p>
 																</div>
 																<div className="backdrop-blur-lg bg-white/5 rounded-lg p-4 border border-white/10 relative">
-																	<div className="text-[#EEEEEE]/80 text-sm leading-relaxed pr-10 whitespace-pre-wrap">
+																	<div className="text-brand-light/80 text-sm leading-relaxed pr-10 whitespace-pre-wrap">
 																		{email.body}
 																	</div>
 																	<Button
@@ -657,11 +657,11 @@ export default function ModalManager({
 																		className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-white/10"
 																		onClick={() =>
 																			copyToClipboard(
-																				`Subject: ${email.subject}\n\n${email.body}`
+																				`Subject: ${email.subject}\n\n${email.body}`,
 																			)
 																		}
 																	>
-																		<Copy className="h-4 w-4 text-[#76ABAE]" />
+																		<Copy className="h-4 w-4 text-brand-primary" />
 																	</Button>
 																</div>
 															</div>
@@ -692,7 +692,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -700,17 +700,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setDeletingInterview(null)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
 										Delete Interview Session
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Are you sure you want to delete the interview session for "
 										{deletingInterview?.role} at{" "}
 										{deletingInterview?.companyName}"? This action cannot be
@@ -723,7 +723,7 @@ export default function ModalManager({
 									<Button
 										variant="outline"
 										onClick={() => setDeletingInterview(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 									>
 										Cancel
 									</Button>
@@ -734,7 +734,7 @@ export default function ModalManager({
 												setDeletingInterview(null);
 											}
 										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
+										className="bg-destructive hover:bg-destructive/90 text-white"
 									>
 										Delete Session
 									</Button>
@@ -759,7 +759,7 @@ export default function ModalManager({
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -767,17 +767,17 @@ export default function ModalManager({
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setDeletingColdMail(null)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
 										Delete Cold Mail Session
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Are you sure you want to delete the cold mail session for "
 										{deletingColdMail?.recipientName} at{" "}
 										{deletingColdMail?.companyName}"? This action cannot be
@@ -790,7 +790,7 @@ export default function ModalManager({
 									<Button
 										variant="outline"
 										onClick={() => setDeletingColdMail(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 									>
 										Cancel
 									</Button>
@@ -801,7 +801,7 @@ export default function ModalManager({
 												setDeletingColdMail(null);
 											}
 										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
+										className="bg-destructive hover:bg-destructive/90 text-white"
 									>
 										Delete Session
 									</Button>

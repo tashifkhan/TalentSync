@@ -72,7 +72,7 @@ export default function SelectRolePage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center">
+		<div className="min-h-screen flex items-center justify-center">
 			<div className="container mx-auto px-4 py-8">
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -82,10 +82,10 @@ export default function SelectRolePage() {
 				>
 					<Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
 						<CardHeader>
-							<CardTitle className="text-[#EEEEEE] text-center">
+							<CardTitle className="text-brand-light text-center">
 								Select Your Role
 							</CardTitle>
-							<CardDescription className="text-[#EEEEEE]/60 text-center">
+							<CardDescription className="text-brand-light/60 text-center">
 								Choose how you'll be using the platform
 							</CardDescription>
 						</CardHeader>
@@ -96,17 +96,17 @@ export default function SelectRolePage() {
 										<RadioGroupItem
 											value="user"
 											id="user-role"
-											className="border-[#76ABAE] text-[#76ABAE] mt-1"
+											className="border-brand-primary text-brand-primary mt-1"
 										/>
 										<div className="flex-1">
 											<Label
 												htmlFor="user-role"
-												className="text-[#EEEEEE] group-hover:text-[#76ABAE] transition-colors cursor-pointer flex items-center gap-2"
+												className="text-brand-light group-hover:text-brand-primary transition-colors cursor-pointer flex items-center gap-2"
 											>
 												<Users className="h-4 w-4" />
 												User
 											</Label>
-											<p className="text-sm text-[#EEEEEE]/60 mt-1">
+											<p className="text-sm text-brand-light/60 mt-1">
 												Looking for job opportunities, resume analysis, and
 												career guidance
 											</p>
@@ -117,17 +117,17 @@ export default function SelectRolePage() {
 										<RadioGroupItem
 											value="admin"
 											id="admin-role"
-											className="border-[#76ABAE] text-[#76ABAE] mt-1"
+											className="border-brand-primary text-brand-primary mt-1"
 										/>
 										<div className="flex-1">
 											<Label
 												htmlFor="admin-role"
-												className="text-[#EEEEEE] group-hover:text-[#76ABAE] transition-colors cursor-pointer flex items-center gap-2"
+												className="text-brand-light group-hover:text-brand-primary transition-colors cursor-pointer flex items-center gap-2"
 											>
 												<UserCheck className="h-4 w-4" />
 												Recruiter
 											</Label>
-											<p className="text-sm text-[#EEEEEE]/60 mt-1">
+											<p className="text-sm text-brand-light/60 mt-1">
 												Hiring talent, managing recruitment processes, and
 												accessing candidate profiles
 											</p>
@@ -143,7 +143,7 @@ export default function SelectRolePage() {
 							<Button
 								onClick={handleRoleSelection}
 								disabled={isLoading || !selectedRole}
-								className="w-full bg-[#76ABAE] hover:bg-[#76ABAE]/90 backdrop-blur-sm shadow-lg transition-all duration-300"
+								className="w-full bg-brand-primary hover:bg-brand-primary/90 backdrop-blur-sm shadow-lg transition-all duration-300"
 							>
 								{isLoading ? "Saving..." : "Continue"}
 							</Button>

@@ -57,3 +57,7 @@ test.py
 #postgres
 /backend/data/db
 /frontend/data/db
+.idea/
+.idea/
+
+.ruff_cache/

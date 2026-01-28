@@ -35,7 +35,7 @@ export function HowItWorks() {
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true, amount: 0.4 }}
 						transition={{ duration: 0.55 }}
-						className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#EEEEEE] to-[#76ABAE]"
+						className="text-3xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-light to-brand-primary"
 					>
 						How It Works
 					</motion.h2>
@@ -44,14 +44,14 @@ export function HowItWorks() {
 						whileInView={{ opacity: 1, y: 0 }}
 						viewport={{ once: true, amount: 0.4 }}
 						transition={{ duration: 0.55, delay: 0.1 }}
-						className="mt-4 text-base md:text-lg text-[#EEEEEE]/70 max-w-2xl mx-auto"
+						className="mt-4 text-base md:text-lg text-brand-light/70 max-w-2xl mx-auto"
 					>
 						A simple flow optimized for clarity & velocity.
 					</motion.p>
 				</div>
 
 				<div className="relative">
-					<div className="absolute left-8 sm:left-1/2 sm:-translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#76ABAE]/40 via-white/10 to-transparent pointer-events-none" />
+					<div className="absolute left-8 sm:left-1/2 sm:-translate-x-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-brand-primary/40 via-white/10 to-transparent pointer-events-none" />
 					<ul className="space-y-12 sm:space-y-20">
 						{steps.map((s, i) => (
 							<li key={s.title} className="relative">
@@ -65,16 +65,16 @@ export function HowItWorks() {
 									<div className="sm:col-span-5 flex sm:justify-end">
 										<div className="flex items-center gap-4 sm:gap-6">
 											<div className="relative">
-												<div className="absolute inset-0 rounded-xl bg-[#76ABAE]/40 blur-lg opacity-0 sm:group-hover:opacity-60 transition" />
-												<div className="h-14 w-14 rounded-xl flex items-center justify-center bg-[#76ABAE]/15 ring-1 ring-inset ring-[#76ABAE]/40 text-[#76ABAE]">
+												<div className="absolute inset-0 rounded-xl bg-brand-primary/40 blur-lg opacity-20 sm:opacity-0 sm:group-hover:opacity-60 transition" />
+												<div className="h-14 w-14 rounded-xl flex items-center justify-center bg-white/5 sm:bg-brand-primary/15 ring-1 ring-white/10 sm:ring-brand-primary/40 text-brand-primary">
 													<s.icon className="h-7 w-7" />
 												</div>
 											</div>
 											<div className="sm:hidden">
-												<h3 className="text-lg font-semibold text-[#EEEEEE] leading-tight">
+												<h3 className="text-xl font-bold text-brand-light leading-tight">
 													{s.title}
 												</h3>
-												<p className="mt-1 text-sm text-[#EEEEEE]/60 leading-relaxed">
+												<p className="mt-1 text-sm text-brand-light/70 leading-relaxed">
 													{s.body}
 												</p>
 											</div>
@@ -82,14 +82,14 @@ export function HowItWorks() {
 									</div>
 									<div className="hidden sm:block sm:col-span-2">
 										<div className="relative h-full flex items-center justify-center">
-											<div className="h-4 w-4 rounded-full bg-[#76ABAE] ring-4 ring-[#76ABAE]/30 shadow-[0_0_0_4px_#76ABAE20]" />
+											<div className="h-4 w-4 rounded-full bg-brand-primary ring-4 ring-brand-primary/30 shadow-[0_0_0_4px_hsl(var(--brand-primary)/0.12)]" />
 										</div>
 									</div>
 									<div className="sm:col-span-5 hidden sm:block">
-										<h3 className="text-xl font-semibold text-[#EEEEEE] leading-tight">
+										<h3 className="text-xl font-semibold text-brand-light leading-tight">
 											{s.title}
 										</h3>
-										<p className="mt-3 text-sm md:text-base text-[#EEEEEE]/60 leading-relaxed">
+										<p className="mt-3 text-sm md:text-base text-brand-light/60 leading-relaxed">
 											{s.body}
 										</p>
 									</div>

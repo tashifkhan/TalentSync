@@ -78,11 +78,12 @@ export interface ResumeData {
   predicted_field: string;
 }
 
-export interface ApiResponse {
-  success: boolean;
-  message: string;
-  data: ResumeData;
-  cleaned_text: string;
+export interface UserResume {
+  id: string;
+  customName: string;
+  uploadDate: string;
+  candidateName?: string;
+  predictedField?: string;
 }
 
 export interface ResumeTemplate {
@@ -103,6 +104,6 @@ export interface PdfGenerationRequest {
       left: number;
       right: number;
     };
-    colorScheme?: 'default' | 'blue' | 'green' | 'red';
+    colorScheme?: "default" | "blue" | "green" | "red";
   };
 }

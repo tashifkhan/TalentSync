@@ -28,7 +28,7 @@ export default function Header({ currentTime, userName }: HeaderProps) {
 			>
 				<Badge
 					variant="secondary"
-					className="bg-[#76ABAE]/30 text-[#76ABAE] border-[#76ABAE]/40 mb-4"
+					className="bg-brand-primary/30 text-brand-primary border-brand-primary/40 mb-4"
 				>
 					<Clock className="w-3 h-3 mr-1" />
 					{currentTime}
@@ -39,7 +39,7 @@ export default function Header({ currentTime, userName }: HeaderProps) {
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6, delay: 0.1 }}
-				className="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-white to-[#76ABAE] bg-clip-text text-transparent"
+				className="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-white to-brand-primary bg-clip-text text-transparent"
 			>
 				{getGreeting()}, {userName}!
 			</motion.h1>
@@ -48,7 +48,7 @@ export default function Header({ currentTime, userName }: HeaderProps) {
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.6, delay: 0.2 }}
-				className="text-slate-300 text-xl max-w-2xl mx-auto"
+				className="text-text-muted-light text-xl max-w-2xl mx-auto"
 			>
 				Your AI-powered career companion is ready to help you succeed
 			</motion.p>

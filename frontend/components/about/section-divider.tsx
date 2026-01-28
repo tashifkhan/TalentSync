@@ -15,8 +15,8 @@ export default function SectionDivider({
 				viewport={{ once: true, amount: 0.4 }}
 				transition={{ duration: 0.6 }}
 				className={cn(
-					"mx-auto w-full max-w-5xl h-px my-4 md:my-10 bg-gradient-to-r from-transparent via-[#76ABAE33] to-transparent",
-					subtle && "via-[#76ABAE22]"
+					"mx-auto w-full max-w-5xl h-px my-4 md:my-10 bg-gradient-to-r from-transparent via-brand-primary/20 to-transparent",
+					subtle && "via-brand-primary/13"
 				)}
 			/>
 		</div>

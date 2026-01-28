@@ -17,10 +17,8 @@ import { Progress } from "@/components/ui/progress";
 import {
 	FileText,
 	Users,
-	TrendingUp,
 	Mail,
 	MessageSquare,
-	User,
 	ArrowRight,
 	ArrowLeft,
 	Briefcase,
@@ -32,7 +30,6 @@ import {
 	CheckCircle,
 	PlusCircle,
 	Zap,
-	Award,
 	Edit,
 	Trash2,
 	Eye,
@@ -42,80 +39,29 @@ import {
 import Link from "next/link";
 import { Loader, LoaderOverlay } from "@/components/ui/loader";
 import { useToast } from "@/hooks/use-toast";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-interface DashboardData {
-	user: {
-		name: string;
-		email: string;
-		image?: string;
-	};
-	stats: {
-		totalResumes: number;
-		totalColdMails: number;
-		totalInterviews: number;
-	};
-	recentActivity: Array<{
-		id: string;
-		type: "resume" | "cold_mail" | "interview";
-		title: string;
-		description: string;
-		date: string;
-	}>;
-	resumes: Array<{
-		id: string;
-		customName: string;
-		uploadDate: string;
-		predictedField?: string;
-		candidateName?: string;
-	}>;
-}
-
-interface InterviewSession {
-	id: string;
-	role: string;
-	companyName: string;
-	createdAt: string;
-	questionsAndAnswers: Array<{
-		question: string;
-		answer: string;
-	}>;
-}
-
-interface ColdMailSession {
-	id: string;
-	recipientName: string;
-	recipientDesignation: string;
-	companyName: string;
-	createdAt: string;
-	emails: Array<{
-		id: string;
-		subject: string;
-		body: string;
-		createdAt: string;
-	}>;
-}
+import {
+	useDashboard,
+	useDeleteResume,
+	useRenameResume,
+	useInterviews,
+	useDeleteInterview,
+	useColdMails,
+	useDeleteColdMail,
+} from "@/hooks/queries";
+import { DashboardResume, InterviewSession, ColdMailSession } from "@/types";
 
 export default function DashboardPage() {
 	const { data: session, status } = useSession();
 	const router = useRouter();
-	const [isPageLoading, setIsPageLoading] = useState(true);
+	const { toast } = useToast();
+
 	const [currentTime, setCurrentTime] = useState("");
-	const [dashboardData, setDashboardData] = useState<DashboardData | null>(
-		null
-	);
-	const [isLoadingData, setIsLoadingData] = useState(true);
 	const [showResumesModal, setShowResumesModal] = useState(false);
+	const [showInterviewsModal, setShowInterviewsModal] = useState(false);
+	const [showColdMailsModal, setShowColdMailsModal] = useState(false);
+
+	// Resume state
 	const [editingResume, setEditingResume] = useState<{
 		id: string;
 		name: string;
@@ -125,12 +71,8 @@ export default function DashboardPage() {
 		id: string;
 		name: string;
 	} | null>(null);
-	const [showInterviewsModal, setShowInterviewsModal] = useState(false);
-	const [showColdMailsModal, setShowColdMailsModal] = useState(false);
-	const [interviewsData, setInterviewsData] = useState<InterviewSession[]>([]);
-	const [coldMailsData, setColdMailsData] = useState<ColdMailSession[]>([]);
-	const [isLoadingInterviews, setIsLoadingInterviews] = useState(false);
-	const [isLoadingColdMails, setIsLoadingColdMails] = useState(false);
+
+	// Other deletion states
 	const [deletingInterview, setDeletingInterview] = useState<{
 		id: string;
 		role: string;
@@ -141,254 +83,18 @@ export default function DashboardPage() {
 		recipientName: string;
 		companyName: string;
 	} | null>(null);
-	const { toast } = useToast();
 
-	// Fetch dashboard data
-	const fetchDashboardData = async () => {
-		try {
-			setIsLoadingData(true);
-			const response = await fetch("/api/dashboard");
-			const result = await response.json();
+	// Queries
+	const { data: dashboardData, isLoading: isLoadingDashboard } = useDashboard();
+	const { data: interviewsData, isLoading: isLoadingInterviews } =
+		useInterviews();
+	const { data: coldMailsData, isLoading: isLoadingColdMails } = useColdMails();
 
-			if (result.success) {
-				setDashboardData(result.data);
-			} else {
-				toast({
-					title: "Error",
-					description: "Failed to load dashboard data",
-					variant: "destructive",
-				});
-			}
-		} catch (error) {
-			console.error("Failed to fetch dashboard data:", error);
-			toast({
-				title: "Error",
-				description: "Failed to load dashboard data",
-				variant: "destructive",
-			});
-		} finally {
-			setIsLoadingData(false);
-		}
-	};
-
-	// Fetch interviews data
-	const fetchInterviews = async () => {
-		try {
-			setIsLoadingInterviews(true);
-			const response = await fetch("/api/interviews");
-			const result = await response.json();
-
-			if (result.success) {
-				setInterviewsData(result.data);
-			} else {
-				toast({
-					title: "Error",
-					description: "Failed to load interviews",
-					variant: "destructive",
-				});
-			}
-		} catch (error) {
-			console.error("Failed to fetch interviews:", error);
-			toast({
-				title: "Error",
-				description: "Failed to load interviews",
-				variant: "destructive",
-			});
-		} finally {
-			setIsLoadingInterviews(false);
-		}
-	};
-
-	// Fetch cold mails data
-	const fetchColdMails = async () => {
-		try {
-			setIsLoadingColdMails(true);
-			const response = await fetch("/api/cold-mails");
-			const result = await response.json();
-
-			if (result.success) {
-				setColdMailsData(result.data);
-			} else {
-				toast({
-					title: "Error",
-					description: "Failed to load cold mails",
-					variant: "destructive",
-				});
-			}
-		} catch (error) {
-			console.error("Failed to fetch cold mails:", error);
-			toast({
-				title: "Error",
-				description: "Failed to load cold mails",
-				variant: "destructive",
-			});
-		} finally {
-			setIsLoadingColdMails(false);
-		}
-	};
-
-	// Handle interviews modal
-	const handleShowInterviews = () => {
-		setShowInterviewsModal(true);
-		fetchInterviews();
-	};
-
-	// Handle cold mails modal
-	const handleShowColdMails = () => {
-		setShowColdMailsModal(true);
-		fetchColdMails();
-	};
-
-	// Copy to clipboard helper
-	const copyToClipboard = async (text: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			toast({
-				title: "Copied!",
-				description: "Content copied to clipboard",
-			});
-		} catch (error) {
-			toast({
-				title: "Error",
-				description: "Failed to copy to clipboard",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Handle resume deletion
-	const handleDeleteResume = async (resumeId: string) => {
-		try {
-			const response = await fetch(`/api/resumes?id=${resumeId}`, {
-				method: "DELETE",
-			});
-
-			const result = await response.json();
-
-			if (result.success) {
-				toast({
-					title: "Success",
-					description: "Resume deleted successfully",
-				});
-				fetchDashboardData(); // Refresh data
-			} else {
-				throw new Error(result.message);
-			}
-		} catch (error) {
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error ? error.message : "Failed to delete resume",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Handle interview deletion
-	const handleDeleteInterview = async (interviewId: string) => {
-		try {
-			const response = await fetch(`/api/interviews?id=${interviewId}`, {
-				method: "DELETE",
-			});
-
-			const result = await response.json();
-
-			if (result.success) {
-				toast({
-					title: "Success",
-					description: "Interview session deleted successfully",
-				});
-				fetchDashboardData(); // Refresh dashboard stats
-				fetchInterviews(); // Refresh interviews list
-			} else {
-				throw new Error(result.message);
-			}
-		} catch (error) {
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error ? error.message : "Failed to delete interview",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Handle cold mail deletion
-	const handleDeleteColdMail = async (coldMailId: string) => {
-		try {
-			const response = await fetch(`/api/cold-mails?id=${coldMailId}`, {
-				method: "DELETE",
-			});
-
-			const result = await response.json();
-
-			if (result.success) {
-				toast({
-					title: "Success",
-					description: "Cold mail session deleted successfully",
-				});
-				fetchDashboardData(); // Refresh dashboard stats
-				fetchColdMails(); // Refresh cold mails list
-			} else {
-				throw new Error(result.message);
-			}
-		} catch (error) {
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error ? error.message : "Failed to delete cold mail",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Handle resume rename
-	const handleRenameResume = async (resumeId: string, newName: string) => {
-		try {
-			const response = await fetch(`/api/resumes?id=${resumeId}`, {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ customName: newName }),
-			});
-
-			const result = await response.json();
-
-			if (result.success) {
-				toast({
-					title: "Success",
-					description: "Resume renamed successfully",
-				});
-				setEditingResume(null);
-				setNewResumeName("");
-				fetchDashboardData(); // Refresh data
-			} else {
-				throw new Error(result.message);
-			}
-		} catch (error) {
-			toast({
-				title: "Error",
-				description:
-					error instanceof Error ? error.message : "Failed to rename resume",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Get activity icon
-	const getActivityIcon = (type: string) => {
-		switch (type) {
-			case "resume":
-				return <FileText className="h-4 w-4 text-[#76ABAE]" />;
-			case "cold_mail":
-				return <Mail className="h-4 w-4 text-blue-400" />;
-			case "interview":
-				return <Users className="h-4 w-4 text-green-400" />;
-			default:
-				return <Star className="h-4 w-4 text-gray-400" />;
-		}
-	};
+	// Mutations
+	const deleteResumeMutation = useDeleteResume();
+	const renameResumeMutation = useRenameResume();
+	const deleteInterviewMutation = useDeleteInterview();
+	const deleteColdMailMutation = useDeleteColdMail();
 
 	// Get current time
 	useEffect(() => {
@@ -421,17 +127,64 @@ export default function DashboardPage() {
 		}
 	}, [status, router]);
 
-	// Simulate page load and fetch data
-	useEffect(() => {
-		const timer = setTimeout(() => setIsPageLoading(false), 100);
-
-		// Fetch dashboard data when component mounts
-		if (status === "authenticated") {
-			fetchDashboardData();
+	// Copy to clipboard helper
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			toast({
+				title: "Copied!",
+				description: "Content copied to clipboard",
+			});
+		} catch (error) {
+			toast({
+				title: "Error",
+				description: "Failed to copy to clipboard",
+				variant: "destructive",
+			});
 		}
+	};
 
-		return () => clearTimeout(timer);
-	}, [status]);
+	// Handlers
+	const handleDeleteResume = (resumeId: string) => {
+		deleteResumeMutation.mutate(resumeId);
+		setDeletingResume(null);
+	};
+
+	const handleRenameResume = (resumeId: string, newName: string) => {
+		renameResumeMutation.mutate(
+			{ id: resumeId, name: newName },
+			{
+				onSuccess: () => {
+					setEditingResume(null);
+					setNewResumeName("");
+				},
+			},
+		);
+	};
+
+	const handleDeleteInterview = (interviewId: string) => {
+		deleteInterviewMutation.mutate(interviewId);
+		setDeletingInterview(null);
+	};
+
+	const handleDeleteColdMail = (coldMailId: string) => {
+		deleteColdMailMutation.mutate(coldMailId);
+		setDeletingColdMail(null);
+	};
+
+	// Get activity icon
+	const getActivityIcon = (type: string) => {
+		switch (type) {
+			case "resume":
+				return <FileText className="h-4 w-4 text-brand-primary" />;
+			case "cold_mail":
+				return <Mail className="h-4 w-4 text-info" />;
+			case "interview":
+				return <Users className="h-4 w-4 text-success" />;
+			default:
+				return <Star className="h-4 w-4 text-muted-foreground" />;
+		}
+	};
 
 	if (status === "loading") {
 		return <LoaderOverlay variant="dots" size="xl" text="Loading session..." />;
@@ -443,6 +196,9 @@ export default function DashboardPage() {
 		);
 	}
 
+	// Combine loading states for initial page load
+	const isPageLoading = isLoadingDashboard && !dashboardData;
+
 	return (
 		<>
 			<AnimatePresence>
@@ -450,608 +206,606 @@ export default function DashboardPage() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-brand-dark flex items-center justify-center z-50"
 					>
 						<Loader variant="dots" size="xl" text="Loading your dashboard..." />
 					</motion.div>
 				)}
 			</AnimatePresence>
 
-			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] relative overflow-hidden">
-					{/* Animated background elements */}
-					<div className="absolute inset-0 overflow-hidden">
-						<div className="absolute -top-10 -left-10 w-72 h-72 bg-[#76ABAE]/10 rounded-full blur-3xl animate-pulse"></div>
-						<div className="absolute top-1/2 -right-20 w-96 h-96 bg-[#31363F]/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-						<div className="absolute -bottom-20 left-1/3 w-80 h-80 bg-[#76ABAE]/15 rounded-full blur-3xl animate-pulse delay-2000"></div>
-					</div>
+			<div className="min-h-screen relative overflow-hidden">
+				{/* Animated background elements */}
+				<div className="absolute inset-0 overflow-hidden">
+					<div className="absolute -top-10 -left-10 w-72 h-72 bg-brand-primary/10 rounded-full blur-3xl animate-pulse"></div>
+					<div className="absolute top-1/2 -right-20 w-96 h-96 bg-surface/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+					<div className="absolute -bottom-20 left-1/3 w-80 h-80 bg-brand-primary/15 rounded-full blur-3xl animate-pulse delay-2000"></div>
+				</div>
 
-					{/* Back Button */}
+				{/* Back Button */}
+				<motion.div
+					initial={{ opacity: 0, x: -20 }}
+					animate={{ opacity: 1, x: 0 }}
+					transition={{ duration: 0.5 }}
+					className="absolute top-6 left-6 z-10"
+				>
+					<Link href="/">
+						<Button
+							variant="ghost"
+							className="text-white hover:text-brand-primary hover:bg-white/10 backdrop-blur-sm border border-white/20"
+						>
+							<ArrowLeft className="mr-2 h-4 w-4" />
+							Back to Home
+						</Button>
+					</Link>
+				</motion.div>
+
+				<div className="container mx-auto px-6 py-8 relative z-10">
+					{/* Add top spacing */}
+					<div className="pt-20"></div>
+
 					<motion.div
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ duration: 0.5 }}
-						className="absolute top-6 left-6 z-10"
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.8 }}
 					>
-						<Link href="/">
-							<Button
-								variant="ghost"
-								className="text-white hover:text-[#76ABAE] hover:bg-white/10 backdrop-blur-sm border border-white/20"
+						{/* Enhanced Header */}
+						<div className="mb-12 text-center">
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.6 }}
+								className="mb-4"
 							>
-								<ArrowLeft className="mr-2 h-4 w-4" />
-								Back to Home
-							</Button>
-						</Link>
-					</motion.div>
+								<Badge
+									variant="secondary"
+									className="bg-brand-primary/30 text-brand-primary border-brand-primary/40 mb-4"
+								>
+									<Clock className="w-3 h-3 mr-1" />
+									{currentTime}
+								</Badge>
+							</motion.div>
 
-					<div className="container mx-auto px-6 py-8 relative z-10">
-						{/* Add top spacing */}
-						<div className="pt-20"></div>
+							<motion.h1
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.6, delay: 0.1 }}
+								className="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-white to-brand-primary bg-clip-text text-transparent"
+							>
+								{getGreeting()},{" "}
+								{dashboardData?.user?.name || session?.user?.name || "User"}!
+							</motion.h1>
 
+							<motion.p
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.6, delay: 0.2 }}
+								className="text-text-muted-light text-xl max-w-2xl mx-auto"
+							>
+								Your AI-powered career companion is ready to help you succeed
+							</motion.p>
+						</div>
+
+						{/* Quick Action Buttons - Enhanced */}
 						<motion.div
 							initial={{ opacity: 0, y: 20 }}
 							animate={{ opacity: 1, y: 0 }}
-							transition={{ duration: 0.8 }}
+							transition={{ duration: 0.6, delay: 0.3 }}
+							className="flex flex-wrap justify-center gap-4 mb-12"
 						>
-							{/* Enhanced Header */}
-							<div className="mb-12 text-center">
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.6 }}
-									className="mb-4"
-								>
-									<Badge
-										variant="secondary"
-										className="bg-[#76ABAE]/30 text-[#76ABAE] border-[#76ABAE]/40 mb-4"
-									>
-										<Clock className="w-3 h-3 mr-1" />
-										{currentTime}
-									</Badge>
-								</motion.div>
+							<Link href="/dashboard/cold-mail">
+								<Button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 button-hover">
+									<Mail className="h-5 w-5 mr-2" />
+									Cold Mail Generator
+									<Zap className="h-4 w-4 ml-2" />
+								</Button>
+							</Link>
+							<Link href="/dashboard/hiring-assistant">
+								<Button className="bg-gradient-to-r from-surface to-surface-hover hover:from-surface-hover hover:to-surface text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 button-hover border border-border-subtle/50">
+									<Users className="h-5 w-5 mr-2" />
+									Hiring Assistant
+									<Target className="h-4 w-4 ml-2" />
+								</Button>
+							</Link>
+						</motion.div>
 
-								<motion.h1
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.6, delay: 0.1 }}
-									className="text-5xl font-bold text-white mb-3 bg-gradient-to-r from-white to-[#76ABAE] bg-clip-text text-transparent"
-								>
-									{getGreeting()},{" "}
-									{dashboardData?.user?.name || session?.user?.name || "User"}!
-								</motion.h1>
-
-								<motion.p
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.6, delay: 0.2 }}
-									className="text-slate-300 text-xl max-w-2xl mx-auto"
-								>
-									Your AI-powered career companion is ready to help you succeed
-								</motion.p>
-							</div>
-
-							{/* Quick Action Buttons - Enhanced */}
+						{/* Enhanced Quick Stats */}
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
 							<motion.div
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.6, delay: 0.3 }}
-								className="flex flex-wrap justify-center gap-4 mb-12"
+								transition={{ duration: 0.5, delay: 0.1 }}
 							>
-								<Link href="/dashboard/cold-mail">
-									<Button className="bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 button-hover">
-										<Mail className="h-5 w-5 mr-2" />
-										Cold Mail Generator
-										<Zap className="h-4 w-4 ml-2" />
-									</Button>
-								</Link>
-								<Link href="/dashboard/hiring-assistant">
-									<Button className="bg-gradient-to-r from-[#31363F] to-[#4C566A] hover:from-[#4C566A] hover:to-[#31363F] text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 button-hover border border-slate-600/50">
-										<Users className="h-5 w-5 mr-2" />
-										Hiring Assistant
-										<Target className="h-4 w-4 ml-2" />
-									</Button>
-								</Link>
-							</motion.div>
-
-							{/* Enhanced Quick Stats */}
-							<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.5, delay: 0.1 }}
+								<Card
+									className="backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
+									onClick={() => setShowResumesModal(true)}
 								>
-									<Card
-										className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/90 to-[#222831]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
-										onClick={() => setShowResumesModal(true)}
-									>
-										<CardContent className="p-6">
-											<div className="flex items-center justify-between mb-4">
-												<div className="p-3 bg-[#76ABAE]/30 rounded-xl group-hover:bg-[#76ABAE]/40 transition-colors">
-													<FileText className="h-6 w-6 text-[#76ABAE]" />
-												</div>
-												<Badge
-													variant="secondary"
-													className="bg-green-500/30 text-green-300 border-green-500/40"
-												>
-													<Eye className="w-3 h-3 mr-1" />
-													View
-												</Badge>
+									<CardContent className="p-6">
+										<div className="flex items-center justify-between mb-4">
+											<div className="p-3 bg-brand-primary/30 rounded-xl group-hover:bg-brand-primary/40 transition-colors">
+												<FileText className="h-6 w-6 text-brand-primary" />
 											</div>
-											<div>
-												<p className="text-slate-300 text-sm font-medium mb-1">
-													Total Resumes
-												</p>
-												<p className="text-3xl font-bold text-white mb-2">
-													{isLoadingData
-														? "..."
-														: dashboardData?.stats.totalResumes || 0}
-												</p>
-												<Progress
-													value={Math.min(
-														(dashboardData?.stats.totalResumes || 0) * 10,
-														100
-													)}
-													className="h-2 bg-slate-600/50"
-												/>
-											</div>
-										</CardContent>
-									</Card>
-								</motion.div>
-
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.5, delay: 0.2 }}
-								>
-									<Card
-										className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/90 to-[#222831]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
-										onClick={handleShowColdMails}
-									>
-										<CardContent className="p-6">
-											<div className="flex items-center justify-between mb-4">
-												<div className="p-3 bg-blue-500/30 rounded-xl group-hover:bg-blue-500/40 transition-colors">
-													<Mail className="h-6 w-6 text-blue-400" />
-												</div>
-												<Badge
-													variant="secondary"
-													className="bg-blue-500/30 text-blue-300 border-blue-500/40"
-												>
-													<Target className="w-3 h-3 mr-1" />
-													Generated
-												</Badge>
-											</div>
-											<div>
-												<p className="text-slate-300 text-sm font-medium mb-1">
-													Cold Emails
-												</p>
-												<p className="text-3xl font-bold text-white mb-2">
-													{isLoadingData
-														? "..."
-														: dashboardData?.stats.totalColdMails || 0}
-												</p>
-												<Progress
-													value={Math.min(
-														(dashboardData?.stats.totalColdMails || 0) * 5,
-														100
-													)}
-													className="h-2 bg-slate-600/50"
-												/>
-											</div>
-										</CardContent>
-									</Card>
-								</motion.div>
-
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.5, delay: 0.3 }}
-								>
-									<Card
-										className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/90 to-[#222831]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
-										onClick={handleShowInterviews}
-									>
-										<CardContent className="p-6">
-											<div className="flex items-center justify-between mb-4">
-												<div className="p-3 bg-green-500/30 rounded-xl group-hover:bg-green-500/40 transition-colors">
-													<Users className="h-6 w-6 text-green-400" />
-												</div>
-												<Badge
-													variant="secondary"
-													className="bg-green-500/30 text-green-300 border-green-500/40"
-												>
-													<Target className="w-3 h-3 mr-1" />
-													Practiced
-												</Badge>
-											</div>
-											<div>
-												<p className="text-slate-300 text-sm font-medium mb-1">
-													Interview Sessions
-												</p>
-												<p className="text-3xl font-bold text-white mb-2">
-													{isLoadingData
-														? "..."
-														: dashboardData?.stats.totalInterviews || 0}
-												</p>
-												<Progress
-													value={Math.min(
-														(dashboardData?.stats.totalInterviews || 0) * 10,
-														100
-													)}
-													className="h-2 bg-slate-600/50"
-												/>
-											</div>
-										</CardContent>
-									</Card>
-								</motion.div>
-							</div>
-
-							{/* Your Resumes Section */}
-							{dashboardData &&
-								dashboardData.resumes &&
-								dashboardData.resumes.length > 0 && (
-									<motion.div
-										initial={{ opacity: 0, y: 20 }}
-										animate={{ opacity: 1, y: 0 }}
-										transition={{ duration: 0.5, delay: 0.4 }}
-										className="mb-12"
-									>
-										<div className="flex items-center justify-between mb-6">
-											<h2 className="text-2xl font-bold text-white flex items-center gap-3">
-												<FileText className="h-6 w-6 text-[#76ABAE]" />
-												Your Resumes
-											</h2>
-											<Link href="/dashboard/seeker">
-												<Button
-													variant="outline"
-													className="border-[#76ABAE]/30 text-[#76ABAE] hover:text-slate-300 hover:bg-[#76ABAE]/10"
-												>
-													<PlusCircle className="h-4 w-4 mr-2" />
-													Upload New
-												</Button>
-											</Link>
-										</div>
-
-										<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-											{dashboardData.resumes.slice(0, 6).map((resume) => (
-												<Card
-													key={resume.id}
-													className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-lg hover:shadow-xl transition-all duration-300 group"
-												>
-													<CardHeader className="pb-3">
-														<CardTitle className="text-white flex items-center justify-between">
-															<div className="flex items-center">
-																<FileText className="mr-2 h-5 w-5 text-[#76ABAE]" />
-																<span className="truncate text-sm">
-																	{resume.customName}
-																</span>
-															</div>
-														</CardTitle>
-													</CardHeader>
-													<CardContent className="space-y-3">
-														<div className="space-y-2">
-															<div className="flex items-center text-xs text-slate-400">
-																<Calendar className="mr-2 h-3 w-3" />
-																{new Date(resume.uploadDate).toLocaleDateString(
-																	"en-US",
-																	{
-																		month: "short",
-																		day: "numeric",
-																		year: "numeric",
-																	}
-																)}
-															</div>
-															{resume.predictedField && (
-																<div className="text-xs">
-																	<Badge className="bg-[#76ABAE]/20 text-[#76ABAE] text-xs">
-																		{resume.predictedField}
-																	</Badge>
-																</div>
-															)}
-															{resume.candidateName && (
-																<div className="text-xs text-slate-300">
-																	{resume.candidateName}
-																</div>
-															)}
-														</div>
-
-														<Link
-															href={`/dashboard/analysis/${resume.id}`}
-															className="block"
-														>
-															<Button
-																size="sm"
-																className="w-full bg-[#76ABAE] hover:bg-[#76ABAE]/80 text-white text-xs"
-															>
-																<Eye className="mr-2 h-3 w-3" />
-																View Analysis
-															</Button>
-														</Link>
-													</CardContent>
-												</Card>
-											))}
-										</div>
-
-										{dashboardData.resumes.length > 6 && (
-											<div className="text-center mt-6">
-												<Button
-													onClick={() => setShowResumesModal(true)}
-													variant="outline"
-													className="border-[#76ABAE]/30 text-[#76ABAE] hover:bg-[#76ABAE]/10"
-												>
-													View All Resumes ({dashboardData.resumes.length})
-												</Button>
-											</div>
-										)}
-									</motion.div>
-								)}
-
-							{/* Enhanced Feature Cards */}
-							<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-								<motion.div
-									initial={{ opacity: 0, x: -20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ duration: 0.5, delay: 0.5 }}
-								>
-									<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
-										<CardHeader className="pb-4">
-											<div className="flex items-center justify-between mb-2">
-												<CardTitle className="text-white flex items-center gap-3 text-xl">
-													<div className="p-2 bg-[#76ABAE]/30 rounded-lg group-hover:bg-[#76ABAE]/40 transition-colors">
-														<FileText className="h-6 w-6 text-[#76ABAE]" />
-													</div>
-													Resume Analysis
-												</CardTitle>
-												<Badge className="bg-[#76ABAE]/30 text-[#76ABAE] border-[#76ABAE]/40">
-													AI-Powered
-												</Badge>
-											</div>
-											<CardDescription className="text-slate-300 text-base">
-												Upload and analyze your resume to get AI-powered
-												insights, suggestions, and optimization tips
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="pt-0">
-											<div className="mb-6 space-y-2">
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													ATS Compatibility Check
-												</div>
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													Skill Gap Analysis
-												</div>
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													Industry-Specific Recommendations
-												</div>
-											</div>
-											<Link href="/dashboard/seeker">
-												<Button className="w-full bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] group text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-300 button-hover">
-													<PlusCircle className="mr-2 h-5 w-5" />
-													Get Started
-													<ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-												</Button>
-											</Link>
-										</CardContent>
-									</Card>
-								</motion.div>
-
-								<motion.div
-									initial={{ opacity: 0, x: 20 }}
-									animate={{ opacity: 1, x: 0 }}
-									transition={{ duration: 0.5, delay: 0.6 }}
-								>
-									<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
-										<CardHeader className="pb-4">
-											<div className="flex items-center justify-between mb-2">
-												<CardTitle className="text-white flex items-center gap-3 text-xl">
-													<div className="p-2 bg-slate-500/30 rounded-lg group-hover:bg-slate-500/40 transition-colors">
-														<Users className="h-6 w-6 text-slate-300" />
-													</div>
-													For Recruiters
-												</CardTitle>
-												<Badge className="bg-slate-500/30 text-slate-300 border-slate-500/40">
-													Pro Tools
-												</Badge>
-											</div>
-											<CardDescription className="text-slate-300 text-base">
-												Find and analyze candidate profiles with AI assistance
-												and advanced filtering options
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="pt-0">
-											<div className="mb-6 space-y-2">
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													Smart Candidate Matching
-												</div>
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													Bulk Resume Processing
-												</div>
-												<div className="flex items-center text-sm text-slate-300">
-													<CheckCircle className="h-4 w-4 mr-2 text-green-400" />
-													Interview Question Generator
-												</div>
-											</div>
-											<Link href="/dashboard/recruiter">
-												<Button
-													variant="outline"
-													className="w-full border-slate-500/30 text-slate-900 hover:bg-slate-500/10 hover:text-white group text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-300 button-hover"
-												>
-													<BarChart3 className="mr-2 h-5 w-5" />
-													Explore Tools
-													<ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-												</Button>
-											</Link>
-										</CardContent>
-									</Card>
-								</motion.div>
-							</div>
-
-							{/* Quick Tips Section */}
-							<motion.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.5, delay: 0.7 }}
-								className="mb-12"
-							>
-								<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl">
-									<CardHeader>
-										<CardTitle className="text-white flex items-center gap-2">
-											<Zap className="h-5 w-5 text-[#76ABAE]" />
-											Quick Tips for Today
-										</CardTitle>
-										<CardDescription className="text-slate-300">
-											Personalized recommendations to boost your career
-										</CardDescription>
-									</CardHeader>
-									<CardContent>
-										<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-											<div className="p-4 rounded-lg bg-gradient-to-br from-[#76ABAE]/20 to-[#76ABAE]/10 border border-[#76ABAE]/30">
-												<div className="flex items-center mb-2">
-													<Target className="h-4 w-4 text-[#76ABAE] mr-2" />
-													<span className="text-sm font-medium text-white">
-														Optimize Keywords
-													</span>
-												</div>
-												<p className="text-xs text-slate-300">
-													Add industry-specific keywords to improve ATS
-													compatibility
-												</p>
-											</div>
-											<div className="p-4 rounded-lg bg-gradient-to-br from-slate-500/20 to-slate-500/10 border border-slate-500/30">
-												<div className="flex items-center mb-2">
-													<Calendar className="h-4 w-4 text-slate-300 mr-2" />
-													<span className="text-sm font-medium text-white">
-														Update Profile
-													</span>
-												</div>
-												<p className="text-xs text-slate-300">
-													Keep your profile fresh with recent achievements
-												</p>
-											</div>
-											<div className="p-4 rounded-lg bg-gradient-to-br from-[#76ABAE]/20 to-[#76ABAE]/10 border border-[#76ABAE]/30">
-												<div className="flex items-center mb-2">
-													<MessageSquare className="h-4 w-4 text-[#76ABAE] mr-2" />
-													<span className="text-sm font-medium text-white">
-														Network Smart
-													</span>
-												</div>
-												<p className="text-xs text-slate-300">
-													Use AI-generated cold emails to expand your network
-												</p>
-											</div>
-										</div>
-									</CardContent>
-								</Card>
-							</motion.div>
-
-							{/* Recent Activity - Enhanced */}
-							<motion.div
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ duration: 0.5, delay: 0.8 }}
-							>
-								<Card className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/95 to-[#222831]/95 border-slate-600/30 shadow-2xl">
-									<CardHeader>
-										<div className="flex items-center justify-between">
-											<div>
-												<CardTitle className="text-white flex items-center gap-2">
-													<BarChart3 className="h-5 w-5 text-[#76ABAE]" />
-													Activity Center
-												</CardTitle>
-												<CardDescription className="text-slate-300">
-													Your latest actions and achievements
-												</CardDescription>
-											</div>
-											<Badge className="bg-[#76ABAE]/30 text-[#76ABAE] border-[#76ABAE]/40">
-												Live
+											<Badge
+												variant="secondary"
+												className="bg-success/30 text-success border-success/40"
+											>
+												<Eye className="w-3 h-3 mr-1" />
+												View
 											</Badge>
 										</div>
-									</CardHeader>
-									<CardContent>
-										{isLoadingData ? (
-											<div className="flex items-center justify-center py-12">
-												<Loader
-													variant="spinner"
-													size="lg"
-													className="text-[#76ABAE]"
-												/>
-											</div>
-										) : dashboardData?.recentActivity &&
-										  dashboardData.recentActivity.length > 0 ? (
-											<div className="space-y-4">
-												{dashboardData.recentActivity.map((activity, index) => (
-													<motion.div
-														key={activity.id}
-														initial={{ opacity: 0, x: -20 }}
-														animate={{ opacity: 1, x: 0 }}
-														transition={{ duration: 0.3, delay: index * 0.1 }}
-														className="flex items-center space-x-4 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-													>
-														<div className="flex-shrink-0">
-															{getActivityIcon(activity.type)}
-														</div>
-														<div className="flex-1 min-w-0">
-															<p className="text-white font-medium text-sm">
-																{activity.title}
-															</p>
-															<p className="text-slate-400 text-xs truncate">
-																{activity.description}
-															</p>
-														</div>
-														<div className="flex-shrink-0">
-															<p className="text-slate-500 text-xs">
-																{new Date(activity.date).toLocaleDateString()}
-															</p>
-														</div>
-													</motion.div>
-												))}
-											</div>
-										) : (
-											<div className="flex items-center justify-center py-12">
-												<div className="text-center max-w-md">
-													<div className="relative mb-6">
-														<div className="absolute inset-0 flex items-center justify-center">
-															<div className="w-24 h-24 bg-gradient-to-r from-[#76ABAE]/30 to-[#76ABAE]/20 rounded-full animate-pulse"></div>
-														</div>
-														<MessageSquare className="relative h-12 w-12 text-[#76ABAE] mx-auto" />
-													</div>
-													<h3 className="text-xl font-semibold text-white mb-2">
-														Ready to Get Started?
-													</h3>
-													<p className="text-slate-300 mb-6">
-														Begin your journey by uploading a resume or
-														exploring our AI-powered features
-													</p>
-													<div className="flex flex-col sm:flex-row gap-3 justify-center">
-														<Link href="/dashboard/seeker">
-															<Button className="bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] text-white px-6 py-2">
-																<FileText className="mr-2 h-4 w-4" />
-																Upload Resume
-															</Button>
-														</Link>
-														<Link href="/dashboard/cold-mail">
-															<Button
-																variant="outline"
-																className="border-[#76ABAE]/50 text-[#76ABAE] hover:bg-[#76ABAE]/10 hover:text-white px-6 py-2"
-															>
-																<Mail className="mr-2 h-4 w-4" />
-																Try Cold Mail
-															</Button>
-														</Link>
-													</div>
-												</div>
-											</div>
-										)}
+										<div>
+											<p className="text-text-muted-light text-sm font-medium mb-1">
+												Total Resumes
+											</p>
+											<p className="text-3xl font-bold text-white mb-2">
+												{isLoadingDashboard
+													? "..."
+													: dashboardData?.stats.totalResumes || 0}
+											</p>
+											<Progress
+												value={Math.min(
+													(dashboardData?.stats.totalResumes || 0) * 10,
+													100,
+												)}
+												className="h-2 bg-border-subtle/50"
+											/>
+										</div>
 									</CardContent>
 								</Card>
 							</motion.div>
+
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5, delay: 0.2 }}
+							>
+								<Card
+									className="backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
+									onClick={() => setShowColdMailsModal(true)}
+								>
+									<CardContent className="p-6">
+										<div className="flex items-center justify-between mb-4">
+											<div className="p-3 bg-info/30 rounded-xl group-hover:bg-info/40 transition-colors">
+												<Mail className="h-6 w-6 text-info" />
+											</div>
+											<Badge
+												variant="secondary"
+												className="bg-info/30 text-info border-info/40"
+											>
+												<Target className="w-3 h-3 mr-1" />
+												Generated
+											</Badge>
+										</div>
+										<div>
+											<p className="text-text-muted-light text-sm font-medium mb-1">
+												Cold Emails
+											</p>
+											<p className="text-3xl font-bold text-white mb-2">
+												{isLoadingDashboard
+													? "..."
+													: dashboardData?.stats.totalColdMails || 0}
+											</p>
+											<Progress
+												value={Math.min(
+													(dashboardData?.stats.totalColdMails || 0) * 5,
+													100,
+												)}
+												className="h-2 bg-border-subtle/50"
+											/>
+										</div>
+									</CardContent>
+								</Card>
+							</motion.div>
+
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5, delay: 0.3 }}
+							>
+								<Card
+									className="backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
+									onClick={() => setShowInterviewsModal(true)}
+								>
+									<CardContent className="p-6">
+										<div className="flex items-center justify-between mb-4">
+											<div className="p-3 bg-success/30 rounded-xl group-hover:bg-success/40 transition-colors">
+												<Users className="h-6 w-6 text-success" />
+											</div>
+											<Badge
+												variant="secondary"
+												className="bg-success/30 text-success border-success/40"
+											>
+												<Target className="w-3 h-3 mr-1" />
+												Practiced
+											</Badge>
+										</div>
+										<div>
+											<p className="text-text-muted-light text-sm font-medium mb-1">
+												Interview Sessions
+											</p>
+											<p className="text-3xl font-bold text-white mb-2">
+												{isLoadingDashboard
+													? "..."
+													: dashboardData?.stats.totalInterviews || 0}
+											</p>
+											<Progress
+												value={Math.min(
+													(dashboardData?.stats.totalInterviews || 0) * 10,
+													100,
+												)}
+												className="h-2 bg-border-subtle/50"
+											/>
+										</div>
+									</CardContent>
+								</Card>
+							</motion.div>
+						</div>
+
+						{/* Your Resumes Section */}
+						{dashboardData &&
+							dashboardData.resumes &&
+							dashboardData.resumes.length > 0 && (
+								<motion.div
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ duration: 0.5, delay: 0.4 }}
+									className="mb-12"
+								>
+									<div className="flex items-center justify-between mb-6">
+										<h2 className="text-2xl font-bold text-white flex items-center gap-3">
+											<FileText className="h-6 w-6 text-brand-primary" />
+											Your Resumes
+										</h2>
+										<Link href="/dashboard/seeker">
+											<Button
+												variant="outline"
+												className="border-brand-primary/30 text-brand-primary hover:text-text-muted-light hover:bg-brand-primary/10"
+											>
+												<PlusCircle className="h-4 w-4 mr-2" />
+												Upload New
+											</Button>
+										</Link>
+									</div>
+
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+										{dashboardData.resumes.slice(0, 6).map((resume) => (
+											<Card
+												key={resume.id}
+												className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-lg hover:shadow-xl transition-all duration-300 group"
+											>
+												<CardHeader className="pb-3">
+													<CardTitle className="text-white flex items-center justify-between">
+														<div className="flex items-center">
+															<FileText className="mr-2 h-5 w-5 text-brand-primary" />
+															<span className="truncate text-sm">
+																{resume.customName}
+															</span>
+														</div>
+													</CardTitle>
+												</CardHeader>
+												<CardContent className="space-y-3">
+													<div className="space-y-2">
+														<div className="flex items-center text-xs text-text-muted-medium">
+															<Calendar className="mr-2 h-3 w-3" />
+															{new Date(resume.uploadDate).toLocaleDateString(
+																"en-US",
+																{
+																	month: "short",
+																	day: "numeric",
+																	year: "numeric",
+																},
+															)}
+														</div>
+														{resume.predictedField && (
+															<div className="text-xs">
+																<Badge className="bg-brand-primary/20 text-brand-primary text-xs">
+																	{resume.predictedField}
+																</Badge>
+															</div>
+														)}
+														{resume.candidateName && (
+															<div className="text-xs text-text-muted-light">
+																{resume.candidateName}
+															</div>
+														)}
+													</div>
+
+													<Link
+														href={`/dashboard/analysis/${resume.id}`}
+														className="block"
+													>
+														<Button
+															size="sm"
+															className="w-full bg-brand-primary hover:bg-brand-primary/80 text-white text-xs"
+														>
+															<Eye className="mr-2 h-3 w-3" />
+															View Analysis
+														</Button>
+													</Link>
+												</CardContent>
+											</Card>
+										))}
+									</div>
+
+									{dashboardData.resumes.length > 6 && (
+										<div className="text-center mt-6">
+											<Button
+												onClick={() => setShowResumesModal(true)}
+												variant="outline"
+												className="border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10"
+											>
+												View All Resumes ({dashboardData.resumes.length})
+											</Button>
+										</div>
+									)}
+								</motion.div>
+							)}
+
+						{/* Enhanced Feature Cards */}
+						<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+							<motion.div
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.5, delay: 0.5 }}
+							>
+								<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
+									<CardHeader className="pb-4">
+										<div className="flex items-center justify-between mb-2">
+											<CardTitle className="text-white flex items-center gap-3 text-xl">
+												<div className="p-2 bg-brand-primary/30 rounded-lg group-hover:bg-brand-primary/40 transition-colors">
+													<FileText className="h-6 w-6 text-brand-primary" />
+												</div>
+												Resume Analysis
+											</CardTitle>
+											<Badge className="bg-brand-primary/30 text-brand-primary border-brand-primary/40">
+												AI-Powered
+											</Badge>
+										</div>
+										<CardDescription className="text-text-muted-light text-base">
+											Upload and analyze your resume to get AI-powered insights,
+											suggestions, and optimization tips
+										</CardDescription>
+									</CardHeader>
+									<CardContent className="pt-0">
+										<div className="mb-6 space-y-2">
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												ATS Compatibility Check
+											</div>
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												Skill Gap Analysis
+											</div>
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												Industry-Specific Recommendations
+											</div>
+										</div>
+										<Link href="/dashboard/seeker">
+											<Button className="w-full bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary group text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-300 button-hover">
+												<PlusCircle className="mr-2 h-5 w-5" />
+												Get Started
+												<ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+											</Button>
+										</Link>
+									</CardContent>
+								</Card>
+							</motion.div>
+
+							<motion.div
+								initial={{ opacity: 0, x: 20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.5, delay: 0.6 }}
+							>
+								<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group h-full">
+									<CardHeader className="pb-4">
+										<div className="flex items-center justify-between mb-2">
+											<CardTitle className="text-white flex items-center gap-3 text-xl">
+												<div className="p-2 bg-text-muted-dark/30 rounded-lg group-hover:bg-text-muted-dark/40 transition-colors">
+													<Users className="h-6 w-6 text-text-muted-light" />
+												</div>
+												For Recruiters
+											</CardTitle>
+											<Badge className="bg-text-muted-dark/30 text-text-muted-light border-text-muted-dark/40">
+												Pro Tools
+											</Badge>
+										</div>
+										<CardDescription className="text-text-muted-light text-base">
+											Find and analyze candidate profiles with AI assistance and
+											advanced filtering options
+										</CardDescription>
+									</CardHeader>
+									<CardContent className="pt-0">
+										<div className="mb-6 space-y-2">
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												Smart Candidate Matching
+											</div>
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												Bulk Resume Processing
+											</div>
+											<div className="flex items-center text-sm text-text-muted-light">
+												<CheckCircle className="h-4 w-4 mr-2 text-success" />
+												Interview Question Generator
+											</div>
+										</div>
+										<Link href="/dashboard/recruiter">
+											<Button
+												variant="outline"
+												className="w-full border-text-muted-dark/30 text-foreground hover:bg-text-muted-dark/10 hover:text-white group text-lg py-3 shadow-lg hover:shadow-xl transition-all duration-300 button-hover"
+											>
+												<BarChart3 className="mr-2 h-5 w-5" />
+												Explore Tools
+												<ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+											</Button>
+										</Link>
+									</CardContent>
+								</Card>
+							</motion.div>
+						</div>
+
+						{/* Quick Tips Section */}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.7 }}
+							className="mb-12"
+						>
+							<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl">
+								<CardHeader>
+									<CardTitle className="text-white flex items-center gap-2">
+										<Zap className="h-5 w-5 text-brand-primary" />
+										Quick Tips for Today
+									</CardTitle>
+									<CardDescription className="text-text-muted-light">
+										Personalized recommendations to boost your career
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+										<div className="p-4 rounded-lg bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 border border-brand-primary/30">
+											<div className="flex items-center mb-2">
+												<Target className="h-4 w-4 text-brand-primary mr-2" />
+												<span className="text-sm font-medium text-white">
+													Optimize Keywords
+												</span>
+											</div>
+											<p className="text-xs text-text-muted-light">
+												Add industry-specific keywords to improve ATS
+												compatibility
+											</p>
+										</div>
+										<div className="p-4 rounded-lg bg-gradient-to-br from-text-muted-dark/20 to-text-muted-dark/10 border border-text-muted-dark/30">
+											<div className="flex items-center mb-2">
+												<Calendar className="h-4 w-4 text-text-muted-light mr-2" />
+												<span className="text-sm font-medium text-white">
+													Update Profile
+												</span>
+											</div>
+											<p className="text-xs text-text-muted-light">
+												Keep your profile fresh with recent achievements
+											</p>
+										</div>
+										<div className="p-4 rounded-lg bg-gradient-to-br from-brand-primary/20 to-brand-primary/10 border border-brand-primary/30">
+											<div className="flex items-center mb-2">
+												<MessageSquare className="h-4 w-4 text-brand-primary mr-2" />
+												<span className="text-sm font-medium text-white">
+													Network Smart
+												</span>
+											</div>
+											<p className="text-xs text-text-muted-light">
+												Use AI-generated cold emails to expand your network
+											</p>
+										</div>
+									</div>
+								</CardContent>
+							</Card>
 						</motion.div>
-					</div>
+
+						{/* Recent Activity - Enhanced */}
+						<motion.div
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.8 }}
+						>
+							<Card className="backdrop-blur-sm bg-brand-dark/95 border-border-subtle/30 shadow-2xl">
+								<CardHeader>
+									<div className="flex items-center justify-between">
+										<div>
+											<CardTitle className="text-white flex items-center gap-2">
+												<BarChart3 className="h-5 w-5 text-brand-primary" />
+												Activity Center
+											</CardTitle>
+											<CardDescription className="text-text-muted-light">
+												Your latest actions and achievements
+											</CardDescription>
+										</div>
+										<Badge className="bg-brand-primary/30 text-brand-primary border-brand-primary/40">
+											Live
+										</Badge>
+									</div>
+								</CardHeader>
+								<CardContent>
+									{isLoadingDashboard ? (
+										<div className="flex items-center justify-center py-12">
+											<Loader
+												variant="spinner"
+												size="lg"
+												className="text-brand-primary"
+											/>
+										</div>
+									) : dashboardData?.recentActivity &&
+									  dashboardData.recentActivity.length > 0 ? (
+										<div className="space-y-4">
+											{dashboardData.recentActivity.map((activity, index) => (
+												<motion.div
+													key={activity.id}
+													initial={{ opacity: 0, x: -20 }}
+													animate={{ opacity: 1, x: 0 }}
+													transition={{ duration: 0.3, delay: index * 0.1 }}
+													className="flex items-center space-x-4 p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+												>
+													<div className="flex-shrink-0">
+														{getActivityIcon(activity.type)}
+													</div>
+													<div className="flex-1 min-w-0">
+														<p className="text-white font-medium text-sm">
+															{activity.title}
+														</p>
+														<p className="text-text-muted-medium text-xs truncate">
+															{activity.description}
+														</p>
+													</div>
+													<div className="flex-shrink-0">
+														<p className="text-text-muted-dark text-xs">
+															{new Date(activity.date).toLocaleDateString()}
+														</p>
+													</div>
+												</motion.div>
+											))}
+										</div>
+									) : (
+										<div className="flex items-center justify-center py-12">
+											<div className="text-center max-w-md">
+												<div className="relative mb-6">
+													<div className="absolute inset-0 flex items-center justify-center">
+														<div className="w-24 h-24 bg-gradient-to-r from-brand-primary/30 to-brand-primary/20 rounded-full animate-pulse"></div>
+													</div>
+													<MessageSquare className="relative h-12 w-12 text-brand-primary mx-auto" />
+												</div>
+												<h3 className="text-xl font-semibold text-white mb-2">
+													Ready to Get Started?
+												</h3>
+												<p className="text-text-muted-light mb-6">
+													Begin your journey by uploading a resume or exploring
+													our AI-powered features
+												</p>
+												<div className="flex flex-col sm:flex-row gap-3 justify-center">
+													<Link href="/dashboard/seeker">
+														<Button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary text-white px-6 py-2">
+															<FileText className="mr-2 h-4 w-4" />
+															Upload Resume
+														</Button>
+													</Link>
+													<Link href="/dashboard/cold-mail">
+														<Button
+															variant="outline"
+															className="border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 hover:text-white px-6 py-2"
+														>
+															<Mail className="mr-2 h-4 w-4" />
+															Try Cold Mail
+														</Button>
+													</Link>
+												</div>
+											</div>
+										</div>
+									)}
+								</CardContent>
+							</Card>
+						</motion.div>
+					</motion.div>
 				</div>
-			)}
+			</div>
 
 			{/* Resumes Management Modal */}
 			<AnimatePresence>
@@ -1067,7 +821,7 @@ export default function DashboardPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-4xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -1075,17 +829,17 @@ export default function DashboardPage() {
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowResumesModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<FileText className="mr-3 h-6 w-6 text-[#76ABAE]" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<FileText className="mr-3 h-6 w-6 text-brand-primary" />
 										Your Resumes ({dashboardData?.resumes.length || 0})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Manage your uploaded resumes - rename or delete them as
 										needed.
 									</p>
@@ -1093,12 +847,12 @@ export default function DashboardPage() {
 
 								{/* Content */}
 								<div className="backdrop-blur-lg bg-white/5 rounded-lg p-6 border border-white/10">
-									{isLoadingData ? (
+									{isLoadingDashboard ? (
 										<div className="flex items-center justify-center py-12">
 											<Loader
 												variant="spinner"
 												size="lg"
-												className="text-[#76ABAE]"
+												className="text-brand-primary"
 											/>
 										</div>
 									) : dashboardData?.resumes &&
@@ -1120,7 +874,7 @@ export default function DashboardPage() {
 																	onChange={(e) =>
 																		setNewResumeName(e.target.value)
 																	}
-																	className="bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/40"
+																	className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
 																	placeholder="Enter new name"
 																/>
 																<Button
@@ -1128,7 +882,7 @@ export default function DashboardPage() {
 																	onClick={() =>
 																		handleRenameResume(resume.id, newResumeName)
 																	}
-																	className="bg-[#76ABAE] hover:bg-[#76ABAE]/80 text-white"
+																	className="bg-brand-primary hover:bg-brand-primary/80 text-white"
 																>
 																	Save
 																</Button>
@@ -1139,30 +893,30 @@ export default function DashboardPage() {
 																		setEditingResume(null);
 																		setNewResumeName("");
 																	}}
-																	className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+																	className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 																>
 																	Cancel
 																</Button>
 															</div>
 														) : (
 															<div>
-																<h3 className="font-semibold text-[#EEEEEE] truncate">
+																<h3 className="font-semibold text-brand-light truncate">
 																	{resume.customName}
 																</h3>
 																<div className="flex items-center space-x-4 mt-1">
 																	{resume.candidateName && (
-																		<span className="text-xs text-[#EEEEEE]/60">
+																		<span className="text-xs text-brand-light/60">
 																			{resume.candidateName}
 																		</span>
 																	)}
 																	{resume.predictedField && (
-																		<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
+																		<Badge className="bg-brand-primary/10 text-brand-primary border border-brand-primary/30 text-xs">
 																			{resume.predictedField}
 																		</Badge>
 																	)}
-																	<span className="text-xs text-[#EEEEEE]/40">
+																	<span className="text-xs text-brand-light/40">
 																		{new Date(
-																			resume.uploadDate
+																			resume.uploadDate,
 																		).toLocaleDateString()}
 																	</span>
 																</div>
@@ -1182,7 +936,7 @@ export default function DashboardPage() {
 																	});
 																	setNewResumeName(resume.customName);
 																}}
-																className="text-[#76ABAE] hover:text-[#EEEEEE] hover:bg-white/10"
+																className="text-brand-primary hover:text-brand-light hover:bg-white/10"
 															>
 																<Edit className="h-4 w-4" />
 															</Button>
@@ -1195,7 +949,7 @@ export default function DashboardPage() {
 																		name: resume.customName,
 																	})
 																}
-																className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+																className="text-destructive hover:text-destructive hover:bg-destructive/10"
 															>
 																<Trash2 className="h-4 w-4" />
 															</Button>
@@ -1206,16 +960,16 @@ export default function DashboardPage() {
 										</div>
 									) : (
 										<div className="text-center py-12">
-											<FileText className="h-16 w-16 text-[#76ABAE]/50 mx-auto mb-4" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<FileText className="h-16 w-16 text-brand-primary/50 mx-auto mb-4" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No resumes uploaded yet
 											</h3>
-											<p className="text-[#EEEEEE]/60 mb-6">
+											<p className="text-brand-light/60 mb-6">
 												Upload your first resume to get started with AI-powered
 												analysis
 											</p>
 											<Link href="/dashboard/seeker">
-												<Button className="bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] text-white">
+												<Button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary text-white">
 													<FileText className="mr-2 h-4 w-4" />
 													Upload Resume
 												</Button>
@@ -1243,7 +997,7 @@ export default function DashboardPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -1251,17 +1005,17 @@ export default function DashboardPage() {
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setDeletingResume(null)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
 										Delete Resume
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Are you sure you want to delete "{deletingResume?.name}"?
 										This action cannot be undone.
 									</p>
@@ -1272,18 +1026,13 @@ export default function DashboardPage() {
 									<Button
 										variant="outline"
 										onClick={() => setDeletingResume(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 									>
 										Cancel
 									</Button>
 									<Button
-										onClick={() => {
-											if (deletingResume) {
-												handleDeleteResume(deletingResume.id);
-												setDeletingResume(null);
-											}
-										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
+										onClick={() => handleDeleteResume(deletingResume.id)}
+										className="bg-destructive hover:bg-destructive/90 text-white"
 									>
 										Delete
 									</Button>
@@ -1308,7 +1057,7 @@ export default function DashboardPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -1316,17 +1065,17 @@ export default function DashboardPage() {
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowInterviewsModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Users className="mr-3 h-6 w-6 text-[#76ABAE]" />
-										Interview Sessions ({interviewsData.length})
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Users className="mr-3 h-6 w-6 text-brand-primary" />
+										Interview Sessions ({interviewsData?.length || 0})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Your practice interview sessions with questions and answers
 									</p>
 								</div>
@@ -1341,13 +1090,13 @@ export default function DashboardPage() {
 												text="Loading interviews..."
 											/>
 										</div>
-									) : interviewsData.length === 0 ? (
+									) : !interviewsData || interviewsData.length === 0 ? (
 										<div className="text-center py-8">
-											<Users className="h-16 w-16 mx-auto mb-4 text-[#76ABAE]/50" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<Users className="h-16 w-16 mx-auto mb-4 text-brand-primary/50" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No interview sessions found
 											</h3>
-											<p className="text-[#EEEEEE]/60">
+											<p className="text-brand-light/60">
 												Start practicing to see your sessions here
 											</p>
 										</div>
@@ -1361,11 +1110,11 @@ export default function DashboardPage() {
 													{/* Session Header */}
 													<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 														<div className="min-w-0 flex-1">
-															<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2 flex items-center">
-																<Briefcase className="mr-2 h-5 w-5 text-[#76ABAE]" />
+															<h3 className="text-lg font-semibold text-brand-light mb-2 flex items-center">
+																<Briefcase className="mr-2 h-5 w-5 text-brand-primary" />
 																{session.role} at {session.companyName}
 															</h3>
-															<p className="text-[#EEEEEE]/60 text-sm">
+															<p className="text-brand-light/60 text-sm">
 																{new Date(session.createdAt).toLocaleDateString(
 																	"en-US",
 																	{
@@ -1374,18 +1123,18 @@ export default function DashboardPage() {
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
 														<div className="flex items-center gap-2 shrink-0">
-															<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
+															<Badge className="bg-brand-primary/10 text-brand-primary border border-brand-primary/30 text-xs">
 																{session.questionsAndAnswers.length} Questions
 															</Badge>
 															<Button
 																size="sm"
 																variant="ghost"
-																className="h-8 w-8 p-0 hover:bg-red-500/20 text-red-400 hover:text-red-300"
+																className="h-8 w-8 p-0 hover:bg-destructive/20 text-destructive hover:text-destructive"
 																onClick={() =>
 																	setDeletingInterview({
 																		id: session.id,
@@ -1404,18 +1153,18 @@ export default function DashboardPage() {
 														{session.questionsAndAnswers.map((qa, index) => (
 															<div
 																key={index}
-																className="border-l-2 border-[#76ABAE] pl-4"
+																className="border-l-2 border-brand-primary pl-4"
 															>
 																<div className="mb-2">
-																	<p className="font-semibold text-[#EEEEEE] mb-1 text-sm sm:text-base">
-																		<span className="text-[#76ABAE] font-semibold">
+																	<p className="font-semibold text-brand-light mb-1 text-sm sm:text-base">
+																		<span className="text-brand-primary font-semibold">
 																			Q{index + 1}:
 																		</span>{" "}
 																		{qa.question}
 																	</p>
 																</div>
 																<div className="backdrop-blur-lg bg-white/5 rounded-lg p-4 border border-white/10 relative">
-																	<p className="text-[#EEEEEE]/80 text-sm leading-relaxed pr-10">
+																	<p className="text-brand-light/80 text-sm leading-relaxed pr-10">
 																		{qa.answer}
 																	</p>
 																	<Button
@@ -1424,7 +1173,7 @@ export default function DashboardPage() {
 																		className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-white/10"
 																		onClick={() => copyToClipboard(qa.answer)}
 																	>
-																		<Copy className="h-4 w-4 text-[#76ABAE]" />
+																		<Copy className="h-4 w-4 text-brand-primary" />
 																	</Button>
 																</div>
 															</div>
@@ -1455,7 +1204,7 @@ export default function DashboardPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-6xl max-h-[90vh] overflow-y-auto rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -1463,17 +1212,17 @@ export default function DashboardPage() {
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setShowColdMailsModal(false)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Mail className="mr-3 h-6 w-6 text-[#76ABAE]" />
-										Cold Emails ({coldMailsData.length})
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Mail className="mr-3 h-6 w-6 text-brand-primary" />
+										Cold Emails ({coldMailsData?.length || 0})
 									</h2>
-									<p className="text-[#EEEEEE]/60">
+									<p className="text-brand-light/60">
 										Your generated cold emails for networking and outreach
 									</p>
 								</div>
@@ -1488,13 +1237,13 @@ export default function DashboardPage() {
 												text="Loading cold mails..."
 											/>
 										</div>
-									) : coldMailsData.length === 0 ? (
+									) : !coldMailsData || coldMailsData.length === 0 ? (
 										<div className="text-center py-8">
-											<Mail className="h-16 w-16 mx-auto mb-4 text-[#76ABAE]/50" />
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-2">
+											<Mail className="h-16 w-16 mx-auto mb-4 text-brand-primary/50" />
+											<h3 className="text-lg font-semibold text-brand-light mb-2">
 												No cold emails found
 											</h3>
-											<p className="text-[#EEEEEE]/60">
+											<p className="text-brand-light/60">
 												Generate your first cold email to see it here
 											</p>
 										</div>
@@ -1508,15 +1257,15 @@ export default function DashboardPage() {
 													{/* Session Header */}
 													<div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-4">
 														<div className="min-w-0 flex-1">
-															<h3 className="text-lg font-semibold text-[#EEEEEE] mb-1 flex items-center">
-																<User className="mr-2 h-5 w-5 text-[#76ABAE]" />
-																To: {session.recipientName}
+															<h3 className="text-lg font-semibold text-brand-light mb-2 flex items-center">
+																<Target className="mr-2 h-5 w-5 text-brand-primary" />
+																{session.recipientName}
+																<span className="text-brand-light/60 text-sm font-normal ml-2">
+																	({session.recipientDesignation}) at{" "}
+																	{session.companyName}
+																</span>
 															</h3>
-															<p className="text-[#EEEEEE]/80 text-sm mb-1">
-																{session.recipientDesignation} at{" "}
-																{session.companyName}
-															</p>
-															<p className="text-[#EEEEEE]/40 text-xs">
+															<p className="text-brand-light/60 text-sm">
 																{new Date(session.createdAt).toLocaleDateString(
 																	"en-US",
 																	{
@@ -1525,30 +1274,24 @@ export default function DashboardPage() {
 																		day: "numeric",
 																		hour: "2-digit",
 																		minute: "2-digit",
-																	}
+																	},
 																)}
 															</p>
 														</div>
-														<div className="flex items-center gap-2 shrink-0">
-															<Badge className="bg-[#76ABAE]/10 text-[#76ABAE] border border-[#76ABAE]/30 text-xs">
-																{session.emails.length} Email
-																{session.emails.length !== 1 ? "s" : ""}
-															</Badge>
-															<Button
-																size="sm"
-																variant="ghost"
-																className="h-8 w-8 p-0 hover:bg-red-500/20 text-red-400 hover:text-red-300"
-																onClick={() =>
-																	setDeletingColdMail({
-																		id: session.id,
-																		recipientName: session.recipientName,
-																		companyName: session.companyName,
-																	})
-																}
-															>
-																<Trash2 className="h-4 w-4" />
-															</Button>
-														</div>
+														<Button
+															size="sm"
+															variant="ghost"
+															className="h-8 w-8 p-0 hover:bg-destructive/20 text-destructive hover:text-destructive shrink-0"
+															onClick={() =>
+																setDeletingColdMail({
+																	id: session.id,
+																	recipientName: session.recipientName,
+																	companyName: session.companyName,
+																})
+															}
+														>
+															<Trash2 className="h-4 w-4" />
+														</Button>
 													</div>
 
 													{/* Emails */}
@@ -1556,21 +1299,18 @@ export default function DashboardPage() {
 														{session.emails.map((email, index) => (
 															<div
 																key={email.id}
-																className="border-l-2 border-[#76ABAE] pl-4"
+																className="border-l-2 border-brand-primary pl-4"
 															>
 																<div className="mb-2">
-																	<p className="font-semibold text-[#EEEEEE] mb-1 flex items-center gap-2 text-sm sm:text-base">
-																		<Mail className="h-4 w-4 text-[#76ABAE]" />
-																		<span className="text-[#76ABAE] font-semibold">
-																			Subject:
-																		</span>
-																		<span className="truncate">
-																			{email.subject}
-																		</span>
+																	<p className="font-semibold text-brand-light mb-1 text-sm sm:text-base">
+																		<span className="text-brand-primary font-semibold">
+																			Version {index + 1}:
+																		</span>{" "}
+																		{email.subject}
 																	</p>
 																</div>
 																<div className="backdrop-blur-lg bg-white/5 rounded-lg p-4 border border-white/10 relative">
-																	<div className="text-[#EEEEEE]/80 text-sm leading-relaxed pr-10 whitespace-pre-wrap">
+																	<div className="whitespace-pre-wrap text-brand-light/80 text-sm leading-relaxed pr-10 font-mono">
 																		{email.body}
 																	</div>
 																	<Button
@@ -1579,11 +1319,11 @@ export default function DashboardPage() {
 																		className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-white/10"
 																		onClick={() =>
 																			copyToClipboard(
-																				`Subject: ${email.subject}\n\n${email.body}`
+																				`Subject: ${email.subject}\n\n${email.body}`,
 																			)
 																		}
 																	>
-																		<Copy className="h-4 w-4 text-[#76ABAE]" />
+																		<Copy className="h-4 w-4 text-brand-primary" />
 																	</Button>
 																</div>
 															</div>
@@ -1593,73 +1333,6 @@ export default function DashboardPage() {
 											))}
 										</div>
 									)}
-								</div>
-							</div>
-						</motion.div>
-					</motion.div>
-				)}
-			</AnimatePresence>
-
-			{/* Delete Interview Confirmation Dialog */}
-			<AnimatePresence>
-				{deletingInterview && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-						onClick={() => setDeletingInterview(null)}
-					>
-						<motion.div
-							initial={{ scale: 0.95, opacity: 0 }}
-							animate={{ scale: 1, opacity: 1 }}
-							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
-							onClick={(e) => e.stopPropagation()}
-						>
-							{/* Close Button */}
-							<button
-								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-								onClick={() => setDeletingInterview(null)}
-							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
-							</button>
-
-							<div className="p-6">
-								{/* Header Section */}
-								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
-										Delete Interview Session
-									</h2>
-									<p className="text-[#EEEEEE]/60">
-										Are you sure you want to delete the interview session for "
-										{deletingInterview?.role} at{" "}
-										{deletingInterview?.companyName}"? This action cannot be
-										undone and will remove all questions and answers.
-									</p>
-								</div>
-
-								{/* Action Buttons */}
-								<div className="flex gap-3 justify-end">
-									<Button
-										variant="outline"
-										onClick={() => setDeletingInterview(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
-									>
-										Cancel
-									</Button>
-									<Button
-										onClick={() => {
-											if (deletingInterview) {
-												handleDeleteInterview(deletingInterview.id);
-												setDeletingInterview(null);
-											}
-										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
-									>
-										Delete Session
-									</Button>
 								</div>
 							</div>
 						</motion.div>
@@ -1681,7 +1354,7 @@ export default function DashboardPage() {
 							initial={{ scale: 0.95, opacity: 0 }}
 							animate={{ scale: 1, opacity: 1 }}
 							exit={{ scale: 0.95, opacity: 0 }}
-							className="backdrop-blur-lg bg-[#222831]/95 border border-white/10 text-[#EEEEEE] max-w-md rounded-lg relative"
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
 							onClick={(e) => e.stopPropagation()}
 						>
 							{/* Close Button */}
@@ -1689,21 +1362,21 @@ export default function DashboardPage() {
 								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 								onClick={() => setDeletingColdMail(null)}
 							>
-								<X className="h-4 w-4 text-[#EEEEEE]" />
+								<X className="h-4 w-4 text-brand-light" />
 							</button>
 
 							<div className="p-6">
 								{/* Header Section */}
 								<div className="mb-6">
-									<h2 className="text-2xl font-bold text-[#EEEEEE] mb-2 flex items-center">
-										<Trash2 className="mr-3 h-6 w-6 text-red-400" />
-										Delete Cold Mail Session
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
+										Delete Cold Mail
 									</h2>
-									<p className="text-[#EEEEEE]/60">
-										Are you sure you want to delete the cold mail session for "
-										{deletingColdMail?.recipientName} at{" "}
+									<p className="text-brand-light/60">
+										Are you sure you want to delete emails to "
+										{deletingColdMail?.recipientName}" at "
 										{deletingColdMail?.companyName}"? This action cannot be
-										undone and will remove all generated emails.
+										undone.
 									</p>
 								</div>
 
@@ -1712,20 +1385,77 @@ export default function DashboardPage() {
 									<Button
 										variant="outline"
 										onClick={() => setDeletingColdMail(null)}
-										className="border-white/20 text-gray-900 hover:text-[#EEEEEE] hover:bg-white/10"
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
 									>
 										Cancel
 									</Button>
 									<Button
-										onClick={() => {
-											if (deletingColdMail) {
-												handleDeleteColdMail(deletingColdMail.id);
-												setDeletingColdMail(null);
-											}
-										}}
-										className="bg-red-600 hover:bg-red-700 text-white"
+										onClick={() => handleDeleteColdMail(deletingColdMail.id)}
+										className="bg-destructive hover:bg-destructive/90 text-white"
 									>
-										Delete Session
+										Delete
+									</Button>
+								</div>
+							</div>
+						</motion.div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+
+			{/* Delete Interview Confirmation Dialog */}
+			<AnimatePresence>
+				{deletingInterview && (
+					<motion.div
+						initial={{ opacity: 0 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+						className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+						onClick={() => setDeletingInterview(null)}
+					>
+						<motion.div
+							initial={{ scale: 0.95, opacity: 0 }}
+							animate={{ scale: 1, opacity: 1 }}
+							exit={{ scale: 0.95, opacity: 0 }}
+							className="backdrop-blur-lg bg-brand-dark/95 border border-white/10 text-brand-light max-w-md rounded-lg relative"
+							onClick={(e) => e.stopPropagation()}
+						>
+							{/* Close Button */}
+							<button
+								className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+								onClick={() => setDeletingInterview(null)}
+							>
+								<X className="h-4 w-4 text-brand-light" />
+							</button>
+
+							<div className="p-6">
+								{/* Header Section */}
+								<div className="mb-6">
+									<h2 className="text-2xl font-bold text-brand-light mb-2 flex items-center">
+										<Trash2 className="mr-3 h-6 w-6 text-destructive" />
+										Delete Interview
+									</h2>
+									<p className="text-brand-light/60">
+										Are you sure you want to delete your interview session for "
+										{deletingInterview?.role}" at "
+										{deletingInterview?.companyName}
+										"? This action cannot be undone.
+									</p>
+								</div>
+
+								{/* Action Buttons */}
+								<div className="flex gap-3 justify-end">
+									<Button
+										variant="outline"
+										onClick={() => setDeletingInterview(null)}
+										className="border-white/20 text-foreground hover:text-brand-light hover:bg-white/10"
+									>
+										Cancel
+									</Button>
+									<Button
+										onClick={() => handleDeleteInterview(deletingInterview.id)}
+										className="bg-destructive hover:bg-destructive/90 text-white"
+									>
+										Delete
 									</Button>
 								</div>
 							</div>

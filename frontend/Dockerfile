@@ -70,7 +70,7 @@ RUN apt-get update -y && \
 # Copy necessary files from builder stage
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/bun.lock ./bun.lock
-COPY --from=builder /app/prisma/ ./prisma/ 
+COPY --from=builder /app/prisma/ ./prisma/
 
 # Change ownership of the /app directory and its contents to the bun user
 # This must be done as root before switching to the bun user

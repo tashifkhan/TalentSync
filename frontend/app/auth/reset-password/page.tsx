@@ -49,7 +49,7 @@ function ResetPasswordContent() {
 			setToken(tokenFromUrl);
 		} else {
 			setError(
-				"No reset token found in the URL. Please use the link sent to your email."
+				"No reset token found in the URL. Please use the link sent to your email.",
 			);
 		}
 	}, [searchParams]);
@@ -97,7 +97,7 @@ function ResetPasswordContent() {
 	};
 
 	if (!token && !error) {
-		return <div className="text-center text-[#EEEEEE]">Loading...</div>;
+		return <div className="text-center text-brand-light">Loading...</div>;
 	}
 
 	return (
@@ -107,7 +107,7 @@ function ResetPasswordContent() {
 					<motion.div
 						initial={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center z-50"
+						className="fixed inset-0 bg-background-overlay flex items-center justify-center z-50"
 					>
 						<Loader
 							variant="pulse"
@@ -134,18 +134,18 @@ function ResetPasswordContent() {
 							className="bg-white/10 backdrop-blur-lg rounded-3xl p-10 border border-white/20 text-center max-w-sm mx-4"
 						>
 							<div className="relative mb-6">
-								<Loader variant="pulse" size="xl" className="text-[#76ABAE]" />
+								<Loader variant="pulse" size="xl" className="text-brand-primary" />
 							</div>
-							<h3 className="text-[#EEEEEE] font-semibold text-xl mb-3">
+							<h3 className="text-brand-light font-semibold text-xl mb-3">
 								Resetting Password
 							</h3>
-							<p className="text-[#EEEEEE]/70 text-sm leading-relaxed">
+							<p className="text-brand-light/70 text-sm leading-relaxed">
 								We're updating your password securely...
 							</p>
 							<div className="mt-6 flex justify-center space-x-2">
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-75"></div>
-								<div className="w-2 h-2 bg-[#76ABAE] rounded-full animate-pulse delay-150"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-75"></div>
+								<div className="w-2 h-2 bg-brand-primary rounded-full animate-pulse delay-150"></div>
 							</div>
 						</motion.div>
 					</motion.div>
@@ -153,7 +153,7 @@ function ResetPasswordContent() {
 			</AnimatePresence>
 
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex flex-col items-center justify-center p-4">
+				<div className="min-h-screen flex flex-col items-center justify-center p-4">
 					<motion.div
 						initial={{ opacity: 0, x: -20 }}
 						animate={{ opacity: 1, x: 0 }}
@@ -163,7 +163,7 @@ function ResetPasswordContent() {
 						<Link href="/auth">
 							<Button
 								variant="ghost"
-								className="text-[#EEEEEE] hover:text-[#76ABAE]"
+								className="text-brand-light hover:text-brand-primary"
 							>
 								<ArrowLeft className="mr-2 h-4 w-4" />
 								Back to Login
@@ -184,21 +184,21 @@ function ResetPasswordContent() {
 								) : error ? (
 									<AlertCircle className="mx-auto h-10 w-10 text-red-400 mb-4" />
 								) : (
-									<Lock className="mx-auto h-10 w-10 text-[#76ABAE] mb-4" />
+									<Lock className="mx-auto h-10 w-10 text-brand-primary mb-4" />
 								)}
-								<CardTitle className="text-[#EEEEEE]">
+								<CardTitle className="text-brand-light">
 									{success
 										? "Password Reset!"
 										: error
-										? "Reset Failed"
-										: "Reset Your Password"}
+											? "Reset Failed"
+											: "Reset Your Password"}
 								</CardTitle>
-								<CardDescription className="text-[#EEEEEE]/60">
+								<CardDescription className="text-brand-light/60">
 									{success
 										? "Your password has been successfully reset. Redirecting to login..."
 										: error
-										? "Please try again or request a new reset link."
-										: "Enter your new password below."}
+											? "Please try again or request a new reset link."
+											: "Enter your new password below."}
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
@@ -212,7 +212,7 @@ function ResetPasswordContent() {
 								{success ? (
 									<div className="text-center">
 										<Link href="/auth">
-											<Button className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white">
+											<Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
 												Go to Login
 											</Button>
 										</Link>
@@ -220,11 +220,11 @@ function ResetPasswordContent() {
 								) : !error ? (
 									<form onSubmit={handleSubmit} className="space-y-6">
 										<div className="space-y-2">
-											<Label htmlFor="password" className="text-[#EEEEEE]">
+											<Label htmlFor="password" className="text-brand-light">
 												New Password
 											</Label>
 											<div className="relative">
-												<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#76ABAE]" />
+												<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-primary" />
 												<Input
 													id="password"
 													type={showPassword ? "text" : "password"}
@@ -232,12 +232,12 @@ function ResetPasswordContent() {
 													value={password}
 													onChange={(e) => setPassword(e.target.value)}
 													required
-													className="pl-10 pr-10 bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:bg-white/15"
+													className="pl-10 pr-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
 												<button
 													type="button"
 													onClick={() => setShowPassword(!showPassword)}
-													className="absolute right-3 top-1/2 -translate-y-1/2 text-[#76ABAE] hover:text-[#EEEEEE] transition-colors"
+													className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
 												>
 													{showPassword ? (
 														<EyeOff className="h-4 w-4" />
@@ -251,12 +251,12 @@ function ResetPasswordContent() {
 										<div className="space-y-2">
 											<Label
 												htmlFor="confirmPassword"
-												className="text-[#EEEEEE]"
+												className="text-brand-light"
 											>
 												Confirm New Password
 											</Label>
 											<div className="relative">
-												<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#76ABAE]" />
+												<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-brand-primary" />
 												<Input
 													id="confirmPassword"
 													type={showConfirmPassword ? "text" : "password"}
@@ -264,14 +264,14 @@ function ResetPasswordContent() {
 													value={confirmPassword}
 													onChange={(e) => setConfirmPassword(e.target.value)}
 													required
-													className="pl-10 pr-10 bg-white/10 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:bg-white/15"
+													className="pl-10 pr-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
 												<button
 													type="button"
 													onClick={() =>
 														setShowConfirmPassword(!showConfirmPassword)
 													}
-													className="absolute right-3 top-1/2 -translate-y-1/2 text-[#76ABAE] hover:text-[#EEEEEE] transition-colors"
+													className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
 												>
 													{showConfirmPassword ? (
 														<EyeOff className="h-4 w-4" />
@@ -284,7 +284,7 @@ function ResetPasswordContent() {
 
 										<Button
 											type="submit"
-											className="w-full bg-[#76ABAE] hover:bg-[#76ABAE]/90 flex items-center justify-center gap-2"
+											className="w-full bg-brand-primary hover:bg-brand-primary/90 flex items-center justify-center gap-2"
 											disabled={isLoading}
 										>
 											{isLoading && <Loader variant="spinner" size="sm" />}
@@ -294,7 +294,7 @@ function ResetPasswordContent() {
 								) : (
 									<div className="text-center space-y-4">
 										<Link href="/auth/forgot-password">
-											<Button className="bg-[#76ABAE] hover:bg-[#76ABAE]/90 text-white">
+											<Button className="bg-brand-primary hover:bg-brand-primary/90 text-white">
 												Request New Reset Link
 											</Button>
 										</Link>
@@ -313,8 +313,8 @@ export default function ResetPasswordPage() {
 	return (
 		<Suspense
 			fallback={
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831] flex items-center justify-center">
-					<div className="text-[#EEEEEE]">Loading...</div>
+				<div className="min-h-screen flex items-center justify-center">
+					<div className="text-brand-light">Loading...</div>
 				</div>
 			}
 		>

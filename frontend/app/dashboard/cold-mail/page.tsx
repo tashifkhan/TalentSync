@@ -13,34 +13,17 @@ import EmailDetailsForm from "@/components/cold-mail/EmailDetailsForm";
 import GeneratedEmailPanel from "@/components/cold-mail/GeneratedEmailPanel";
 import LoadingOverlay from "@/components/cold-mail/LoadingOverlay";
 import PageLoader from "@/components/cold-mail/PageLoader";
-
-interface ColdMailResponse {
-	success: boolean;
-	message: string;
-	subject: string;
-	body: string;
-	requestId?: string;
-	responseId?: string;
-}
-
-interface UserResume {
-	id: string;
-	customName: string;
-	uploadDate: string;
-	candidateName?: string;
-	predictedField?: string;
-}
+import {
+	useUserResumes,
+	useGenerateColdMail,
+	useEditColdMail,
+} from "@/hooks/queries";
+import { ColdMailResponseData, ColdMailRequest } from "@/types";
 
 export default function ColdMailGenerator() {
 	const [isPageLoading, setIsPageLoading] = useState(true);
-	const [isGenerating, setIsGenerating] = useState(false);
-	const [isEditing, setIsEditing] = useState(false);
-	const [generatedEmail, setGeneratedEmail] = useState<{
-		subject: string;
-		body: string;
-		requestId?: string;
-		responseId?: string;
-	} | null>(null);
+	const [generatedEmail, setGeneratedEmail] =
+		useState<ColdMailResponseData | null>(null);
 	const [resumeFile, setResumeFile] = useState<File | null>(null);
 	const [resumeText, setResumeText] = useState("");
 	const [isPreloaded, setIsPreloaded] = useState(false);
@@ -50,9 +33,7 @@ export default function ColdMailGenerator() {
 	const [customDraftEdited, setCustomDraftEdited] = useState("");
 
 	// Resume selection states
-	const [userResumes, setUserResumes] = useState<UserResume[]>([]);
 	const [selectedResumeId, setSelectedResumeId] = useState<string>("");
-	const [isLoadingResumes, setIsLoadingResumes] = useState(false);
 	const [showResumeDropdown, setShowResumeDropdown] = useState(false);
 	const [resumeSelectionMode, setResumeSelectionMode] = useState<
 		"existing" | "upload" | "customDraft"
@@ -71,26 +52,16 @@ export default function ColdMailGenerator() {
 		company_url: "",
 	});
 
-	// Fetch user's resumes
-	const fetchUserResumes = async () => {
-		setIsLoadingResumes(true);
-		try {
-			const response = await fetch("/api/cold-mail", {
-				method: "GET",
-			});
+	// Queries
+	const { data: userResumes = [], isLoading: isLoadingResumes } =
+		useUserResumes();
 
-			if (response.ok) {
-				const result = await response.json();
-				if (result.success && result.data?.resumes) {
-					setUserResumes(result.data.resumes);
-				}
-			}
-		} catch (error) {
-			console.error("Failed to fetch resumes:", error);
-		} finally {
-			setIsLoadingResumes(false);
-		}
-	};
+	// Mutations
+	const generateColdMailMutation = useGenerateColdMail();
+	const editColdMailMutation = useEditColdMail();
+
+	const isGenerating = generateColdMailMutation.isPending;
+	const isEditing = editColdMailMutation.isPending;
 
 	// Close dropdown when clicking outside
 	useEffect(() => {
@@ -113,9 +84,6 @@ export default function ColdMailGenerator() {
 	useEffect(() => {
 		const timer = setTimeout(() => setIsPageLoading(false), 100);
 
-		// Fetch user resumes
-		fetchUserResumes();
-
 		// Check for pre-populated resume file and analysis data
 		const storedResumeFile = localStorage.getItem("resumeFile");
 		const storedAnalysisData = localStorage.getItem("analysisData");
@@ -128,8 +96,8 @@ export default function ColdMailGenerator() {
 				// Set pre-loaded file info
 				setResumeText(
 					`${fileData.name} (${(fileData.size / 1024).toFixed(
-						1
-					)} KB) - Pre-loaded from analysis`
+						1,
+					)} KB) - Pre-loaded from analysis`,
 				);
 				setIsPreloaded(true);
 				setResumeSelectionMode("upload"); // Switch to upload mode if preloaded
@@ -165,31 +133,7 @@ export default function ColdMailGenerator() {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
-	const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			setResumeFile(file);
-			setIsPreloaded(false); // Clear preloaded state when new file is uploaded
-
-			const fileExtension = file.name.toLowerCase().split(".").pop();
-			if (fileExtension === "txt" || fileExtension === "md") {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					const text = e.target?.result as string;
-					setResumeText(text.substring(0, 500) + "...");
-				};
-				reader.readAsText(file);
-			} else {
-				setResumeText(
-					`${file.name} (${(file.size / 1024).toFixed(
-						1
-					)} KB) - ${fileExtension?.toUpperCase()} file selected`
-				);
-			}
-		}
-	};
-
-	const generateColdMail = async () => {
+	const generateColdMail = () => {
 		if (resumeSelectionMode === "existing") {
 			if (!selectedResumeId) {
 				toast({
@@ -253,97 +197,98 @@ export default function ColdMailGenerator() {
 			return;
 		}
 
-		setIsGenerating(true);
+		const formDataToSend = new FormData();
 
-		try {
-			const formDataToSend = new FormData();
-
-			// Add resume data based on selection mode
-			if (resumeSelectionMode === "existing") {
+		// Add resume data based on selection mode
+		if (resumeSelectionMode === "existing") {
+			formDataToSend.append("resumeId", selectedResumeId);
+		} else if (resumeSelectionMode === "upload") {
+			formDataToSend.append("file", resumeFile!);
+		} else if (resumeSelectionMode === "customDraft") {
+			// For custom draft mode, add resume if available
+			if (selectedResumeId) {
 				formDataToSend.append("resumeId", selectedResumeId);
-			} else if (resumeSelectionMode === "upload") {
-				formDataToSend.append("file", resumeFile!);
-			} else if (resumeSelectionMode === "customDraft") {
-				// For custom draft mode, add resume if available
-				if (selectedResumeId) {
-					formDataToSend.append("resumeId", selectedResumeId);
-				} else if (resumeFile) {
-					formDataToSend.append("file", resumeFile);
-				}
-				// Add the custom draft (use enhanced version if available)
-				const draftToUse = customDraftEdited || customDraft;
-				formDataToSend.append("custom_draft", draftToUse);
-				if (editInstructions.trim()) {
-					formDataToSend.append("edit_instructions", editInstructions);
-				}
+			} else if (resumeFile) {
+				formDataToSend.append("file", resumeFile);
 			}
-
-			formDataToSend.append("recipient_name", formData.recipient_name);
-			formDataToSend.append(
-				"recipient_designation",
-				formData.recipient_designation
-			);
-			formDataToSend.append("company_name", formData.company_name);
-			formDataToSend.append("sender_name", formData.sender_name);
-			formDataToSend.append(
-				"sender_role_or_goal",
-				formData.sender_role_or_goal
-			);
-			formDataToSend.append(
-				"key_points_to_include",
-				formData.key_points_to_include
-			);
-			formDataToSend.append(
-				"additional_info_for_llm",
-				formData.additional_info_for_llm
-			);
-			if (formData.company_url) {
-				formDataToSend.append("company_url", formData.company_url);
+			// Add the custom draft (use enhanced version if available)
+			const draftToUse = customDraftEdited || customDraft;
+			formDataToSend.append("custom_draft", draftToUse);
+			if (editInstructions.trim()) {
+				formDataToSend.append("edit_instructions", editInstructions);
 			}
+		}
 
-			// Use different endpoint for custom draft mode
-			const endpoint =
-				resumeSelectionMode === "customDraft"
-					? "/api/cold-mail/edit"
-					: "/api/cold-mail";
+		formDataToSend.append("recipient_name", formData.recipient_name);
+		formDataToSend.append(
+			"recipient_designation",
+			formData.recipient_designation,
+		);
+		formDataToSend.append("company_name", formData.company_name);
+		formDataToSend.append("sender_name", formData.sender_name);
+		formDataToSend.append("sender_role_or_goal", formData.sender_role_or_goal);
+		formDataToSend.append(
+			"key_points_to_include",
+			formData.key_points_to_include,
+		);
+		formDataToSend.append(
+			"additional_info_for_llm",
+			formData.additional_info_for_llm,
+		);
+		if (formData.company_url) {
+			formDataToSend.append("company_url", formData.company_url);
+		}
 
-			const response = await fetch(endpoint, {
-				method: "POST",
-				body: formDataToSend,
+		// Determine which mutation to call based on mode
+		if (resumeSelectionMode === "customDraft") {
+			editColdMailMutation.mutate(formDataToSend, {
+				onSuccess: (data) => {
+					// Edit endpoint returns nested data for some reason in original code, normalizing
+					const responseData = data.data || data;
+					setGeneratedEmail({
+						subject: responseData.subject,
+						body: responseData.body,
+						requestId: responseData.requestId,
+						responseId: responseData.responseId,
+					});
+					toast({
+						title: "Email Generated Successfully!",
+						description: customDraftEdited
+							? "Your enhanced draft has been finalized and is ready to use."
+							: "Your draft has been enhanced and is ready to use.",
+					});
+				},
+				onError: (error) => {
+					toast({
+						title: "Generation Failed",
+						description: error.message || "An error occurred.",
+						variant: "destructive",
+					});
+				},
 			});
-
-			const result: ColdMailResponse = await response.json();
-
-			if (result.success) {
-				setGeneratedEmail({
-					subject: result.subject,
-					body: result.body,
-					requestId: result.requestId,
-					responseId: result.responseId,
-				});
-				toast({
-					title: "Email Generated Successfully!",
-					description:
-						resumeSelectionMode === "customDraft"
-							? customDraftEdited
-								? "Your enhanced draft has been finalized and is ready to use."
-								: "Your draft has been enhanced and is ready to use."
-							: "Your cold email has been generated and is ready to use.",
-				});
-			} else {
-				throw new Error(result.message || "Failed to generate email");
-			}
-		} catch (error) {
-			toast({
-				title: "Generation Failed",
-				description:
-					error instanceof Error
-						? error.message
-						: "An error occurred while generating the email.",
-				variant: "destructive",
+		} else {
+			generateColdMailMutation.mutate(formDataToSend, {
+				onSuccess: (data) => {
+					setGeneratedEmail({
+						subject: data.subject,
+						body: data.body,
+						requestId: data.requestId,
+						responseId: data.responseId,
+					});
+					toast({
+						title: "Email Generated Successfully!",
+						description:
+							"Your cold email has been generated and is ready to use.",
+					});
+				},
+				onError: (error) => {
+					toast({
+						title: "Generation Failed",
+						description: error.message || "An error occurred.",
+						variant: "destructive",
+					});
+				},
 			});
-		} finally {
-			setIsGenerating(false);
 		}
 	};
 
@@ -379,7 +324,7 @@ export default function ColdMailGenerator() {
 	};
 
 	// Edit existing cold mail
-	const editColdMail = async () => {
+	const editColdMail = () => {
 		if (!generatedEmail) {
 			toast({
 				title: "No Email to Edit",
@@ -398,73 +343,62 @@ export default function ColdMailGenerator() {
 			return;
 		}
 
-		setIsEditing(true);
+		const formDataToSend = new FormData();
 
-		try {
-			const formDataToSend = new FormData();
-
-			// Add resume data
-			if (resumeSelectionMode === "existing" && selectedResumeId) {
-				formDataToSend.append("resumeId", selectedResumeId);
-			} else if (resumeFile) {
-				formDataToSend.append("file", resumeFile);
-			} else if (isPreloaded && !resumeFile) {
-				toast({
-					title: "Resume File Needed",
-					description: "Please re-upload your resume file to edit the email.",
-					variant: "destructive",
-				});
-				setIsEditing(false);
-				return;
-			}
-
-			// Append other form data
-			formDataToSend.append("recipient_name", formData.recipient_name);
-			formDataToSend.append(
-				"recipient_designation",
-				formData.recipient_designation
-			);
-			formDataToSend.append("company_name", formData.company_name);
-			formDataToSend.append("sender_name", formData.sender_name);
-			formDataToSend.append(
-				"sender_role_or_goal",
-				formData.sender_role_or_goal
-			);
-			formDataToSend.append(
-				"key_points_to_include",
-				formData.key_points_to_include
-			);
-			formDataToSend.append(
-				"additional_info_for_llm",
-				formData.additional_info_for_llm
-			);
-			if (formData.company_url) {
-				formDataToSend.append("company_url", formData.company_url);
-			}
-
-			// Append email to be edited and instructions
-			formDataToSend.append("generated_email_subject", generatedEmail.subject);
-			formDataToSend.append("generated_email_body", generatedEmail.body);
-			formDataToSend.append("edit_inscription", editInstructions);
-
-			// Append request ID if it exists
-			if (generatedEmail.requestId) {
-				formDataToSend.append("cold_mail_request_id", generatedEmail.requestId);
-			}
-
-			const response = await fetch("/api/cold-mail/edit", {
-				method: "POST",
-				body: formDataToSend,
+		// Add resume data
+		if (resumeSelectionMode === "existing" && selectedResumeId) {
+			formDataToSend.append("resumeId", selectedResumeId);
+		} else if (resumeFile) {
+			formDataToSend.append("file", resumeFile);
+		} else if (isPreloaded && !resumeFile) {
+			toast({
+				title: "Resume File Needed",
+				description: "Please re-upload your resume file to edit the email.",
+				variant: "destructive",
 			});
+			return;
+		}
 
-			const result = await response.json();
+		// Append other form data
+		formDataToSend.append("recipient_name", formData.recipient_name);
+		formDataToSend.append(
+			"recipient_designation",
+			formData.recipient_designation,
+		);
+		formDataToSend.append("company_name", formData.company_name);
+		formDataToSend.append("sender_name", formData.sender_name);
+		formDataToSend.append("sender_role_or_goal", formData.sender_role_or_goal);
+		formDataToSend.append(
+			"key_points_to_include",
+			formData.key_points_to_include,
+		);
+		formDataToSend.append(
+			"additional_info_for_llm",
+			formData.additional_info_for_llm,
+		);
+		if (formData.company_url) {
+			formDataToSend.append("company_url", formData.company_url);
+		}
 
-			if (result.success) {
+		// Append email to be edited and instructions
+		formDataToSend.append("generated_email_subject", generatedEmail.subject);
+		formDataToSend.append("generated_email_body", generatedEmail.body);
+		formDataToSend.append("edit_inscription", editInstructions);
+
+		// Append request ID if it exists
+		if (generatedEmail.requestId) {
+			formDataToSend.append("cold_mail_request_id", generatedEmail.requestId);
+		}
+
+		editColdMailMutation.mutate(formDataToSend, {
+			onSuccess: (data) => {
+				// Normalizing data structure
+				const responseData = data.data || data;
 				setGeneratedEmail({
-					subject: result.data.subject,
-					body: result.data.body,
-					requestId: result.data.requestId,
-					responseId: result.data.responseId,
+					subject: responseData.subject,
+					body: responseData.body,
+					requestId: responseData.requestId,
+					responseId: responseData.responseId,
 				});
 				setEditInstructions(""); // Clear edit instructions
 				setEditMode(false); // Exit edit mode
@@ -473,24 +407,18 @@ export default function ColdMailGenerator() {
 					description:
 						"Your cold email has been updated based on your instructions.",
 				});
-			} else {
-				throw new Error(result.message || "Failed to edit email");
-			}
-		} catch (error) {
-			toast({
-				title: "Edit Failed",
-				description:
-					error instanceof Error
-						? error.message
-						: "An error occurred while editing the email.",
-				variant: "destructive",
-			});
-		} finally {
-			setIsEditing(false);
-		}
+			},
+			onError: (error) => {
+				toast({
+					title: "Edit Failed",
+					description: error.message || "An error occurred.",
+					variant: "destructive",
+				});
+			},
+		});
 	};
 
-	const handleCustomDraftEdit = async () => {
+	const handleCustomDraftEdit = () => {
 		if (!customDraft.trim()) {
 			toast({
 				title: "Draft Required",
@@ -509,87 +437,73 @@ export default function ColdMailGenerator() {
 			return;
 		}
 
-		setIsEditing(true);
-		try {
-			const formDataToSend = new FormData();
+		const formDataToSend = new FormData();
 
-			// Add resume data if available
-			if (selectedResumeId) {
-				formDataToSend.append("resumeId", selectedResumeId);
-			} else if (resumeFile) {
-				formDataToSend.append("file", resumeFile);
-			}
+		// Add resume data if available
+		if (selectedResumeId) {
+			formDataToSend.append("resumeId", selectedResumeId);
+		} else if (resumeFile) {
+			formDataToSend.append("file", resumeFile);
+		}
 
-			// Add form data
-			formDataToSend.append("recipient_name", formData.recipient_name);
-			formDataToSend.append(
-				"recipient_designation",
-				formData.recipient_designation
-			);
-			formDataToSend.append("company_name", formData.company_name);
-			formDataToSend.append("sender_name", formData.sender_name);
-			formDataToSend.append(
-				"sender_role_or_goal",
-				formData.sender_role_or_goal
-			);
-			formDataToSend.append(
-				"key_points_to_include",
-				formData.key_points_to_include
-			);
-			formDataToSend.append(
-				"additional_info_for_llm",
-				formData.additional_info_for_llm
-			);
-			if (formData.company_url) {
-				formDataToSend.append("company_url", formData.company_url);
-			}
+		// Add form data
+		formDataToSend.append("recipient_name", formData.recipient_name);
+		formDataToSend.append(
+			"recipient_designation",
+			formData.recipient_designation,
+		);
+		formDataToSend.append("company_name", formData.company_name);
+		formDataToSend.append("sender_name", formData.sender_name);
+		formDataToSend.append("sender_role_or_goal", formData.sender_role_or_goal);
+		formDataToSend.append(
+			"key_points_to_include",
+			formData.key_points_to_include,
+		);
+		formDataToSend.append(
+			"additional_info_for_llm",
+			formData.additional_info_for_llm,
+		);
+		if (formData.company_url) {
+			formDataToSend.append("company_url", formData.company_url);
+		}
 
-			// Add draft and instructions
-			formDataToSend.append("generated_email_subject", "");
-			formDataToSend.append("generated_email_body", customDraft);
-			formDataToSend.append("edit_inscription", editInstructions);
+		// Add draft and instructions
+		formDataToSend.append("generated_email_subject", "");
+		formDataToSend.append("generated_email_body", customDraft);
+		formDataToSend.append("edit_inscription", editInstructions);
 
-			const response = await fetch("/api/cold-mail/edit", {
-				method: "POST",
-				body: formDataToSend,
-			});
-			const result = await response.json();
-			if (result.success) {
-				setCustomDraftEdited(result.data.body);
+		editColdMailMutation.mutate(formDataToSend, {
+			onSuccess: (data) => {
+				const responseData = data.data || data;
+				setCustomDraftEdited(responseData.body);
 				// Also update generatedEmail so the panel displays the enhanced draft
 				setGeneratedEmail({
-					subject: result.data.subject || "",
-					body: result.data.body,
-					requestId: result.data.requestId,
-					responseId: result.data.responseId,
+					subject: responseData.subject || "",
+					body: responseData.body,
+					requestId: responseData.requestId,
+					responseId: responseData.responseId,
 				});
 				toast({
 					title: "Draft Enhanced Successfully!",
 					description:
 						"Your draft has been enhanced based on your instructions.",
 				});
-			} else {
-				throw new Error(result.message || "Failed to enhance draft");
-			}
-		} catch (error) {
-			toast({
-				title: "Enhancement Failed",
-				description:
-					error instanceof Error
-						? error.message
-						: "An error occurred while enhancing the draft.",
-				variant: "destructive",
-			});
-		} finally {
-			setIsEditing(false);
-		}
+			},
+			onError: (error) => {
+				toast({
+					title: "Enhancement Failed",
+					description: error.message || "An error occurred.",
+					variant: "destructive",
+				});
+			},
+		});
 	};
 
 	return (
 		<>
 			<PageLoader isPageLoading={isPageLoading} />
 			{!isPageLoading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+				<div className="min-h-screen">
 					<LoadingOverlay isGenerating={isGenerating} isEditing={isEditing} />
 					{/* Mobile-optimized container */}
 					<div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
@@ -604,7 +518,7 @@ export default function ColdMailGenerator() {
 								<Button
 									variant="ghost"
 									size="sm"
-									className="text-[#EEEEEE] hover:text-[#76ABAE] hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
+									className="text-brand-light hover:text-brand-primary hover:bg-white/5 transition-all duration-300 p-2 sm:p-3"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									<span className="hidden sm:inline">Back to Dashboard</span>
@@ -621,13 +535,13 @@ export default function ColdMailGenerator() {
 								transition={{ duration: 0.8, delay: 0.2 }}
 								className="text-center mb-8 sm:mb-12"
 							>
-								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-[#76ABAE]/10 rounded-2xl mb-4 sm:mb-6">
-									<Mail className="h-8 w-8 sm:h-10 sm:w-10 text-[#76ABAE]" />
+								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
+									<Mail className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
-								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#EEEEEE] mb-3 sm:mb-4 leading-tight">
+								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 									Cold Mail Generator
 								</h1>
-								<p className="text-[#EEEEEE]/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 									Generate personalized cold emails using AI to connect with
 									potential employers and networking contacts.
 								</p>
@@ -644,10 +558,10 @@ export default function ColdMailGenerator() {
 								>
 									<Card className="relative backdrop-blur-lg bg-white/5 border-white/10 shadow-2xl overflow-hidden">
 										<CardHeader className="pb-4">
-											<CardTitle className="text-[#EEEEEE] text-xl sm:text-2xl font-semibold">
+											<CardTitle className="text-brand-light text-xl sm:text-2xl font-semibold">
 												Email Details
 											</CardTitle>
-											<p className="text-[#EEEEEE]/60 text-sm">
+											<p className="text-brand-light/60 text-sm">
 												Fill in the details to generate your personalized cold
 												email
 											</p>
@@ -705,19 +619,19 @@ export default function ColdMailGenerator() {
 														(resumeSelectionMode === "existing"
 															? !selectedResumeId
 															: resumeSelectionMode === "upload"
-															? !resumeFile && !isPreloaded
-															: resumeSelectionMode === "customDraft"
-															? !customDraft.trim()
-															: true) ||
+																? !resumeFile && !isPreloaded
+																: resumeSelectionMode === "customDraft"
+																	? !customDraft.trim()
+																	: true) ||
 														!formData.recipient_name ||
 														!formData.company_name ||
 														!formData.sender_name
 													}
-													className="relative w-full h-14 bg-gradient-to-r from-[#76ABAE] to-[#76ABAE]/80 hover:from-[#76ABAE]/90 hover:to-[#76ABAE]/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 												>
 													{/* Animated background for loading state */}
 													{isGenerating && (
-														<div className="absolute inset-0 bg-gradient-to-r from-[#76ABAE]/20 via-[#76ABAE]/40 to-[#76ABAE]/20 animate-pulse"></div>
+														<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/20 via-brand-primary/40 to-brand-primary/20 animate-pulse"></div>
 													)}
 
 													{/* Button content */}
