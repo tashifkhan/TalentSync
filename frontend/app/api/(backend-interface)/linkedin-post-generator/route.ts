@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(backendBody),
-				signal: AbortSignal.timeout(30000),
+				signal: AbortSignal.timeout(300000), // 5 minutes timeout
 			});
 		} catch (err) {
 			const message = err instanceof Error && err.name === 'AbortError'
