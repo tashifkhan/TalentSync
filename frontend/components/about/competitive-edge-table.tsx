@@ -68,7 +68,7 @@ export default function CompetitiveEdgeTable() {
               <table className="w-full text-left text-sm whitespace-nowrap md:whitespace-normal">
                 <thead>
                   <tr className="border-b border-white/5">
-                    <th className="p-6 font-medium text-base text-brand-light/40 uppercase tracking-widest text-xs">
+                    <th className="p-6 font-medium text-base text-brand-light/40 uppercase tracking-widest">
                       Feature Capability
                     </th>
                     <th className="p-6 font-bold text-base text-center text-brand-primary bg-brand-primary/5 min-w-[160px]">

@@ -50,7 +50,7 @@ export function Navbar() {
           {/* Header */}
           <div
             className={cn(
-              "flex items-center p-4 border-b border-white/10",
+              "flex items-center p-4 border-b border-white/10 flex-shrink-0",
               isCollapsed ? "justify-center" : "justify-between",
             )}
           >
@@ -74,7 +74,7 @@ export function Navbar() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-6">
+          <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto sidebar-scrollbar">
             {/* Main Navigation */}
             <div className="space-y-2">
               {navItems.map((item) => {
@@ -143,7 +143,7 @@ export function Navbar() {
           </nav>
 
           {/* User Section */}
-          <div className="border-t border-white/10 p-4">
+          <div className="border-t border-white/10 p-4 flex-shrink-0">
             {status === "loading" ? (
               <div className="text-brand-light/60 text-sm">Loading...</div>
             ) : session ? (
