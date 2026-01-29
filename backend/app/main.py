@@ -30,6 +30,7 @@ from app.routes.tailored_resume import (
     text_based_router as tailored_resume_text_based_router,
 )
 from app.routes.tips import router as tips_router
+from app.routes.interview import router as interview_router
 
 settings = get_settings()
 
@@ -84,3 +85,6 @@ app.include_router(ats_text_based_router, prefix="/api/v2", tags=["ATS Evaluatio
 app.include_router(
     tailored_resume_text_based_router, prefix="/api/v2", tags=["Tailored Resume"]
 )
+
+# Interview Routes (v1)
+app.include_router(interview_router, prefix="/api/v1", tags=["Digital Interviewer"])

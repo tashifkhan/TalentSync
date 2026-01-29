@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     # CORS
     CORS_ORIGINS: List[str] = ["*"]
 
+    # Interview Configuration
+    INTERVIEW_MAX_QUESTIONS: int = 20
+    INTERVIEW_DEFAULT_QUESTIONS: int = 5
+    INTERVIEW_CODE_EXECUTION_TIMEOUT: int = 10  # seconds
+    INTERVIEW_SESSION_MAX_AGE_HOURS: int = 24
+
 
 @lru_cache
 def get_settings() -> Settings:
