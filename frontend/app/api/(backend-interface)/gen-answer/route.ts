@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
       const backendResponse = await fetch(`${BACKEND_URL}/api/v2/hiring-assistant/`, {
         method: 'POST',
         body: backendFormData,
-        signal: AbortSignal.timeout(30000), // 30 second timeout
+        signal: AbortSignal.timeout(300000), // 5 minutes timeout
       });
 
       if (!backendResponse.ok) {
@@ -448,7 +448,7 @@ export async function POST(request: NextRequest) {
       const backendResponse = await fetch(`${BACKEND_URL}/api/v1/hiring-assistant/`, {
         method: 'POST',
         body: backendFormData,
-        signal: AbortSignal.timeout(30000), // 30 second timeout
+        signal: AbortSignal.timeout(300000), // 5 minutes timeout
       });
 
       if (!backendResponse.ok) {
