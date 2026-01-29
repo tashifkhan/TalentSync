@@ -13,6 +13,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.agents.web_content_agent import return_markdown
 from app.core.llm import MODEL_NAME, get_llm
+from app.core.settings import get_settings
 from app.services.ats import ats_evaluate_service
 
 
@@ -143,7 +144,12 @@ async def run_resume_pipeline(
     )
 
     # Prepare tools
-    tavily_search_tool = TavilySearch(max_results=max_tool_results, topic="general")
+    settings = get_settings()
+    tavily_search_tool = TavilySearch(
+        max_results=max_tool_results,
+        topic="general",
+        tavily_api_key=settings.TAVILY_API_KEY,
+    )
     tools = [tavily_search_tool]
 
     # Instantiate graph builder with formatted system prompt messages
