@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Set NODE_ENV for Next.js build optimizations
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build-time args for embedding NEXT_PUBLIC_ variables into the Next.js build
 ARG NEXT_PUBLIC_POSTHOG_KEY
@@ -20,7 +21,7 @@ ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 # Switch to root to install packages and set permissions
 USER root
 RUN apt-get update -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     openssl \
     texlive-latex-base \
     texlive-latex-recommended \
@@ -29,8 +30,9 @@ RUN apt-get update -y && \
     texlive-fonts-extra \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy all application files first.
-COPY . .
+# Copy lockfile and manifests first for better layer caching.
+COPY package.json bun.lock ./
+COPY prisma ./prisma
 
 # Change ownership of the /app directory to the bun user
 RUN chown -R bun:bun /app
@@ -38,9 +40,11 @@ RUN chown -R bun:bun /app
 # Switch to the bun user for subsequent commands
 USER bun
 
-# Install dependencies using bun.
-# bun install should now have the necessary permissions.
+# Install dependencies using bun (cached if lockfile unchanged).
 RUN bun install --frozen-lockfile
+
+# Copy the rest of the application files.
+COPY . .
 
 # If your project uses Prisma, ensure 'prisma generate' is part of your 'build' script in package.json
 # Example package.json script: "build": "prisma generate && next build"
@@ -54,11 +58,12 @@ FROM oven/bun:1-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Switch to root for system operations like installing packages and changing ownership
 USER root
 RUN apt-get update -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     openssl \
     texlive-latex-base \
     texlive-latex-recommended \
