@@ -36,6 +36,20 @@ model User {
     passwordResetTokens PasswordResetToken[]
     accounts            Account[]
     sessions            Session[]
+    llmConfig           LlmConfig?
+}
+
+model LlmConfig {
+    id            String   @id @default(cuid())
+    userId        String   @unique
+    provider      String   @default("google")
+    model         String   @default("gemini-2.5-flash")
+    encryptedKey  String?  @db.Text
+    apiBase       String?
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model EmailVerificationToken {
