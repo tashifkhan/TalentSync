@@ -18,10 +18,7 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml uv.lock ./
 
 # Install CPU-only PyTorch first to prevent CUDA dependency resolution.
-# This pins torch+torchvision to CPU wheels so subsequent installs won't pull nvidia-* packages.
-RUN uv pip install --system --no-cache \
-    --index-url https://download.pytorch.org/whl/cpu \
-    torch torchvision
+RUN uv pip install --system --no-cache
 
 # Install the rest of the project dependencies.
 # torch is already satisfied from above, so uv won't re-resolve it or its CUDA deps.
