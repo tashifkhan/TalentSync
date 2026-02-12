@@ -17,11 +17,7 @@ RUN pip install --no-cache-dir uv
 # Copy dependency manifests first for layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install CPU-only PyTorch first to prevent CUDA dependency resolution.
-RUN uv pip install --system --no-cache
-
-# Install the rest of the project dependencies.
-# torch is already satisfied from above, so uv won't re-resolve it or its CUDA deps.
+# Install the project dependencies.
 RUN uv pip install --system --no-cache . uvicorn
 
 # Copy the entire app directory into the container
