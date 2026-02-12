@@ -11,10 +11,45 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 function LandingHero() {
   const [mode, setMode] = useState<"seeker" | "recruiter">("seeker");
+  const [textIndex, setTextIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [currentText, setCurrentText] = useState("");
+  const [typingSpeed, setTypingSpeed] = useState(150);
+
+  const words = mode === "seeker" 
+    ? ["Decisions", "Interviews", "Opportunities", "Hired"]
+    : ["Signals", "Placements", "Insights", "Growth"];
+
+  useEffect(() => {
+    const handleTyping = () => {
+      const fullText = words[textIndex];
+      
+      if (!isDeleting) {
+        setCurrentText(fullText.substring(0, currentText.length + 1));
+        setTypingSpeed(150);
+        
+        if (currentText === fullText) {
+          setIsDeleting(true);
+          setTypingSpeed(2000); // Pause at end
+        }
+      } else {
+        setCurrentText(fullText.substring(0, currentText.length - 1));
+        setTypingSpeed(100);
+        
+        if (currentText === "") {
+          setIsDeleting(false);
+          setTextIndex((prev) => (prev + 1) % words.length);
+        }
+      }
+    };
+
+    const timer = setTimeout(handleTyping, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [currentText, isDeleting, textIndex, typingSpeed, words]);
 
   const highlight =
     mode === "seeker"
@@ -57,7 +92,10 @@ function LandingHero() {
         >
           <h1 className="text-5xl font-bold tracking-tight text-white leading-[1.05] mb-4">
             Turn Resumes <br />
-            <span className="text-brand-primary">Into Decisions.</span>
+            <span className="text-brand-primary relative">
+              {currentText}
+              <span className="absolute -right-1 top-0 h-full w-[3px] bg-brand-primary animate-pulse" />
+            </span>
           </h1>
           <p className="text-lg text-brand-light/60 leading-relaxed max-w-[90%]">
             Parse, analyze & generate outputs faster than opening a doc.
@@ -128,15 +166,16 @@ function LandingHero() {
                   <Sparkles className="h-3.5 w-3.5 text-brand-primary" />{" "}
                   <span>AI talent intelligence</span>
                 </div>
-                <h1 className="font-bold tracking-tight text-4xl sm:text-5xl md:text-6xl xl:text-7xl leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-brand-lighter via-brand-off-white to-brand-primary">
-                  Turn Resumes Into{" "}
-                  <span className="relative inline-block">
-                    <span className="pr-1">Decisions</span>
-                    {/* decorative underline - allow it to overflow and ignore pointer events */}
+                <h1 className="font-extrabold tracking-tight text-5xl sm:text-6xl md:text-7xl xl:text-8xl leading-[1.05] text-white">
+                  Turn Resumes Into <br className="sm:hidden" />
+                  <span className="relative inline-block text-brand-primary min-w-[200px] text-left">
+                    <span className="pr-1">{currentText}</span>
+                    <span className="absolute right-0 top-[10%] h-[80%] w-[4px] bg-brand-primary animate-pulse" />
+                    {/* decorative underline */}
                     <span className="absolute inset-x-0 bottom-1 sm:bottom-2 h-2 sm:h-3 bg-brand-primary/20 blur-sm rounded pointer-events-none" />
                   </span>
                 </h1>
-                <p className="mt-6 text-lg sm:text-xl text-brand-light/70 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                <p className="mt-8 text-lg sm:text-xl text-brand-light/80 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
                   TalentSync parses, analyzes & generates actionable outputs for
                   seekers and recruiters—faster than opening a doc.
                 </p>
@@ -167,8 +206,9 @@ function LandingHero() {
                   >
                     <Button
                       size="lg"
-                      className="bg-brand-primary hover:bg-brand-primary/90 text-white w-full sm:min-w-[190px] h-12 sm:h-11"
+                      className="bg-brand-primary hover:bg-brand-primary/90 text-white w-full sm:min-w-[190px] h-12 sm:h-11 shadow-[0_0_20px_rgba(118,171,174,0.3)] hover:shadow-[0_0_30px_rgba(118,171,174,0.5)] transition-all duration-300 relative overflow-hidden group"
                     >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
                       {mode === "seeker" ? (
                         <FileText className="mr-2 h-5 w-5" />
                       ) : (
@@ -178,18 +218,17 @@ function LandingHero() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href="/dashboard/seeker" className="w-full sm:w-auto">
+                   <Link href="/dashboard/seeker" className="w-full sm:w-auto">
                     <Button
                       size="lg"
-                      variant="outline"
-                      className="border-white/15 text-brand-primary/90 hover:text-white hover:bg-white/10 w-full sm:w-auto h-12 sm:h-11"
+                      className="bg-white hover:bg-brand-light text-brand-dark w-full sm:min-w-[190px] h-12 sm:h-11 shadow-xl"
                     >
-                      <PlayCircle className="mr-2 h-5 w-5" /> Live Demo
+                      <PlayCircle className="mr-2 h-5 w-5 text-brand-primary" /> Live Demo
                     </Button>
                   </Link>
                 </div>
                 {/* Metrics */}
-                <div className="mt-12 flex flex-row items-start justify-center divide-x divide-white/10 sm:divide-none sm:grid sm:grid-cols-3 gap-6 sm:gap-4 max-w-md mx-auto lg:mx-0 text-center sm:text-left">
+                <div className="mt-12 flex flex-row items-start justify-center divide-x divide-white/10 sm:divide-none sm:grid sm:grid-cols-3 gap-6 sm:gap-4 max-w-2xl mx-auto lg:mx-0 text-center sm:text-left">
                   {[
                     { label: "Resumes Parsed", value: "12K+" },
                     { label: "Avg. Time Saved", value: "6h/wk" },
@@ -197,12 +236,12 @@ function LandingHero() {
                   ].map((item) => (
                     <div
                       key={item.label}
-                      className="flex-1 sm:flex-auto sm:rounded-lg sm:bg-white/5 sm:ring-1 sm:ring-white/10 sm:px-4 sm:py-3"
+                      className="flex-1 sm:flex-auto sm:rounded-2xl sm:bg-white/[0.03] sm:ring-1 sm:ring-white/10 sm:px-6 sm:py-5 backdrop-blur-sm hover:bg-white/[0.06] transition-colors group"
                     >
-                      <p className="text-2xl sm:text-lg font-bold sm:font-semibold text-white sm:text-brand-light leading-none mb-1 sm:mb-0">
+                      <p className="text-3xl sm:text-2xl font-bold text-white mb-1 group-hover:text-brand-primary transition-colors">
                         {item.value}
                       </p>
-                      <p className="text-[10px] uppercase tracking-wider text-brand-light/40 sm:text-brand-light/50 font-medium whitespace-nowrap">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-widest text-brand-light/40 font-semibold group-hover:text-brand-light/60 transition-colors">
                         {item.label}
                       </p>
                     </div>
