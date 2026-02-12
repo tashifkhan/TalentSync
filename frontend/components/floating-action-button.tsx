@@ -54,7 +54,8 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
                 >
                   {/* Label */}
                   <motion.div
-                    className="bg-background text-white px-4 py-2 rounded-lg text-sm font-semibold mr-3 shadow-lg"
+                    onClick={() => handleAction(item.href)}
+                    className="bg-surface text-white px-4 py-2 rounded-lg text-sm font-semibold mr-3 shadow-lg border border-white/10 backdrop-blur-md cursor-pointer active:scale-95 transition-transform"
                     whileHover={{ scale: 1.05 }}
                   >
                     {item.label}
@@ -63,8 +64,7 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
                   {/* Button */}
                   <motion.button
                     onClick={() => handleAction(item.href)}
-                    className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white"
-                    style={{ backgroundColor: "var(--brand-primary)" }}
+                    className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center text-white bg-brand-primary"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >

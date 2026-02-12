@@ -102,7 +102,10 @@ function LandingHero() {
           </p>
 
           {/* Metrics Strip (Minimal) */}
-          <div className="flex items-center gap-8 mt-8">
+          <Link
+            href={mode === "seeker" ? "/dashboard/seeker" : "/dashboard/recruiter"}
+            className="flex items-center gap-8 mt-8 hover:opacity-80 transition-opacity"
+          >
             <div>
               <p className="text-2xl font-bold text-white leading-none">12K+</p>
               <p className="text-[10px] text-brand-light/40 uppercase tracking-wider mt-1 font-medium">
@@ -116,7 +119,7 @@ function LandingHero() {
                 Saved Weekly
               </p>
             </div>
-          </div>
+          </Link>
         </motion.div>
 
         {/* Bottom Actions - Full Width */}
@@ -234,9 +237,10 @@ function LandingHero() {
                     { label: "Avg. Time Saved", value: "6h/wk" },
                     { label: "Generated Assets", value: "30K+" },
                   ].map((item) => (
-                    <div
+                    <Link
                       key={item.label}
-                      className="flex-1 sm:flex-auto sm:rounded-2xl sm:bg-white/[0.03] sm:ring-1 sm:ring-white/10 sm:px-6 sm:py-5 backdrop-blur-sm hover:bg-white/[0.06] transition-colors group"
+                      href={mode === "seeker" ? "/dashboard/seeker" : "/dashboard/recruiter"}
+                      className="flex-1 sm:flex-auto sm:rounded-2xl sm:bg-white/[0.03] sm:ring-1 sm:ring-white/10 sm:px-6 sm:py-5 backdrop-blur-sm hover:bg-white/[0.06] transition-colors group cursor-pointer"
                     >
                       <p className="text-3xl sm:text-2xl font-bold text-white mb-1 group-hover:text-brand-primary transition-colors">
                         {item.value}
@@ -244,7 +248,7 @@ function LandingHero() {
                       <p className="text-[10px] sm:text-xs uppercase tracking-widest text-brand-light/40 font-semibold group-hover:text-brand-light/60 transition-colors">
                         {item.label}
                       </p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               </motion.div>
