@@ -2,7 +2,9 @@
 
 import json
 import re
-from typing import Any, AsyncGenerator, Dict, List
+from typing import Any, AsyncGenerator, Dict, List, Optional
+
+from langchain_core.language_models import BaseChatModel
 
 from app.core.llm import get_llm
 from app.data.prompt.interview_summary import (
@@ -15,8 +17,8 @@ from app.models.interview.schemas import InterviewSession
 class SummaryGenerator:
     """Generates comprehensive interview summaries."""
 
-    def __init__(self):
-        self.llm = get_llm()
+    def __init__(self, llm: Optional[BaseChatModel] = None):
+        self.llm = llm or get_llm()
         self.prompt = get_summary_prompt()
         self.streaming_prompt = get_streaming_summary_prompt()
 

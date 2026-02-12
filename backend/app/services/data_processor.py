@@ -1,9 +1,12 @@
-from app.data.prompt.txt_processor import text_formater_chain
-from app.data.prompt.json_extractor import josn_formatter_chain
-from app.data.prompt.comprehensive_analysis import comprensive_analysis_chain
-from app.data.prompt.format_analyse import format_analyse_chain
-from app.data.prompt.ats_analysis import ats_analysis_chain
 import json
+
+from langchain_core.language_models import BaseChatModel
+
+from app.data.prompt.ats_analysis import build_ats_analysis_chain
+from app.data.prompt.comprehensive_analysis import build_comprehensive_analysis_chain
+from app.data.prompt.format_analyse import build_format_analyse_chain
+from app.data.prompt.json_extractor import build_json_formatter_chain
+from app.data.prompt.txt_processor import build_text_formatter_chain
 
 
 class LLMNotFoundError(Exception):
@@ -15,6 +18,7 @@ class LLMNotFoundError(Exception):
 
 def format_resume_text_with_llm(
     raw_text: str,
+    llm: BaseChatModel,
 ) -> str:
     """Formats the extracted resume text using an LLM."""
 
@@ -22,7 +26,8 @@ def format_resume_text_with_llm(
         return ""
 
     try:
-        result = text_formater_chain.invoke(
+        chain = build_text_formatter_chain(llm)
+        result = chain.invoke(
             {
                 "raw_resume_text": raw_text,
             }
@@ -33,7 +38,6 @@ def format_resume_text_with_llm(
             )
         except:
             formatted_text = str(result.content)
-        # print(formatted_text)
         return formatted_text.strip()
 
     except ValueError as ve:
@@ -54,11 +58,13 @@ def format_resume_text_with_llm(
 
 def format_resume_json_with_llm(
     extracted_resume_text: str,
+    llm: BaseChatModel,
 ) -> dict | None:
     """Formats the extracted resume JSON using an LLM."""
 
     try:
-        result = josn_formatter_chain.invoke(
+        chain = build_json_formatter_chain(llm)
+        result = chain.invoke(
             {
                 "extracted_resume_text": extracted_resume_text,
             }
@@ -118,22 +124,21 @@ def format_resume_json_with_llm(
 
 def comprehensive_analysis_llm(
     resume_text: str,
+    llm: BaseChatModel,
 ) -> dict | None:
     """Performs a comprehensive analysis of the resume using LLM."""
 
     if not resume_text:
         return {}
 
-    # print("hello")
-
-    result = comprensive_analysis_chain.invoke(
+    chain = build_comprehensive_analysis_chain(llm)
+    result = chain.invoke(
         {
             "extracted_resume_text": resume_text,
         }
     )
     if isinstance(result, dict):
         formatted_json = result
-        # print("i am the one 11111\n\n\n", formatted_json)
 
     else:
         raw_responce = str(result.content)
@@ -143,7 +148,6 @@ def comprehensive_analysis_llm(
             )
             try:
                 formatted_json = json.loads(result)
-                # print(formatted_json)
 
             except json.JSONDecodeError:
                 formatted_json = {}
@@ -152,7 +156,6 @@ def comprehensive_analysis_llm(
             result = raw_responce.strip()
             try:
                 formatted_json = json.loads(result)
-                # print(formatted_json)
 
             except json.JSONDecodeError:
                 formatted_json = {}
@@ -183,7 +186,6 @@ def comprehensive_analysis_llm(
                 result.strip().removeprefix("```json").removesuffix("```").strip()
             )
             formatted_json = json.loads(json_str)
-            # print("tum sab chutiye mai tha \n\n\n", formatted_json)
 
         except Exception:
             formatted_json = {}
@@ -193,13 +195,15 @@ def comprehensive_analysis_llm(
 
 def format_and_analyse_resumes(
     raw_text: str,
+    llm: BaseChatModel,
 ) -> dict:
     """Formats and analyses the resume text and JSON using LLM."""
 
     if not raw_text.strip():
         return {}
 
-    result = format_analyse_chain.invoke(
+    chain = build_format_analyse_chain(llm)
+    result = chain.invoke(
         {
             "extracted_resume_text": raw_text,
         }
@@ -263,11 +267,12 @@ def format_and_analyse_resumes(
     return formatted_json
 
 
-def ats_analysis_llm(resume_text: str, jd_text: str) -> dict:
+def ats_analysis_llm(resume_text: str, jd_text: str, llm: BaseChatModel) -> dict:
     """Performs ATS scoring and analysis using LLM."""
     if not resume_text.strip() or not jd_text.strip():
         return {}
-    result = ats_analysis_chain.invoke(
+    chain = build_ats_analysis_chain(llm)
+    result = chain.invoke(
         {
             "resume_text": resume_text,
             "jd_text": jd_text,

@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 
 comprehensive_analysis_prompt_template_str = """
@@ -166,4 +166,7 @@ comprehensive_analysis_prompt = PromptTemplate(
     template=comprehensive_analysis_prompt_template_str,
 )
 
-comprensive_analysis_chain = comprehensive_analysis_prompt | llm
+
+def build_comprehensive_analysis_chain(llm: BaseChatModel):
+    """Build a comprehensive analysis chain with the given LLM instance."""
+    return comprehensive_analysis_prompt | llm

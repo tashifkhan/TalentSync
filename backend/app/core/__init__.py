@@ -1,5 +1,5 @@
 from app.core.config import google_api_key
-from app.core.deps import get_faster_llm_dep, get_llm_dep, get_settings_dep
+from app.core.deps import get_settings_dep
 from app.core.exceptions import (
     BadRequestException,
     BaseAppException,
@@ -12,10 +12,8 @@ from app.core.exceptions import (
 from app.core.llm import (
     FASTER_MODEL_NAME,
     MODEL_NAME,
-    faster_llm,
     get_faster_llm,
     get_llm,
-    llm,
 )
 from app.core.logging import get_logger, setup_logging
 from app.core.settings import get_settings
@@ -26,8 +24,6 @@ __all__ = [
     "get_settings_dep",
     "get_llm",
     "get_faster_llm",
-    "llm",
-    "faster_llm",
     "MODEL_NAME",
     "FASTER_MODEL_NAME",
     "setup_logging",

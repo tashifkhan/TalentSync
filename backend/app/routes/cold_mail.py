@@ -1,8 +1,11 @@
-from fastapi import APIRouter, File, UploadFile, Form
 from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, UploadFile
+from langchain_core.language_models import BaseChatModel
+
+from app.core.deps import get_request_llm
 from app.models.schemas import ColdMailResponse
 from app.services import cold_mail
-
 
 file_based_router = APIRouter()
 
@@ -22,6 +25,7 @@ async def cold_mail_generator(
     key_points_to_include: str = Form(...),
     additional_info_for_llm: Optional[str] = Form(""),
     company_url: Optional[str] = Form(None),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return cold_mail.cold_mail_generator_service(
         file,
@@ -33,6 +37,7 @@ async def cold_mail_generator(
         key_points_to_include,
         additional_info_for_llm,
         company_url,
+        llm,
     )
 
 
@@ -54,6 +59,7 @@ async def cold_mail_editor(
     generated_email_subject: str = Form(""),
     generated_email_body: str = Form(""),
     edit_inscription: str = Form(""),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return cold_mail.cold_mail_editor_service(
         file,
@@ -68,6 +74,7 @@ async def cold_mail_editor(
         generated_email_subject,
         generated_email_body,
         edit_inscription,
+        llm,
     )
 
 
@@ -89,6 +96,7 @@ async def cold_mail_generator_v2(
     key_points_to_include: str = Form(...),
     additional_info_for_llm: Optional[str] = Form(""),
     company_url: Optional[str] = Form(None),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return await cold_mail.cold_mail_generator_v2_service(
         resume_text,
@@ -100,6 +108,7 @@ async def cold_mail_generator_v2(
         key_points_to_include,
         additional_info_for_llm,
         company_url,
+        llm,
     )
 
 
@@ -121,6 +130,7 @@ async def cold_mail_editor_v2(
     generated_email_subject: str = Form(...),
     generated_email_body: str = Form(...),
     edit_inscription: str = Form(""),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return await cold_mail.cold_mail_editor_v2_service(
         resume_text,
@@ -135,4 +145,5 @@ async def cold_mail_editor_v2(
         generated_email_subject,
         generated_email_body,
         edit_inscription,
+        llm,
     )

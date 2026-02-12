@@ -4,12 +4,14 @@ import json
 import re
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
+from langchain_core.language_models import BaseChatModel
+
 from app.core.llm import get_llm
+from app.data.prompt.code_review import get_streaming_code_review_prompt
 from app.data.prompt.interview_evaluator import (
     get_evaluation_prompt,
     get_streaming_evaluation_prompt,
 )
-from app.data.prompt.code_review import get_streaming_code_review_prompt
 from app.models.interview.schemas import (
     CodeExecutionResult,
     EvaluationResult,
@@ -20,8 +22,8 @@ from app.models.interview.schemas import (
 class AnswerEvaluator:
     """Evaluates interview answers with streaming support for SSE."""
 
-    def __init__(self):
-        self.llm = get_llm()
+    def __init__(self, llm: Optional[BaseChatModel] = None):
+        self.llm = llm or get_llm()
         self.prompt = get_evaluation_prompt()
         self.streaming_prompt = get_streaming_evaluation_prompt()
         self.code_review_prompt = get_streaming_code_review_prompt()

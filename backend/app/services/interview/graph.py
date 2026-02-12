@@ -3,6 +3,8 @@
 from datetime import datetime
 from typing import Any, AsyncGenerator, Dict, List, Optional
 
+from langchain_core.language_models import BaseChatModel
+
 from app.models.interview.enums import InterviewStatus
 from app.models.interview.schemas import (
     CandidateProfile,
@@ -36,12 +38,13 @@ class InterviewGraph:
         answer_evaluator: Optional[AnswerEvaluator] = None,
         code_executor: Optional[CodeExecutor] = None,
         summary_generator: Optional[SummaryGenerator] = None,
+        llm: Optional[BaseChatModel] = None,
     ):
         self.session_manager = session_manager or get_session_manager()
-        self.question_generator = question_generator or QuestionGenerator()
-        self.answer_evaluator = answer_evaluator or AnswerEvaluator()
+        self.question_generator = question_generator or QuestionGenerator(llm=llm)
+        self.answer_evaluator = answer_evaluator or AnswerEvaluator(llm=llm)
         self.code_executor = code_executor or CodeExecutor()
-        self.summary_generator = summary_generator or SummaryGenerator()
+        self.summary_generator = summary_generator or SummaryGenerator(llm=llm)
 
     async def create_session(
         self,
@@ -488,12 +491,19 @@ class InterviewGraph:
         }
 
 
-# Global interview graph instance
+# Global interview graph instance (server-default LLM only)
 _interview_graph: Optional[InterviewGraph] = None
 
 
-def get_interview_graph() -> InterviewGraph:
-    """Get the global interview graph instance."""
+def get_interview_graph(llm: Optional[BaseChatModel] = None) -> InterviewGraph:
+    """Get an interview graph instance.
+
+    If *llm* is provided a fresh per-request graph is returned (no singleton).
+    Otherwise the shared server-default instance is reused.
+    """
+    if llm is not None:
+        return InterviewGraph(llm=llm)
+
     global _interview_graph
     if _interview_graph is None:
         _interview_graph = InterviewGraph()

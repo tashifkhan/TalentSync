@@ -30,6 +30,10 @@ dependencies = [
     "google-genai>=1.46.0",
     "sse-starlette>=2.2.1",
     "httpx>=0.28.1",
+    "langchain-openai>=0.3.35",
+    "langchain-anthropic>=0.3.22",
+    "langchain-ollama>=0.3.10",
+    "cryptography>=46.0.5",
 ]
 
 [dependency-groups]

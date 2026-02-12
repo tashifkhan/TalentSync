@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     FASTER_MODEL_NAME: str = "gemini-2.5-flash-lite"
     MODEL_TEMPERATURE: float = 0.1
 
+    # New Multi-Provider LLM Configuration
+    LLM_PROVIDER: str = "google"
+    LLM_MODEL: str = "gemini-2.5-flash"
+    LLM_API_KEY: Optional[str] = None
+    LLM_API_BASE: Optional[str] = None
+    ENCRYPTION_KEY: Optional[str] = None  # Required for encrypted API keys
+
     # External Services
     TAVILY_API_KEY: Optional[str] = None
 

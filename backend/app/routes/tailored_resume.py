@@ -1,12 +1,13 @@
 from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field
 
+from app.core.deps import get_request_llm
 from app.models.schemas import ComprehensiveAnalysisResponse
-from app.services.tailored_resume import tailor_resume
 from app.services.process_resume import process_document
-
+from app.services.tailored_resume import tailor_resume
 
 file_based_router = APIRouter()
 text_based_router = APIRouter()
@@ -36,6 +37,7 @@ class TailoredResumePayload(BaseModel):
 )
 async def generate_tailored_resume(
     payload: TailoredResumePayload,
+    llm: BaseChatModel = Depends(get_request_llm),
 ) -> ComprehensiveAnalysisResponse:
     return await tailor_resume(
         resume_text=payload.resume_text,
@@ -43,6 +45,7 @@ async def generate_tailored_resume(
         company_name=payload.company_name,
         company_website=payload.company_website,
         job_description=payload.job_description,
+        llm=llm,
     )
 
 
@@ -58,6 +61,7 @@ async def generate_tailored_resume_file_based(
     company_name: Optional[str] = Form(None),
     company_website: Optional[str] = Form(None),
     job_description: Optional[str] = Form(None),
+    llm: BaseChatModel = Depends(get_request_llm),
 ) -> ComprehensiveAnalysisResponse:
     resume_bytes = await resume_file.read()
     resume_text = process_document(resume_bytes, resume_file.filename)
@@ -70,4 +74,5 @@ async def generate_tailored_resume_file_based(
         company_name=company_name,
         company_website=company_website,
         job_description=job_description,
+        llm=llm,
     )

@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 
 cold_mail_prompt_template_str = """
@@ -112,4 +112,6 @@ cold_mail_prompt = PromptTemplate(
 )
 
 
-cold_main_generator_chain = cold_mail_prompt | llm
+def build_cold_mail_chain(llm: BaseChatModel):
+    """Build a cold mail generator chain with the given LLM instance."""
+    return cold_mail_prompt | llm

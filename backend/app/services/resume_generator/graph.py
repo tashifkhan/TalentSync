@@ -4,6 +4,7 @@ import json
 import re
 from typing import List, Optional
 
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -23,6 +24,7 @@ class GraphBuilder:
         system_prompt_messages: List,
         tools: List,
         model_name: str = MODEL_NAME,
+        llm: Optional[BaseChatModel] = None,
     ) -> None:
         """Create a GraphBuilder that will run the state graph with a chat LLM bound to tools.
 
@@ -30,12 +32,16 @@ class GraphBuilder:
             system_prompt_messages: list of Message objects returned from prompt.format_messages(...)
             tools: list of tool instances to expose to the model
             model_name: model identifier for ChatGoogleGenerativeAI
+            llm: optional pre-configured LLM instance
         """
-        llm = get_llm()
-        if llm:
+        if llm is not None:
             self.llm = llm
         else:
-            self.llm = ChatGoogleGenerativeAI(model=model_name)
+            default_llm = get_llm()
+            if default_llm:
+                self.llm = default_llm
+            else:
+                self.llm = ChatGoogleGenerativeAI(model=model_name)
         self.tools = tools or []
         self.llm_with_tools = self.llm.bind_tools(
             tools=self.tools,
@@ -72,6 +78,7 @@ async def run_resume_pipeline(
     jd: Optional[str] = None,
     max_tool_results: int = 3,
     model_name: str = MODEL_NAME,
+    llm: Optional[BaseChatModel] = None,
 ) -> str:
     """Run the end-to-end resume tailoring pipeline and return a JSON string result.
 
@@ -85,6 +92,7 @@ async def run_resume_pipeline(
             jd_link=None,
             company_name=company_name,
             company_website=company_website,
+            llm=llm,
         )
 
         ats_summary = json.dumps(
@@ -161,6 +169,7 @@ async def run_resume_pipeline(
         system_prompt_messages=system_prompt_messages,
         tools=tools,
         model_name=model_name,
+        llm=llm,
     )
     graph = builder()
 

@@ -1,24 +1,24 @@
 """Interview API routes with SSE streaming support."""
 
 import json
-from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
+from langchain_core.language_models import BaseChatModel
 
+from app.core.deps import get_request_llm
+from app.models.interview.enums import InterviewEventType
 from app.models.interview.schemas import (
     CodeExecutionRequest,
     CreateInterviewRequest,
+    InterviewEvent,
     InterviewEventRequest,
     InterviewSessionResponse,
     SubmitAnswerRequest,
 )
-from app.models.interview.templates import list_templates, get_template
-from app.models.interview.enums import InterviewEventType
+from app.models.interview.templates import get_template, list_templates
 from app.services.interview.graph import get_interview_graph
-from app.models.interview.schemas import InterviewEvent
 from app.services.interview.session_manager import get_session_manager
-
 
 router = APIRouter(prefix="/interview", tags=["Digital Interviewer"])
 
@@ -63,7 +63,10 @@ async def get_template_by_id(template_id: str):
 
 
 @router.post("/sessions", response_model=InterviewSessionResponse)
-async def create_interview_session(request: CreateInterviewRequest):
+async def create_interview_session(
+    request: CreateInterviewRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Create a new interview session and generate questions.
 
     This endpoint creates a new interview session with the provided
@@ -71,7 +74,7 @@ async def create_interview_session(request: CreateInterviewRequest):
     automatically generated based on the configuration.
     """
     try:
-        graph = get_interview_graph()
+        graph = get_interview_graph(llm=llm)
         session = await graph.create_session(
             profile=request.profile,
             config=request.config,
@@ -149,13 +152,17 @@ async def list_interview_sessions(
 
 
 @router.post("/sessions/{session_id}/answer")
-async def submit_answer(session_id: str, request: SubmitAnswerRequest):
+async def submit_answer(
+    session_id: str,
+    request: SubmitAnswerRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Submit an answer for evaluation (non-streaming).
 
     Returns the evaluation result and next question.
     """
     try:
-        graph = get_interview_graph()
+        graph = get_interview_graph(llm=llm)
         result = await graph.submit_answer(
             session_id=session_id,
             question_id=request.question_id,
@@ -179,7 +186,11 @@ async def submit_answer(session_id: str, request: SubmitAnswerRequest):
 
 
 @router.post("/sessions/{session_id}/answer/stream")
-async def submit_answer_streaming(session_id: str, request: SubmitAnswerRequest):
+async def submit_answer_streaming(
+    session_id: str,
+    request: SubmitAnswerRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Submit an answer with SSE streaming evaluation.
 
     Streams the evaluation response token by token for a typing effect.
@@ -189,7 +200,7 @@ async def submit_answer_streaming(session_id: str, request: SubmitAnswerRequest)
     - complete: Final result with score and next question
     - error: Error message
     """
-    graph = get_interview_graph()
+    graph = get_interview_graph(llm=llm)
 
     # Verify session exists
     session = await graph.get_session(session_id)
@@ -217,13 +228,17 @@ async def submit_answer_streaming(session_id: str, request: SubmitAnswerRequest)
 
 
 @router.post("/sessions/{session_id}/code")
-async def execute_code(session_id: str, request: CodeExecutionRequest):
+async def execute_code(
+    session_id: str,
+    request: CodeExecutionRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Execute code for a coding question (non-streaming).
 
     Returns execution result and code review.
     """
     try:
-        graph = get_interview_graph()
+        graph = get_interview_graph(llm=llm)
         result = await graph.execute_code(
             session_id=session_id,
             question_id=request.question_id,
@@ -240,7 +255,11 @@ async def execute_code(session_id: str, request: CodeExecutionRequest):
 
 
 @router.post("/sessions/{session_id}/code/stream")
-async def execute_code_streaming(session_id: str, request: CodeExecutionRequest):
+async def execute_code_streaming(
+    session_id: str,
+    request: CodeExecutionRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Execute code with SSE streaming evaluation.
 
     First returns execution result, then streams code review.
@@ -251,7 +270,7 @@ async def execute_code_streaming(session_id: str, request: CodeExecutionRequest)
     - complete: Final result with score and next question
     - error: Error message
     """
-    graph = get_interview_graph()
+    graph = get_interview_graph(llm=llm)
 
     session = await graph.get_session(session_id)
     if not session:
@@ -289,13 +308,17 @@ async def get_supported_languages():
 
 
 @router.post("/sessions/{session_id}/skip")
-async def skip_question(session_id: str, question_id: str):
+async def skip_question(
+    session_id: str,
+    question_id: str,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Skip the current question.
 
     The question will be marked as skipped with a score of 0.
     """
     try:
-        graph = get_interview_graph()
+        graph = get_interview_graph(llm=llm)
         result = await graph.skip_question(
             session_id=session_id,
             question_id=question_id,
@@ -318,13 +341,16 @@ async def skip_question(session_id: str, question_id: str):
 
 
 @router.get("/sessions/{session_id}/summary")
-async def get_interview_summary(session_id: str):
+async def get_interview_summary(
+    session_id: str,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Get the final interview summary (non-streaming).
 
     If summary doesn't exist, it will be generated.
     """
     try:
-        graph = get_interview_graph()
+        graph = get_interview_graph(llm=llm)
         session = await graph.get_session(session_id)
 
         if not session:
@@ -358,7 +384,10 @@ async def get_interview_summary(session_id: str):
 
 
 @router.post("/sessions/{session_id}/summary/stream")
-async def generate_summary_streaming(session_id: str):
+async def generate_summary_streaming(
+    session_id: str,
+    llm: BaseChatModel = Depends(get_request_llm),
+):
     """Generate interview summary with SSE streaming.
 
     SSE Events:
@@ -366,7 +395,7 @@ async def generate_summary_streaming(session_id: str):
     - complete: Final summary with score and recommendation
     - error: Error message
     """
-    graph = get_interview_graph()
+    graph = get_interview_graph(llm=llm)
 
     session = await graph.get_session(session_id)
     if not session:

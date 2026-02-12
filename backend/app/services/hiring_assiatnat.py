@@ -1,13 +1,15 @@
-import os
 import json
+import os
 from typing import Optional
+
 import requests
 from fastapi import HTTPException, UploadFile
-from app.models.schemas import HiringAssistantResponse, ErrorResponse
-from app.services.process_resume import process_document, is_valid_resume
+from langchain_core.language_models import BaseChatModel
+
+from app.data.prompt.hirring_assistant import build_hiring_assistant_chain
+from app.models.schemas import ErrorResponse, HiringAssistantResponse
 from app.services.data_processor import format_resume_text_with_llm
-from app.data.prompt.hirring_assistant import hiring_assistant_chain
-from app.core.llm import llm
+from app.services.process_resume import is_valid_resume, process_document
 
 
 def get_company_research(company_name, company_url):
@@ -53,6 +55,7 @@ def generate_answers_for_geting_hired(
     word_limit,
     user_company_knowledge,
     company_research,
+    llm: BaseChatModel,
 ):
 
     company_context = ""
@@ -65,10 +68,11 @@ def generate_answers_for_geting_hired(
         )
 
     results = []
+    chain = build_hiring_assistant_chain(llm)
 
     for question in questions_list:
         try:
-            response_content = hiring_assistant_chain.invoke(
+            response_content = chain.invoke(
                 {
                     "resume": resume_text,
                     "role": role,
@@ -110,6 +114,7 @@ def hiring_assistant_service(
     user_knowledge: Optional[str],
     company_url: Optional[str],
     word_limit: Optional[int],
+    llm: BaseChatModel,
 ):
     try:
         try:
@@ -167,7 +172,7 @@ def hiring_assistant_service(
         )
 
         if resume_text.strip() and file_extension not in [".md", ".txt"]:
-            resume_text = format_resume_text_with_llm(resume_text)
+            resume_text = format_resume_text_with_llm(resume_text, llm)
 
         os.remove(temp_file_path)
 
@@ -191,6 +196,7 @@ def hiring_assistant_service(
             word_limit=word_limit,
             user_company_knowledge=user_knowledge or "",
             company_research=company_research_info,
+            llm=llm,
         )
 
         answers_data = {}
@@ -224,13 +230,8 @@ async def hiring_assistant_v2_service(
     user_knowledge: Optional[str],
     company_url: Optional[str],
     word_limit: Optional[int],
+    llm: BaseChatModel,
 ):
-    if not llm:
-        raise HTTPException(
-            status_code=503,
-            detail=ErrorResponse(message="LLM service is not available.").model_dump(),
-        )
-
     try:
         try:
             questions_list = json.loads(questions)
@@ -262,6 +263,7 @@ async def hiring_assistant_v2_service(
             word_limit=word_limit,
             user_company_knowledge=user_knowledge or "",
             company_research=company_research_info,
+            llm=llm,
         )
 
         answers_data = {}

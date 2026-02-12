@@ -10,11 +10,13 @@ import json
 from json import JSONDecodeError
 from typing import Optional
 
-from app.services.resume_generator import generate_tailored_resume
+from langchain_core.language_models import BaseChatModel
+
 from app.models.schemas import (
     ComprehensiveAnalysisData,
     ComprehensiveAnalysisResponse,
 )
+from app.services.resume_generator import generate_tailored_resume
 
 
 async def tailor_resume(
@@ -23,6 +25,7 @@ async def tailor_resume(
     company_name: Optional[str] = None,
     company_website: Optional[str] = None,
     job_description: Optional[str] = None,
+    llm: Optional[BaseChatModel] = None,
 ) -> ComprehensiveAnalysisResponse:
     """Generate a tailored resume analysis response from the provided context."""
 
@@ -45,6 +48,7 @@ async def tailor_resume(
         company_name=company_name,
         company_website=company_website,
         jd=job_description,
+        llm=llm,
     )
 
     if isinstance(raw_result, str):

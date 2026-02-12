@@ -4,6 +4,8 @@ import json
 import random
 from typing import Any, Dict, List, Optional
 
+from langchain_core.language_models import BaseChatModel
+
 from app.core.llm import get_llm
 from app.data.prompt.interview_question import get_question_generation_prompt
 from app.models.interview.enums import DifficultyLevel, QuestionSource
@@ -14,8 +16,8 @@ from app.models.interview.templates import QuestionTemplate, get_template
 class QuestionGenerator:
     """Generates interview questions using LLM and templates."""
 
-    def __init__(self):
-        self.llm = get_llm()
+    def __init__(self, llm: Optional[BaseChatModel] = None):
+        self.llm = llm or get_llm()
         self.prompt = get_question_generation_prompt()
 
     async def generate_questions(

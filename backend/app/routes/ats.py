@@ -1,9 +1,11 @@
-from typing import Optional
 import logging
+from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
+from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field, model_validator
 
+from app.core.deps import get_request_llm
 from app.models.schemas import JDEvaluatorResponse
 from app.services.ats import ats_evaluate_service
 from app.services.process_resume import process_document
@@ -46,7 +48,10 @@ class ATSEvaluationPayload(BaseModel):
     response_model=JDEvaluatorResponse,
     summary="Evaluate resume against a job description.",
 )
-async def evaluate_ats(payload: ATSEvaluationPayload) -> JDEvaluatorResponse:
+async def evaluate_ats(
+    payload: ATSEvaluationPayload,
+    llm: BaseChatModel = Depends(get_request_llm),
+) -> JDEvaluatorResponse:
     try:
         return await ats_evaluate_service(
             resume_text=payload.resume_text,
@@ -54,6 +59,7 @@ async def evaluate_ats(payload: ATSEvaluationPayload) -> JDEvaluatorResponse:
             jd_link=payload.jd_link,
             company_name=payload.company_name,
             company_website=payload.company_website,
+            llm=llm,
         )
 
     except Exception:
@@ -82,6 +88,7 @@ async def evaluate_ats_file_based(
     jd_link: Optional[str] = Form(None),
     company_name: Optional[str] = Form(None),
     company_website: Optional[str] = Form(None),
+    llm: BaseChatModel = Depends(get_request_llm),
 ) -> JDEvaluatorResponse:
     # Read and process resume file
     resume_bytes = await resume_file.read()
@@ -108,4 +115,5 @@ async def evaluate_ats_file_based(
         jd_link=jd_link,
         company_name=company_name,
         company_website=company_website,
+        llm=llm,
     )

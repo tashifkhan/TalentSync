@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 
 hiring_assistant_prompt_template_str = """
@@ -43,4 +43,7 @@ hiring_assistant_prompt_template = PromptTemplate(
     template=hiring_assistant_prompt_template_str,
 )
 
-hiring_assistant_chain = hiring_assistant_prompt_template | llm
+
+def build_hiring_assistant_chain(llm: BaseChatModel):
+    """Build a hiring assistant chain with the given LLM instance."""
+    return hiring_assistant_prompt_template | llm

@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.settings import get_settings
 from app.core.logging import setup_logging
+from app.core.settings import get_settings
 from app.routes.ats import file_based_router as ats_file_based_router
 from app.routes.ats import text_based_router as ats_text_based_router
 from app.routes.cold_mail import file_based_router as cold_mail_file_based_router
@@ -15,7 +15,9 @@ from app.routes.hiring_assistant import (
 from app.routes.hiring_assistant import (
     text_based_router as hiring_text_based_router,
 )
+from app.routes.interview import router as interview_router
 from app.routes.linkedin import router as linkedin_router
+from app.routes.llm import router as llm_router
 from app.routes.postgres import router as postgres_router
 from app.routes.resume_analysis import (
     file_based_router as resume_file_based_router,
@@ -30,7 +32,6 @@ from app.routes.tailored_resume import (
     text_based_router as tailored_resume_text_based_router,
 )
 from app.routes.tips import router as tips_router
-from app.routes.interview import router as interview_router
 
 settings = get_settings()
 
@@ -88,3 +89,6 @@ app.include_router(
 
 # Interview Routes (v1)
 app.include_router(interview_router, prefix="/api/v1", tags=["Digital Interviewer"])
+
+# LLM Config Routes (v1)
+app.include_router(llm_router, prefix="/api/v1", tags=["LLM Configuration"])

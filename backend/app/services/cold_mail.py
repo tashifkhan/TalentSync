@@ -1,14 +1,16 @@
-import os
 import json
+import os
 from typing import Optional
+
 from fastapi import HTTPException, UploadFile
+from langchain_core.language_models import BaseChatModel
+
+from app.data.prompt.cold_mail_editor import build_cold_mail_edit_chain
+from app.data.prompt.cold_mail_gen import build_cold_mail_chain
 from app.models.schemas import ColdMailResponse, ErrorResponse
-from app.services.process_resume import process_document, is_valid_resume
-from app.services.hiring_assiatnat import get_company_research
-from app.core.llm import llm
 from app.services.data_processor import format_resume_text_with_llm
-from app.data.prompt.cold_mail_gen import cold_main_generator_chain
-from app.data.prompt.cold_mail_editor import cold_mail_edit_chain
+from app.services.hiring_assiatnat import get_company_research
+from app.services.process_resume import is_valid_resume, process_document
 
 
 def generate_cold_mail_content(
@@ -21,9 +23,11 @@ def generate_cold_mail_content(
     key_points_to_include,
     additional_info_for_llm,
     company_research,
+    llm: BaseChatModel,
 ):
     try:
-        response = cold_main_generator_chain.invoke(
+        chain = build_cold_mail_chain(llm)
+        response = chain.invoke(
             {
                 "resume_text": resume_text,
                 "recipient_name": recipient_name,
@@ -136,10 +140,12 @@ def generate_cold_mail_edit_content(
     previous_email_subject,
     previous_email_body,
     edit_instructions,
+    llm: BaseChatModel,
 ):
 
     try:
-        response = cold_mail_edit_chain.invoke(
+        chain = build_cold_mail_edit_chain(llm)
+        response = chain.invoke(
             {
                 "resume_text": resume_text,
                 "recipient_name": recipient_name,
@@ -251,13 +257,8 @@ def cold_mail_generator_service(
     key_points_to_include: str,
     additional_info_for_llm: Optional[str],
     company_url: Optional[str],
+    llm: BaseChatModel,
 ):
-    if not llm:
-        raise HTTPException(
-            status_code=503,
-            detail=ErrorResponse(message="LLM service is not available.").model_dump(),
-        )
-
     try:
         uploads_dir = os.path.join(
             os.path.dirname(__file__),
@@ -293,7 +294,7 @@ def cold_mail_generator_service(
         )
 
         if resume_text.strip() and file_extension not in [".md", ".txt"]:
-            resume_text = format_resume_text_with_llm(resume_text)
+            resume_text = format_resume_text_with_llm(resume_text, llm)
 
         os.remove(temp_file_path)
 
@@ -320,6 +321,7 @@ def cold_mail_generator_service(
             key_points_to_include=key_points_to_include,
             additional_info_for_llm=additional_info_for_llm or "",
             company_research=company_research_info,
+            llm=llm,
         )
 
         return ColdMailResponse(
@@ -351,14 +353,8 @@ def cold_mail_editor_service(
     generated_email_subject: str,
     generated_email_body: str,
     edit_inscription: str,
+    llm: BaseChatModel,
 ):
-    if not llm:
-        raise HTTPException(
-            status_code=503,
-            detail=ErrorResponse(
-                message="LLM service is not available.",
-            ).model_dump(),
-        )
     try:
         uploads_dir = os.path.join(
             os.path.dirname(__file__),
@@ -393,7 +389,7 @@ def cold_mail_editor_service(
         )
 
         if resume_text.strip() and file_extension not in [".md", ".txt"]:
-            resume_text = format_resume_text_with_llm(resume_text)
+            resume_text = format_resume_text_with_llm(resume_text, llm)
 
         os.remove(temp_file_path)
 
@@ -422,6 +418,7 @@ def cold_mail_editor_service(
             previous_email_subject=generated_email_subject,
             previous_email_body=generated_email_body,
             edit_instructions=edit_inscription,
+            llm=llm,
         )
 
         return ColdMailResponse(
@@ -452,15 +449,8 @@ async def cold_mail_generator_v2_service(
     key_points_to_include: str,
     additional_info_for_llm: Optional[str],
     company_url: Optional[str],
+    llm: BaseChatModel,
 ):
-    if not llm:
-        raise HTTPException(
-            status_code=503,
-            detail=ErrorResponse(
-                message="LLM service is not available.",
-            ).model_dump(),
-        )
-
     try:
         company_research_info = ""
         if company_url:
@@ -476,6 +466,7 @@ async def cold_mail_generator_v2_service(
             key_points_to_include=key_points_to_include,
             additional_info_for_llm=additional_info_for_llm or "",
             company_research=company_research_info,
+            llm=llm,
         )
         return ColdMailResponse(
             subject=email_content["subject"],
@@ -508,14 +499,8 @@ async def cold_mail_editor_v2_service(
     generated_email_subject: str,
     generated_email_body: str,
     edit_inscription: str,
+    llm: BaseChatModel,
 ):
-    if not llm:
-        raise HTTPException(
-            status_code=503,
-            detail=ErrorResponse(
-                message="LLM service is not available.",
-            ).model_dump(),
-        )
     try:
         company_research_info = ""
         if company_url:
@@ -534,6 +519,7 @@ async def cold_mail_editor_v2_service(
             previous_email_subject=generated_email_subject,
             previous_email_body=generated_email_body,
             edit_instructions=edit_inscription,
+            llm=llm,
         )
         return ColdMailResponse(
             subject=email_content["subject"],

@@ -1,4 +1,4 @@
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import PromptTemplate
 
 
@@ -42,4 +42,7 @@ tips_generator_prompt = PromptTemplate(
     template=tips_generator_prompt_template_str,
 )
 
-tips_generator_chain = tips_generator_prompt | llm
+
+def build_tips_generator_chain(llm: BaseChatModel):
+    """Build a tips generator chain with the given LLM instance."""
+    return tips_generator_prompt | llm

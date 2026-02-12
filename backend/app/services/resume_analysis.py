@@ -1,29 +1,31 @@
 import os
-from fastapi import HTTPException, UploadFile, File
+
+from fastapi import HTTPException, UploadFile
+from langchain_core.language_models import BaseChatModel
 from pydantic import ValidationError
+
 from app.models.schemas import (
+    ComprehensiveAnalysisData,
+    ComprehensiveAnalysisResponse,
+    ErrorResponse,
     FormattedAndAnalyzedResumeResponse,
     ResumeAnalysis,
     ResumeUploadResponse,
-    ErrorResponse,
-    ComprehensiveAnalysisResponse,
-    ComprehensiveAnalysisData,
 )
-from app.services.process_resume import (
-    process_document,
-    is_valid_resume,
-)
-
 from app.services.data_processor import (
-    format_resume_text_with_llm,
-    format_resume_json_with_llm,
+    LLMNotFoundError,
     comprehensive_analysis_llm,
     format_and_analyse_resumes,
-    LLMNotFoundError,
+    format_resume_json_with_llm,
+    format_resume_text_with_llm,
+)
+from app.services.process_resume import (
+    is_valid_resume,
+    process_document,
 )
 
 
-async def analyze_resume_service(file: UploadFile = File(...)):
+async def analyze_resume_service(file: UploadFile, llm: BaseChatModel):
     cleaned_data_dict = None
     try:
         uploads_dir = os.path.join(
@@ -60,7 +62,7 @@ async def analyze_resume_service(file: UploadFile = File(...)):
         )
 
         if resume_text.strip() and file_extension not in [".md", ".txt"]:
-            resume_text = format_resume_text_with_llm(resume_text)
+            resume_text = format_resume_text_with_llm(resume_text, llm)
 
         os.remove(temp_file_path)
 
@@ -73,6 +75,7 @@ async def analyze_resume_service(file: UploadFile = File(...)):
         try:
             resume_data = format_resume_json_with_llm(
                 extracted_resume_text=resume_text,
+                llm=llm,
             )
             if not resume_data:
                 raise LLMNotFoundError(
@@ -153,7 +156,7 @@ async def analyze_resume_service(file: UploadFile = File(...)):
         )
 
 
-async def comprehensive_resume_analysis_service(file: UploadFile):
+async def comprehensive_resume_analysis_service(file: UploadFile, llm: BaseChatModel):
     try:
         uploads_dir = os.path.join(
             os.path.dirname(__file__),
@@ -194,7 +197,7 @@ async def comprehensive_resume_analysis_service(file: UploadFile):
                 detail="Invalid resume format or content.",
             )
 
-        analysis_dict = comprehensive_analysis_llm(resume_text)
+        analysis_dict = comprehensive_analysis_llm(resume_text, llm)
         if not isinstance(analysis_dict, dict):
             raise HTTPException(
                 status_code=500,
@@ -234,7 +237,7 @@ async def comprehensive_resume_analysis_service(file: UploadFile):
         )
 
 
-async def format_and_analyze_resume_service(file: UploadFile):
+async def format_and_analyze_resume_service(file: UploadFile, llm: BaseChatModel):
     # Async version for v2
     try:
         uploads_dir = os.path.join(
@@ -267,6 +270,7 @@ async def format_and_analyze_resume_service(file: UploadFile):
 
         analysis_dict = format_and_analyse_resumes(
             raw_text=raw_resume_text,
+            llm=llm,
         )
 
         analysis = ComprehensiveAnalysisData(**analysis_dict)
@@ -298,7 +302,7 @@ async def format_and_analyze_resume_service(file: UploadFile):
         )
 
 
-async def analyze_resume_v2_service(formated_resume: str):
+async def analyze_resume_v2_service(formated_resume: str, llm: BaseChatModel):
     # Async version for v2
     try:
         if not formated_resume.strip():
@@ -310,6 +314,7 @@ async def analyze_resume_v2_service(formated_resume: str):
 
         analysis_dict = comprehensive_analysis_llm(
             resume_text=formated_resume,
+            llm=llm,
         )
 
         if not isinstance(analysis_dict, dict):
