@@ -19,10 +19,8 @@ import {
   ArrowLeft,
   User,
   Mail,
-  Calendar,
   LogOut,
   Shield,
-  Upload,
   Key,
   CheckCircle,
   AlertCircle,
@@ -32,14 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { LlmConfigPanel } from "@/components/llm-config-panel";
 
 export default function AccountPage() {
   const { data: session, status } = useSession();
@@ -267,7 +258,9 @@ export default function AccountPage() {
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
                         <User className="h-4 w-4 text-brand-primary" />
-                        <span className="text-brand-light/80 text-sm">Name:</span>
+                        <span className="text-brand-light/80 text-sm">
+                          Name:
+                        </span>
                         <span className="text-brand-light font-medium">
                           {session.user?.name || "Not provided"}
                         </span>
@@ -283,7 +276,9 @@ export default function AccountPage() {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Shield className="h-4 w-4 text-brand-primary" />
-                        <span className="text-brand-light/80 text-sm">Role:</span>
+                        <span className="text-brand-light/80 text-sm">
+                          Role:
+                        </span>
                         <span className="text-brand-light font-medium">
                           {(session.user as any)?.role === "Admin"
                             ? "Recruiter"
@@ -436,197 +431,7 @@ export default function AccountPage() {
                 </Card>
 
                 {/* BYOAW & Model Selector */}
-                <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl relative">
-                  {/* Coming Soon Overlay */}
-                  <div className="absolute inset-0 bg-black/50 backdrop-blur-sm rounded-lg flex items-center justify-center z-10">
-                    <div className="text-center p-6">
-                      <div className="inline-flex items-center px-4 py-2 bg-brand-primary/20 border border-brand-primary/30 rounded-full mb-3">
-                        <div className="w-2 h-2 bg-brand-primary rounded-full mr-2 animate-pulse"></div>
-                        <span className="text-brand-primary text-sm font-medium">
-                          Coming Soon
-                        </span>
-                      </div>
-                      <p className="text-brand-light/80 text-lg font-semibold mb-1">
-                        Work in Progress
-                      </p>
-                      <p className="text-brand-light/60 text-sm">
-                        This feature is being developed
-                      </p>
-                    </div>
-                  </div>
-
-                  <CardHeader>
-                    <CardTitle className="text-brand-light flex items-center gap-2">
-                      <div className="h-5 w-5 bg-brand-primary rounded flex items-center justify-center">
-                        <span className="text-brand-light text-xs font-bold">
-                          AI
-                        </span>
-                      </div>
-                      BYOAW & Model Selector
-                    </CardTitle>
-                    <CardDescription className="text-brand-light/60">
-                      Bring your own AI weights and choose your preferred AI
-                      model
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6 opacity-50">
-                    {/* Model Selection */}
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-brand-light font-medium mb-3 flex items-center gap-2">
-                          <div className="w-2 h-2 bg-brand-primary rounded-full"></div>
-                          AI Model Provider
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                          {/* OpenAI */}
-                          <div className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-brand-primary/30 transition-colors cursor-pointer">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-brand-primary rounded-lg flex items-center justify-center">
-                                  <span className="text-brand-light text-xs font-bold">
-                                    O
-                                  </span>
-                                </div>
-                                <span className="text-brand-light font-medium">
-                                  OpenAI
-                                </span>
-                              </div>
-                              <div className="w-4 h-4 border-2 border-white/30 rounded-full"></div>
-                            </div>
-                            <p className="text-brand-light/60 text-xs">
-                              GPT-4, GPT-3.5 Turbo
-                            </p>
-                          </div>
-
-                          {/* Claude */}
-                          <div className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-brand-primary/30 transition-colors cursor-pointer">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-surface rounded-lg flex items-center justify-center">
-                                  <span className="text-brand-light text-xs font-bold">
-                                    C
-                                  </span>
-                                </div>
-                                <span className="text-brand-light font-medium">
-                                  Claude
-                                </span>
-                              </div>
-                              <div className="w-4 h-4 border-2 border-white/30 rounded-full"></div>
-                            </div>
-                            <p className="text-brand-light/60 text-xs">
-                              Claude 3 Opus, Sonnet
-                            </p>
-                          </div>
-
-                          {/* Gemini */}
-                          <div className="p-4 bg-white/5 rounded-lg border border-white/10 hover:border-brand-primary/30 transition-colors cursor-pointer">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 bg-brand-dark rounded-lg flex items-center justify-center border border-white/20">
-                                  <span className="text-brand-light text-xs font-bold">
-                                    G
-                                  </span>
-                                </div>
-                                <span className="text-brand-light font-medium">
-                                  Gemini
-                                </span>
-                              </div>
-                              <div className="w-4 h-4 border-2 border-white/30 rounded-full"></div>
-                            </div>
-                            <p className="text-brand-light/60 text-xs">
-                              Gemini Pro, Ultra
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* API Configuration */}
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-brand-light font-medium mb-3 flex items-center gap-2">
-                          <Key className="h-4 w-4 text-brand-primary" />
-                          API Configuration
-                        </h4>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-brand-light/80 mb-2">
-                              API Key
-                            </label>
-                            <Input
-                              type="password"
-                              placeholder="Enter your API key"
-                              className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
-                              disabled
-                            />
-                            <p className="text-brand-light/50 text-xs mt-1">
-                              Your API key will be encrypted and stored securely
-                            </p>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-brand-light/80 mb-2">
-                              Custom Endpoint (Optional)
-                            </label>
-                            <Input
-                              type="url"
-                              placeholder="https://api.openai.com/v1"
-                              className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
-                              disabled
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Model Settings */}
-                    {/* <div className="space-y-4">
-											<div>
-												<h4 className="text-brand-light font-medium mb-3 flex items-center gap-2">
-													<div className="w-4 h-4 bg-brand-primary rounded"></div>
-													Model Settings
-												</h4>
-												<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-													<div>
-														<label className="block text-sm font-medium text-brand-light/80 mb-2">
-															Temperature
-														</label>
-														<Input
-															type="number"
-															placeholder="0.7"
-															min="0"
-															max="2"
-															step="0.1"
-															className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
-															disabled
-														/>
-													</div>
-													<div>
-														<label className="block text-sm font-medium text-brand-light/80 mb-2">
-															Max Tokens
-														</label>
-														<Input
-															type="number"
-															placeholder="2048"
-															className="bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/40"
-															disabled
-														/>
-													</div>
-												</div>
-											</div> 
-										</div>*/}
-
-                    {/* Test Connection */}
-                    <div className="pt-4 border-t border-white/10">
-                      <Button
-                        disabled
-                        className="w-full bg-brand-primary/50 hover:bg-brand-primary/60 text-white"
-                      >
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Test Connection
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <LlmConfigPanel />
               </div>
             </motion.div>
           </div>
@@ -736,7 +541,9 @@ export default function AccountPage() {
                     <div>
                       <label className="block text-sm font-medium text-brand-light mb-3">
                         Type{" "}
-                        <span className="text-destructive font-bold">"DELETE"</span>{" "}
+                        <span className="text-destructive font-bold">
+                          "DELETE"
+                        </span>{" "}
                         to confirm:
                       </label>
                       <Input

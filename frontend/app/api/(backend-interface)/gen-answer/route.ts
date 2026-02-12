@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
+import { getLlmHeaders } from '@/lib/llm-headers';
 
 /**
  * Hiring Assistant Bridge API
@@ -199,6 +200,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const userId = (session.user as any).id;
+    const llmHeaders = await getLlmHeaders(userId);
+
     const formData = await request.formData();
     
     // Extract form fields
@@ -264,6 +268,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         body: backendFormData,
         signal: AbortSignal.timeout(300000), // 5 minutes timeout
+        headers: { ...llmHeaders },
       });
 
       if (!backendResponse.ok) {
@@ -449,6 +454,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         body: backendFormData,
         signal: AbortSignal.timeout(300000), // 5 minutes timeout
+        headers: { ...llmHeaders },
       });
 
       if (!backendResponse.ok) {

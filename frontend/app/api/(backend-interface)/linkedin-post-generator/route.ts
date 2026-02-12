@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { getLlmHeaders } from "@/lib/llm-headers";
 
 /**
  * LinkedIn Post Generator Bridge API
@@ -60,6 +61,8 @@ export async function POST(request: NextRequest) {
 		if (!session?.user) {
 			return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
 		}
+        const userId = (session.user as any).id;
+        const llmHeaders = await getLlmHeaders(userId);
 
 		let payload: any;
 		try {
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
 		try {
 			backendResponse = await fetch(`${backendUrl}/api/v1/linkedin/generate-posts`, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: { "Content-Type": "application/json", ...llmHeaders },
 				body: JSON.stringify(backendBody),
 				signal: AbortSignal.timeout(300000), // 5 minutes timeout
 			});

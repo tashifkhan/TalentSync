@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
+import { getLlmHeaders } from "@/lib/llm-headers";
 
 export async function POST(req: Request) {
 	try {
@@ -13,6 +14,7 @@ export async function POST(req: Request) {
 			);
 		}
 		const userId = (session.user as any).id;
+        const llmHeaders = await getLlmHeaders(userId);
 
 		const data = await req.formData();
 
@@ -56,6 +58,7 @@ export async function POST(req: Request) {
 		const response = await fetch(pythonApiUrl, {
 			method: "POST",
 			body: backendFormData,
+            headers: { ...llmHeaders },
 		});
 
 		if (!response.ok) {

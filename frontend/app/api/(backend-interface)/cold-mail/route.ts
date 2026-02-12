@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
+import { getLlmHeaders } from "@/lib/llm-headers";
 
 interface ColdMailRequest {
   resume_text?: string;
@@ -101,6 +100,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const userId = (session.user as any).id;
+    const llmHeaders = await getLlmHeaders(userId);
+
     // Parse form data
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
@@ -183,6 +185,7 @@ export async function POST(request: NextRequest) {
         backendResponse = await fetch(`${backendUrl}/api/v1/cold-mail/generator/`, {
           method: 'POST',
           body: backendFormData,
+          headers: { ...llmHeaders },
         });
       } else if (resumeId) {
         // Scenario 2: Use existing resume from database - use v2 endpoint
@@ -254,6 +257,7 @@ export async function POST(request: NextRequest) {
           body: backendFormData,
           // Add timeout and other fetch options
           signal: AbortSignal.timeout(30000), // 30 second timeout
+          headers: { ...llmHeaders },
         });
       } else {
         // This should not happen due to earlier validation, but handle it just in case
@@ -476,8 +480,6 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

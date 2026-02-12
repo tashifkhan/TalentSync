@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
+import { getLlmHeaders } from "@/lib/llm-headers";
 
 interface Tip {
 	category: string;
@@ -29,6 +30,9 @@ export async function GET(request: NextRequest) {
 				{ status: 401 }
 			);
 		}
+
+        const userId = (session.user as any).id;
+        const llmHeaders = await getLlmHeaders(userId);
 
 		// Get query parameters
 		const { searchParams } = new URL(request.url);
@@ -67,6 +71,7 @@ export async function GET(request: NextRequest) {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
+                    ...llmHeaders,
 				},
 			}
 		);
