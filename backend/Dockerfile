@@ -17,13 +17,15 @@ RUN pip install --no-cache-dir uv
 # Copy dependency manifests first for layer caching
 COPY pyproject.toml uv.lock ./
 
-# Install project dependencies using CPU-only torch wheels to avoid CUDA packages
-# Using --system to install in the global environment
-# Using --no-cache to reduce image size
+# Install CPU-only PyTorch first to prevent CUDA dependency resolution.
+# This pins torch+torchvision to CPU wheels so subsequent installs won't pull nvidia-* packages.
 RUN uv pip install --system --no-cache \
     --index-url https://download.pytorch.org/whl/cpu \
-    --extra-index-url https://pypi.org/simple \
-    . uvicorn
+    torch torchvision
+
+# Install the rest of the project dependencies.
+# torch is already satisfied from above, so uv won't re-resolve it or its CUDA deps.
+RUN uv pip install --system --no-cache . uvicorn
 
 # Copy the entire app directory into the container
 COPY app ./app
