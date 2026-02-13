@@ -1,127 +1,109 @@
-# Stage 1: Build the application
-FROM oven/bun:1 AS builder
+# syntax=docker/dockerfile:1.7
+
+############################################
+# Stage 0: deps (dev deps for build tooling)
+############################################
+FROM oven/bun:1 AS deps
+
+ENV NODE_ENV=development \
+    NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app
 
-# Set NODE_ENV for Next.js build optimizations
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json bun.lock ./
+COPY prisma ./prisma
 
-# Build-time args for embedding NEXT_PUBLIC_ variables into the Next.js build
+RUN --mount=type=cache,target=/home/bun/.bun/install/cache \
+    bun install --frozen-lockfile
+
+
+############################################
+# Stage 1: builder (next build + prisma generate)
+############################################
+FROM oven/bun:1 AS builder
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
 ARG NEXT_PUBLIC_POSTHOG_KEY
 ARG NEXT_PUBLIC_POSTHOG_UI_HOST
 ARG NEXT_PUBLIC_POSTHOG_HOST
 
-# Make build args available as environment variables during build so Next.js can bake them into the
-# client bundle. These are safe for public NEXT_PUBLIC_ variables (do not use for private secrets).
-ENV NEXT_PUBLIC_POSTHOG_KEY=$NEXT_PUBLIC_POSTHOG_KEY
-ENV NEXT_PUBLIC_POSTHOG_UI_HOST=$NEXT_PUBLIC_POSTHOG_UI_HOST
-ENV NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
-
-# Switch to root to install packages and set permissions
-USER root
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    openssl \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy lockfile and manifests first for better layer caching.
-COPY package.json bun.lock ./
-COPY prisma ./prisma
-
-# Install dependencies as root first (needed for Prisma generation)
-RUN bun install --frozen-lockfile
-
-# Copy the rest of the application files.
-COPY . .
-
-# Change ownership of all files to the bun user
-RUN chown -R bun:bun /app
-
-# Switch to the bun user for the build
-USER bun
-
-# If your project uses Prisma, ensure 'prisma generate' is part of your 'build' script in package.json
-# Example package.json script: "build": "prisma generate && next build"
-# The Prisma client will then be generated (or re-generated) during the build process.
-RUN bun run build
-
-# Stage 2: Production image
-# Use a slim base image for a smaller final image size
-FROM oven/bun:1-slim AS runner
+ENV NEXT_PUBLIC_POSTHOG_KEY=$NEXT_PUBLIC_POSTHOG_KEY \
+    NEXT_PUBLIC_POSTHOG_UI_HOST=$NEXT_PUBLIC_POSTHOG_UI_HOST \
+    NEXT_PUBLIC_POSTHOG_HOST=$NEXT_PUBLIC_POSTHOG_HOST
 
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package.json ./package.json
+COPY --from=deps /app/bun.lock ./bun.lock
+COPY --from=deps /app/prisma ./prisma
 
-# Switch to root for system operations like installing packages and changing ownership
-USER root
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends \
-    openssl \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    && rm -rf /var/lib/apt/lists/*
+COPY . .
 
-# Copy necessary files from builder stage
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/bun.lock ./bun.lock
-COPY --from=builder /app/prisma/ ./prisma/
+# `bun run build` should NOT run migrations (fixed in package.json below)
+RUN bun run build
 
-# Change ownership of the /app directory and its contents to the bun user
-# This must be done as root before switching to the bun user
-RUN chown -R bun:bun /app
 
-# Switch to the bun user for subsequent commands
+############################################
+# Stage 2: prod-deps (only production deps)
+############################################
+FROM oven/bun:1 AS prod-deps
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /app
+
+COPY package.json bun.lock ./
+COPY prisma ./prisma
+
+RUN --mount=type=cache,target=/home/bun/.bun/install/cache \
+    bun install --production --frozen-lockfile
+
+
+############################################
+# Stage 3: migrate (one-shot migrations)
+############################################
+FROM deps AS migrate
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+WORKDIR /app
+
+# Only migrations by default (safe for production).
+# If you want seed here, you MUST run `prisma generate` before seed:
+# bunx prisma migrate deploy && bunx prisma generate && bun run seed
+CMD ["sh", "-lc", "bunx prisma migrate deploy"]
+
+
+############################################
+# Stage 4: runner (runtime)
+############################################
+FROM oven/bun:1-slim AS runner
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+
+RUN mkdir -p /app && chown bun:bun /app
 USER bun
+WORKDIR /app
 
-# Install only production dependencies
-# bun install should now have the necessary permissions to create node_modules
-RUN bun install --production --frozen-lockfile
+COPY --from=prod-deps --chown=bun:bun /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=bun:bun /app/package.json ./package.json
+COPY --from=prod-deps --chown=bun:bun /app/bun.lock ./bun.lock
+COPY --from=prod-deps --chown=bun:bun /app/prisma ./prisma
 
-# Copy the built Next.js application from the builder stage
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+COPY --from=builder --chown=bun:bun /app/.next ./.next
+COPY --from=builder --chown=bun:bun /app/public ./public
 
-# next.config.js is often needed at runtime by 'next start'
-COPY --from=builder /app/next.config.js ./next.config.js
+# If your config is next.config.mjs/ts, tell me and I’ll adjust this line.
+COPY --from=builder --chown=bun:bun /app/next.config.js ./next.config.js
 
-# Expose the port Next.js runs on (default is 3000)
+# Prisma generated runtime bits (engines/client)
+COPY --from=builder --chown=bun:bun /app/node_modules/.prisma ./node_modules/.prisma
+
 EXPOSE 3000
-
-# Define the command to start the Next.js application
-# This assumes your package.json has a "start" script, e.g., "next start"
 CMD ["bun", "run", "start"]
-
-# --- Environment Variable Notes ---
-# The Next.js application will require various environment variables at runtime,
-# such as those defined in your .env file (e.g., NEXTAUTH_URL, NEXTAUTH_SECRET, DATABASE_URL, etc.).
-#
-# How to provide them to the Docker container:
-# 1. Using 'docker run -e VARNAME=value ...' for each variable.
-# 2. Using 'docker run --env-file ./path/to/your/.env.production ...' to pass a file with variable definitions.
-#    (Ensure this .env.production file contains only necessary runtime variables and is kept secure).
-#
-# Do NOT bake sensitive secrets directly into the Docker image by copying the .env file or using hardcoded ENV instructions for secrets.
-#
-# Example variables from your .env that would be needed at RUNTIME:
-# - NEXTAUTH_URL (e.g., http://yourdomain.com)
-# - NEXTAUTH_SECRET (a strong, random secret)
-# - DATABASE_URL (connection string for Prisma/NextAuth database adapter)
-# - GOOGLE_CLIENT_ID
-# - GOOGLE_CLIENT_SECRET
-# - GITHUB_CLIENT_ID
-# - GITHUB_CLIENT_SECRET
-# - EMAIL_SERVER_HOST, EMAIL_SERVER_PORT, EMAIL_SERVER_USER, EMAIL_SERVER_PASSWORD, EMAIL_FROM
-# - BACKEND_URL (e.g., http://backend-service-name:8000 if using Docker Compose, or the public URL of your backend)
-#
-# Variables prefixed with NEXT_PUBLIC_ are embedded at BUILD time.
-# If these come from your .env file, ensure they are available during the `docker build` process
-# (e.g., via --build-arg as shown in the builder stage comments, or by your CI system).
