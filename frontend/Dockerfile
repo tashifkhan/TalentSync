@@ -27,7 +27,6 @@ RUN apt-get update -y && \
     texlive-latex-recommended \
     texlive-latex-extra \
     texlive-fonts-recommended \
-    texlive-fonts-extra \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy lockfile and manifests first for better layer caching.
@@ -69,7 +68,6 @@ RUN apt-get update -y && \
     texlive-latex-recommended \
     texlive-latex-extra \
     texlive-fonts-recommended \
-    texlive-fonts-extra \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy necessary files from builder stage
