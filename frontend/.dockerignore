@@ -50,3 +50,6 @@ temp
 
 # PDF service (separate service)
 pdf-service
+
+# Database data directory (should be in volume, not source)
+data/

@@ -33,17 +33,17 @@ RUN apt-get update -y && \
 COPY package.json bun.lock ./
 COPY prisma ./prisma
 
-# Change ownership of the /app directory to the bun user
-RUN chown -R bun:bun /app
-
-# Switch to the bun user for subsequent commands
-USER bun
-
-# Install dependencies using bun (cached if lockfile unchanged).
+# Install dependencies as root first (needed for Prisma generation)
 RUN bun install --frozen-lockfile
 
 # Copy the rest of the application files.
 COPY . .
+
+# Change ownership of all files to the bun user
+RUN chown -R bun:bun /app
+
+# Switch to the bun user for the build
+USER bun
 
 # If your project uses Prisma, ensure 'prisma generate' is part of your 'build' script in package.json
 # Example package.json script: "build": "prisma generate && next build"
