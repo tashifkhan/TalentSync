@@ -10,9 +10,6 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup --system app && adduser --system --ingroup app app
-
 # Install uv (and keep it cached when possible)
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir uv
@@ -27,11 +24,8 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Copy application code
 COPY app ./app
 
-# Create required runtime dirs and set permissions for the non-root user
-RUN mkdir -p /app/uploads "$NLTK_DATA" && \
-    chown -R app:app /app
-
-USER app
+# Create required runtime dirs
+RUN mkdir -p /app/uploads "$NLTK_DATA"
 
 EXPOSE 8000
 
