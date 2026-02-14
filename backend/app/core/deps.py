@@ -37,12 +37,24 @@ def get_request_llm(request: Request) -> BaseChatModel:
     api_base = request.headers.get("X-LLM-Base")
 
     if provider and model:
-        return create_llm(
-            provider=provider,
-            model=model,
-            api_key=api_key or None,
-            api_base=api_base or None,
-        )
+        try:
+            return create_llm(
+                provider=provider,
+                model=model,
+                api_key=api_key or None,
+                api_base=api_base or None,
+            )
+        except Exception as e:
+            from fastapi import HTTPException
+            import logging
+
+            logging.error(
+                f"Failed to create custom LLM for provider={provider}, model={model}: {e}"
+            )
+            raise HTTPException(
+                status_code=503,
+                detail=f"Failed to initialize your custom LLM configuration. Please check your API key and try again.",
+            )
 
     # No per-user config in headers -- use server default
     default = get_llm()

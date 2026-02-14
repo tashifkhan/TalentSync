@@ -11,20 +11,26 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        const { provider, model, apiKey, apiBase } = await request.json();
+        const { provider, model, apiKey, apiBase, configId } = await request.json();
 
         let effectiveApiKey = apiKey;
 
         // If no API key provided in request, try to get from stored config
-        if (!effectiveApiKey || typeof effectiveApiKey !== 'string' || effectiveApiKey.trim() === "") {
-             const user = await prisma.user.findUnique({
-                 where: { email: session.user.email },
-                 include: { llmConfig: true }
-             });
-             
-             if (user?.llmConfig?.encryptedKey) {
-                 effectiveApiKey = decrypt(user.llmConfig.encryptedKey);
-             }
+        if (!effectiveApiKey || typeof effectiveApiKey !== "string" || effectiveApiKey.trim() === "") {
+            const user = await prisma.user.findUnique({
+                where: { email: session.user.email },
+            });
+
+            if (user) {
+                // If configId is provided, use that config's key; otherwise use active config
+                const config = configId
+                    ? await prisma.llmConfig.findUnique({ where: { id: configId } })
+                    : await prisma.llmConfig.findFirst({ where: { userId: user.id, isActive: true } });
+
+                if (config?.encryptedKey) {
+                    effectiveApiKey = decrypt(config.encryptedKey);
+                }
+            }
         }
 
         // Forward to Backend
@@ -37,23 +43,25 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({
                 provider,
                 model,
-                api_key: effectiveApiKey || null, 
-                api_base: apiBase || null
-            })
+                api_key: effectiveApiKey || null,
+                api_base: apiBase || null,
+            }),
         });
 
         if (!response.ok) {
             const errorText = await response.text();
             console.error("Backend LLM test failed:", errorText);
-            return NextResponse.json({ 
-                success: false, 
-                message: `Backend connection failed: ${response.status} ${response.statusText}` 
-            }, { status: response.status });
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `Backend connection failed: ${response.status} ${response.statusText}`,
+                },
+                { status: response.status }
+            );
         }
 
         const data = await response.json();
         return NextResponse.json(data);
-
     } catch (error) {
         console.error("Error testing LLM config:", error);
         return NextResponse.json({ success: false, message: "Internal Error" }, { status: 500 });

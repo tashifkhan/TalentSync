@@ -7,8 +7,9 @@ export async function getLlmHeaders(userId: string): Promise<Record<string, stri
   }
 
   try {
-    const config = await prisma.llmConfig.findUnique({
-      where: { userId },
+    // Find the active config for this user
+    const config = await prisma.llmConfig.findFirst({
+      where: { userId, isActive: true },
     });
 
     if (!config) {

@@ -1,4 +1,5 @@
 import json
+import logging
 
 from langchain_core.language_models import BaseChatModel
 
@@ -149,7 +150,11 @@ def comprehensive_analysis_llm(
             try:
                 formatted_json = json.loads(result)
 
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logging.error(
+                    f"Failed to parse JSON from LLM response (```json block): {e}"
+                )
+                logging.error(f"Raw response: {raw_responce[:500]}")
                 formatted_json = {}
 
         elif raw_responce.strip().startswith("{"):
@@ -157,7 +162,11 @@ def comprehensive_analysis_llm(
             try:
                 formatted_json = json.loads(result)
 
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logging.error(
+                    f"Failed to parse JSON from LLM response (direct JSON): {e}"
+                )
+                logging.error(f"Raw response: {raw_responce[:500]}")
                 formatted_json = {}
 
         else:
@@ -168,10 +177,15 @@ def comprehensive_analysis_llm(
             try:
                 formatted_json = json.loads(result)
 
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
+                logging.error(
+                    f"Failed to parse JSON from LLM response (extracted block): {e}"
+                )
+                logging.error(f"Raw response: {raw_responce[:500]}")
                 formatted_json = {}
 
         if formatted_json is None or not isinstance(formatted_json, dict):
+            logging.error(f"LLM returned non-dict result: {type(formatted_json)}")
             return {}
 
         return formatted_json
@@ -187,7 +201,8 @@ def comprehensive_analysis_llm(
             )
             formatted_json = json.loads(json_str)
 
-        except Exception:
+        except Exception as e:
+            logging.error(f"Failed to parse JSON in final fallback: {e}")
             formatted_json = {}
 
     return formatted_json
