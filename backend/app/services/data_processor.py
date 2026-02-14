@@ -123,6 +123,29 @@ def format_resume_json_with_llm(
         return {}
 
 
+def _extract_text_from_llm_result(result) -> str:
+    """Extract text content from LLM result, handling various formats."""
+    if isinstance(result, str):
+        return result
+
+    # Handle AIMessage-like objects with .content attribute
+    content = getattr(result, "content", result)
+
+    # If content is a list (e.g., Gemini API format), extract text parts
+    if isinstance(content, list):
+        text_parts = []
+        for item in content:
+            if isinstance(item, dict) and "text" in item:
+                text_parts.append(item["text"])
+            elif isinstance(item, str):
+                text_parts.append(item)
+            elif hasattr(item, "text"):
+                text_parts.append(getattr(item, "text"))
+        return "".join(text_parts)
+
+    return str(content)
+
+
 def comprehensive_analysis_llm(
     resume_text: str,
     llm: BaseChatModel,
@@ -142,7 +165,7 @@ def comprehensive_analysis_llm(
         formatted_json = result
 
     else:
-        raw_responce = str(result.content)
+        raw_responce = _extract_text_from_llm_result(result)
         if raw_responce.strip().startswith("```json"):
             result = (
                 raw_responce.strip().removeprefix("```json").removesuffix("```").strip()
@@ -227,7 +250,7 @@ def format_and_analyse_resumes(
         formatted_json = result
 
     else:
-        raw_responce = str(result.content)
+        raw_responce = _extract_text_from_llm_result(result)
         if raw_responce.strip().startswith("```json"):
             result = (
                 raw_responce.strip().removeprefix("```json").removesuffix("```").strip()
