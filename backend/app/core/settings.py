@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "TalentSync Normies API"
     APP_VERSION: str = "1.5.8"
     DEBUG: bool = False
+    LOG_LEVEL: str = "DEBUG"
 
     # LLM Configuration
     GOOGLE_API_KEY: Optional[str] = None

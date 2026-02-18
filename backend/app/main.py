@@ -1,9 +1,20 @@
 from contextlib import asynccontextmanager
+import json
+import logging
+import time
+
+from fastapi import Request
+from starlette.responses import Response
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.logging import setup_logging
+from app.core.logging import (
+    build_request_id,
+    bind_request_id,
+    reset_request_id,
+    setup_logging,
+)
 from app.core.settings import get_settings
 from app.routes.ats import file_based_router as ats_file_based_router
 from app.routes.ats import text_based_router as ats_text_based_router
@@ -51,6 +62,84 @@ app = FastAPI(
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
+
+
+@app.middleware("http")
+async def request_id_middleware(request: Request, call_next):
+    request_id = build_request_id(request.headers.get("X-Request-ID"))
+    token = bind_request_id(request_id)
+    try:
+        response = await call_next(request)
+    finally:
+        reset_request_id(token)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+@app.middleware("http")
+async def request_response_logging_middleware(request: Request, call_next):
+    logger = logging.getLogger("app.request")
+    response_logger = logging.getLogger("app.response")
+    start_time = time.perf_counter()
+
+    request_body = await request.body()
+    request_payload = _format_payload(request_body, request.headers.get("content-type"))
+
+    logger.debug(
+        "request payload",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "query": request.url.query,
+            "payload": request_payload,
+        },
+    )
+
+    response = await call_next(request)
+
+    response_body = b""
+    async for chunk in response.body_iterator:
+        response_body += chunk
+
+    duration_ms = (time.perf_counter() - start_time) * 1000
+    response_payload = _format_payload(
+        response_body,
+        response.headers.get("content-type"),
+    )
+
+    response_logger.debug(
+        "response payload",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "status": response.status_code,
+            "duration_ms": round(duration_ms, 2),
+            "payload": response_payload,
+        },
+    )
+
+    return Response(
+        content=response_body,
+        status_code=response.status_code,
+        headers=dict(response.headers),
+        media_type=response.media_type,
+        background=response.background,
+    )
+
+
+def _format_payload(payload: bytes, content_type: str | None) -> str:
+    if not payload:
+        return ""
+    if content_type and "application/json" in content_type.lower():
+        try:
+            return json.dumps(json.loads(payload), ensure_ascii=True)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            pass
+    try:
+        return payload.decode("utf-8")
+    except UnicodeDecodeError:
+        return payload.decode("utf-8", errors="replace")
+
 
 app.add_middleware(
     CORSMiddleware,
