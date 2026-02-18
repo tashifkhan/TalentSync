@@ -85,6 +85,7 @@ async def evaluate_ats(
 async def evaluate_ats_file_based(
     resume_file: UploadFile = File(...),
     jd_file: Optional[UploadFile] = File(None),
+    jd_text: Optional[str] = Form(None),
     jd_link: Optional[str] = Form(None),
     company_name: Optional[str] = Form(None),
     company_website: Optional[str] = Form(None),
@@ -96,17 +97,18 @@ async def evaluate_ats_file_based(
     if not resume_text:
         raise HTTPException(status_code=400, detail="Failed to process resume file.")
 
-    # Determine JD text (from file) or use link
-    jd_text: Optional[str] = None
+    # Determine JD text: prefer file upload over raw text form field
     if jd_file is not None:
         jd_bytes = await jd_file.read()
-        jd_text = process_document(jd_bytes, jd_file.filename)
-        if not jd_text:
+        jd_file_text = process_document(jd_bytes, jd_file.filename)
+        if not jd_file_text:
             raise HTTPException(status_code=400, detail="Failed to process JD file.")
+        jd_text = jd_file_text
 
     if not jd_text and not jd_link:
         raise HTTPException(
-            status_code=400, detail="Either a JD file or jd_link must be provided."
+            status_code=400,
+            detail="A job description must be provided (text, file, or link).",
         )
 
     return await ats_evaluate_service(
