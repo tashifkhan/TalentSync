@@ -36,6 +36,8 @@ import {
   Zap,
   Radio,
   Tag,
+  Sparkles,
+  Settings2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -45,6 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 // --- Types ---
 
@@ -63,6 +66,8 @@ interface ProviderConfig {
   defaultModel: string;
   defaultBase?: string;
   models: string[];
+  icon?: React.ReactNode;
+  color?: string;
 }
 
 interface LlmConfigItem {
@@ -92,6 +97,7 @@ const PROVIDERS: ProviderConfig[] = [
       "gpt-3.5-turbo",
       "gpt-5-nano-2025-08-07",
     ],
+    color: "bg-green-500/10 text-green-500 border-green-500/20",
   },
   {
     id: "anthropic",
@@ -107,6 +113,7 @@ const PROVIDERS: ProviderConfig[] = [
       "claude-sonnet-4-20250514",
       "claude-opus-4-20250514",
     ],
+    color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
   },
   {
     id: "google",
@@ -120,6 +127,7 @@ const PROVIDERS: ProviderConfig[] = [
       "gemini-3-flash-preview",
       "gemini-3-pro-preview",
     ],
+    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
   },
   {
     id: "deepseek",
@@ -127,12 +135,14 @@ const PROVIDERS: ProviderConfig[] = [
     defaultModel: "deepseek-chat",
     defaultBase: "https://api.deepseek.com",
     models: ["deepseek-chat", "deepseek-v3", "deepseek-v3.2"],
+    color: "bg-purple-500/10 text-purple-500 border-purple-500/20",
   },
   {
     id: "mistral",
     name: "Mistral AI",
     defaultModel: "mistral-large-latest",
     models: ["mistral-large-latest", "mistral-medium", "mistral-small"],
+    color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
   },
   {
     id: "openrouter",
@@ -146,6 +156,7 @@ const PROVIDERS: ProviderConfig[] = [
       "meta-llama/llama-3.1-70b-instruct",
       "mistralai/mistral-large",
     ],
+    color: "bg-pink-500/10 text-pink-500 border-pink-500/20",
   },
   {
     id: "ollama",
@@ -153,11 +164,19 @@ const PROVIDERS: ProviderConfig[] = [
     defaultModel: "llama3",
     defaultBase: "http://localhost:11434",
     models: ["llama3", "llama3.1", "mistral", "gemma2"],
+    color: "bg-slate-500/10 text-slate-500 border-slate-500/20",
   },
 ];
 
 function getProviderDisplayName(id: string): string {
   return PROVIDERS.find((p) => p.id === id)?.name || id;
+}
+
+function getProviderStyle(id: string): string {
+  return (
+    PROVIDERS.find((p) => p.id === id)?.color ||
+    "bg-gray-500/10 text-gray-400 border-gray-500/20"
+  );
 }
 
 // --- Config Editor Form (used inside dialog) ---
@@ -235,134 +254,143 @@ function ConfigEditorForm({
   const currentProviderConfig = PROVIDERS.find((p) => p.id === provider);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Status Message */}
       <AnimatePresence>
         {message && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className={`rounded-lg p-3 text-sm flex items-center gap-2 ${
+            initial={{ opacity: 0, height: 0, y: -10 }}
+            animate={{ opacity: 1, height: "auto", y: 0 }}
+            exit={{ opacity: 0, height: 0, y: -10 }}
+            className={`rounded-lg p-3 text-sm flex items-start gap-3 border backdrop-blur-sm shadow-sm ${
               message.type === "success"
-                ? "bg-green-500/15 text-green-300 border border-green-500/25"
-                : "bg-red-500/15 text-red-300 border border-red-500/25"
+                ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                : "bg-rose-500/10 text-rose-300 border-rose-500/20"
             }`}
           >
             {message.type === "success" ? (
-              <CheckCircle className="h-4 w-4 flex-shrink-0" />
+              <CheckCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
             ) : (
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
             )}
-            {message.text}
+            <span className="leading-relaxed">{message.text}</span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Label */}
-      <div className="space-y-2">
-        <Label className="text-brand-light flex items-center gap-1.5">
-          <Tag className="h-3.5 w-3.5 text-brand-primary" />
-          Label
-        </Label>
-        <Input
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          placeholder='e.g. "Fast & Cheap", "High Quality", "Local Ollama"'
-          className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20"
-          maxLength={50}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Provider */}
+      <div className="space-y-4">
+        {/* Label */}
         <div className="space-y-2">
-          <Label className="text-brand-light">Provider</Label>
-          <Select
-            value={provider}
-            onValueChange={(val) => handleProviderChange(val as Provider)}
-          >
-            <SelectTrigger className="bg-white/5 border-white/10 text-brand-light">
-              <SelectValue placeholder="Select provider" />
-            </SelectTrigger>
-            <SelectContent className="bg-brand-dark border-white/10 text-brand-light">
-              {PROVIDERS.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label className="text-brand-light/90 font-medium flex items-center gap-2 text-sm">
+            <Tag className="h-4 w-4 text-brand-primary" />
+            Configuration Label
+          </Label>
+          <Input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder='e.g. "Production (GPT-4)", "Testing (Ollama)"'
+            className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 focus:border-brand-primary/50 transition-all duration-300 h-11"
+            maxLength={50}
+          />
         </div>
 
-        {/* Model */}
-        <div className="space-y-2">
-          <Label className="text-brand-light">Model</Label>
-          {!isCustomModel ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Provider */}
+          <div className="space-y-2">
+            <Label className="text-brand-light/90 font-medium text-sm">
+              Provider
+            </Label>
             <Select
-              value={model}
-              onValueChange={(val) => {
-                if (val === "custom_input") {
-                  setIsCustomModel(true);
-                  setModel("");
-                } else {
-                  setModel(val);
-                }
-              }}
+              value={provider}
+              onValueChange={(val) => handleProviderChange(val as Provider)}
             >
-              <SelectTrigger className="bg-white/5 border-white/10 text-brand-light">
-                <SelectValue placeholder="Select model" />
+              <SelectTrigger className="bg-white/5 border-white/10 text-brand-light h-11 focus:ring-brand-primary/20">
+                <SelectValue placeholder="Select provider" />
               </SelectTrigger>
-              <SelectContent className="bg-brand-dark border-white/10 text-brand-light max-h-[300px]">
-                {currentProviderConfig?.models.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    {m}
+              <SelectContent className="bg-zinc-950 border-white/10 text-brand-light backdrop-blur-xl">
+                {PROVIDERS.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name}
                   </SelectItem>
                 ))}
-                <SelectItem
-                  value="custom_input"
-                  className="text-brand-primary font-medium border-t border-white/10 mt-1"
-                >
-                  Enter Custom Model ID...
-                </SelectItem>
               </SelectContent>
             </Select>
-          ) : (
-            <div className="relative">
-              <Input
+          </div>
+
+          {/* Model */}
+          <div className="space-y-2">
+            <Label className="text-brand-light/90 font-medium text-sm">
+              Model
+            </Label>
+            {!isCustomModel ? (
+              <Select
                 value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder={
-                  currentProviderConfig?.defaultModel || "e.g. gpt-4o"
-                }
-                className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-8"
-                autoFocus
-              />
-              <button
-                onClick={() => {
-                  setIsCustomModel(false);
-                  setModel(currentProviderConfig?.defaultModel || "");
+                onValueChange={(val) => {
+                  if (val === "custom_input") {
+                    setIsCustomModel(true);
+                    setModel("");
+                  } else {
+                    setModel(val);
+                  }
                 }}
-                className="absolute right-2 top-2.5 text-white/40 hover:text-white"
-                title="Back to list"
               >
-                <ChevronDown className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+                <SelectTrigger className="bg-white/5 border-white/10 text-brand-light h-11 focus:ring-brand-primary/20">
+                  <SelectValue placeholder="Select model" />
+                </SelectTrigger>
+                <SelectContent className="bg-brand-dark border-white/10 text-brand-light backdrop-blur-xl max-h-[300px]">
+                  {currentProviderConfig?.models.map((m) => (
+                    <SelectItem key={m} value={m}>
+                      {m}
+                    </SelectItem>
+                  ))}
+                  <SelectItem
+                    value="custom_input"
+                    className="text-brand-primary font-medium border-t border-white/10 mt-1"
+                  >
+                    Enter Custom Model ID...
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="relative group">
+                <Input
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  placeholder={
+                    currentProviderConfig?.defaultModel || "e.g. gpt-4o"
+                  }
+                  className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-10 h-11 focus:border-brand-primary/50 transition-all duration-300"
+                  autoFocus
+                />
+                <button
+                  onClick={() => {
+                    setIsCustomModel(false);
+                    setModel(currentProviderConfig?.defaultModel || "");
+                  }}
+                  className="absolute right-3 top-3.5 text-white/40 hover:text-white transition-colors"
+                  title="Back to list"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* API Key */}
         <div className="space-y-2">
-          <Label className="text-brand-light flex justify-between">
+          <Label className="text-brand-light/90 font-medium flex justify-between items-center text-sm">
             <span>API Key</span>
             {initialData?.hasApiKey && !apiKey && (
-              <span className="text-xs text-green-400 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3" /> Configured
-              </span>
+              <Badge
+                variant="outline"
+                className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-xs py-0 h-5"
+              >
+                <CheckCircle className="h-3 w-3 mr-1" /> Configured
+              </Badge>
             )}
           </Label>
-          <div className="relative">
+          <div className="relative group">
             <Input
               type="password"
               value={apiKey}
@@ -370,18 +398,20 @@ function ConfigEditorForm({
               placeholder={
                 initialData?.hasApiKey
                   ? "Leave blank to keep current key"
-                  : "Enter API Key"
+                  : "Enter your API Key"
               }
-              className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-10"
+              className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-10 h-11 focus:border-brand-primary/50 transition-all duration-300 font-mono text-sm"
             />
-            <Key className="absolute right-3 top-2.5 h-4 w-4 text-white/30" />
+            <Key className="absolute right-3 top-3.5 h-4 w-4 text-white/30 group-hover:text-white/50 transition-colors" />
           </div>
         </div>
 
         {/* Base URL */}
         <div className="space-y-2">
-          <Label className="text-brand-light">API Base URL (Optional)</Label>
-          <div className="relative">
+          <Label className="text-brand-light/90 font-medium text-sm">
+            API Base URL (Optional)
+          </Label>
+          <div className="relative group">
             <Input
               value={apiBase}
               onChange={(e) => setApiBase(e.target.value)}
@@ -389,28 +419,15 @@ function ConfigEditorForm({
                 currentProviderConfig?.defaultBase ||
                 "https://api.example.com/v1"
               }
-              className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-10"
+              className="bg-white/5 border-white/10 text-brand-light placeholder:text-white/20 pr-10 h-11 focus:border-brand-primary/50 transition-all duration-300 font-mono text-sm"
             />
-            <Server className="absolute right-3 top-2.5 h-4 w-4 text-white/30" />
+            <Server className="absolute right-3 top-3.5 h-4 w-4 text-white/30 group-hover:text-white/50 transition-colors" />
           </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-white/10">
-        <Button
-          onClick={() => onSave({ label, provider, model, apiKey, apiBase })}
-          disabled={isSaving || !label.trim() || !model}
-          className="bg-brand-primary hover:bg-brand-primary/90 text-white flex-1"
-        >
-          {isSaving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          {mode === "create" ? "Create Configuration" : "Save Changes"}
-        </Button>
-
+      <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-white/10 mt-6">
         <Button
           onClick={() =>
             onTest({
@@ -425,8 +442,8 @@ function ConfigEditorForm({
             isTesting ||
             (!apiKey && !initialData?.hasApiKey && provider !== "ollama")
           }
-          variant="outline"
-          className="border-white/20 text-brand-light hover:bg-white/10 flex-1"
+          variant="ghost"
+          className="border border-white/10 text-brand-light hover:bg-white/5 hover:text-white flex-1 h-11 transition-all duration-300"
           title={
             !apiKey && !initialData?.hasApiKey && provider !== "ollama"
               ? "Enter API Key first"
@@ -439,6 +456,19 @@ function ConfigEditorForm({
             <Terminal className="mr-2 h-4 w-4" />
           )}
           Test Connection
+        </Button>
+
+        <Button
+          onClick={() => onSave({ label, provider, model, apiKey, apiBase })}
+          disabled={isSaving || !label.trim() || !model}
+          className="bg-brand-primary hover:bg-brand-primary/90 text-white flex-1 h-11 shadow-[0_0_20px_rgba(var(--brand-primary-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--brand-primary-rgb),0.5)] transition-all duration-300"
+        >
+          {isSaving ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="mr-2 h-4 w-4" />
+          )}
+          {mode === "create" ? "Create Config" : "Save Changes"}
         </Button>
       </div>
     </div>
@@ -460,105 +490,123 @@ function ConfigCard({
   onDelete: () => void;
   isActivating: boolean;
 }) {
+  const providerStyle = getProviderStyle(config.provider);
+
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12, transition: { duration: 0.2 } }}
-      className={`group relative rounded-xl border p-4 transition-all duration-200 ${
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+      className={cn(
+        "group relative rounded-xl border p-5 transition-all duration-300 flex flex-col sm:flex-row gap-4 sm:items-center justify-between",
         config.isActive
-          ? "bg-brand-primary/8 border-brand-primary/40 shadow-[0_0_20px_rgba(var(--brand-primary-rgb,99,102,241),0.08)]"
-          : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
-      }`}
+          ? "bg-brand-primary/5 border-brand-primary/40 shadow-[0_0_30px_-5px_rgba(var(--brand-primary-rgb),0.1)]"
+          : "bg-white/[0.02] border-white/5 hover:border-white/20 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-black/20"
+      )}
     >
-      {/* Active indicator line */}
+      {/* Active Indicator Glow */}
       {config.isActive && (
-        <div className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full bg-brand-primary" />
+        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-brand-primary/10 via-transparent to-transparent opacity-20 pointer-events-none" />
       )}
 
-      <div className="flex items-start justify-between gap-3">
-        {/* Left: Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1.5">
-            <h3 className="text-brand-light font-medium truncate text-[15px]">
-              {config.label}
-            </h3>
-            {config.isActive && (
-              <Badge className="bg-brand-primary/20 text-brand-primary border-brand-primary/30 text-[10px] px-1.5 py-0 uppercase tracking-wider font-semibold">
-                Active
-              </Badge>
+      {/* Left: Info */}
+      <div className="flex-1 min-w-0 relative z-10">
+        <div className="flex items-center gap-3 mb-2">
+          <h3
+            className={cn(
+              "font-semibold truncate text-lg tracking-tight",
+              config.isActive ? "text-brand-light" : "text-brand-light/80"
             )}
-          </div>
-
-          <div className="flex items-center gap-3 text-sm text-brand-light/50">
-            <span className="flex items-center gap-1">
-              <Chip className="h-3 w-3" />
-              {getProviderDisplayName(config.provider)}
-            </span>
-            <span className="text-white/20">|</span>
-            <span className="truncate font-mono text-xs">{config.model}</span>
-          </div>
-
-          <div className="flex items-center gap-3 mt-1.5 text-xs text-brand-light/30">
-            {config.hasApiKey ? (
-              <span className="flex items-center gap-1 text-green-400/70">
-                <Key className="h-3 w-3" />
-                Key set
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-yellow-400/60">
-                <Key className="h-3 w-3" />
-                No key
-              </span>
-            )}
-            {config.apiBase && (
-              <>
-                <span className="text-white/15">|</span>
-                <span className="flex items-center gap-1 truncate">
-                  <Server className="h-3 w-3" />
-                  {config.apiBase}
-                </span>
-              </>
-            )}
-          </div>
+          >
+            {config.label}
+          </h3>
+          {config.isActive && (
+            <Badge className="bg-brand-primary text-white border-none shadow-[0_0_10px_rgba(var(--brand-primary-rgb),0.4)] animate-pulse-slow">
+              Active
+            </Badge>
+          )}
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-1 shrink-0">
-          {!config.isActive && (
-            <Button
-              onClick={onActivate}
-              disabled={isActivating}
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2.5 text-brand-light/50 hover:text-brand-primary hover:bg-brand-primary/10"
-              title="Set as active"
-            >
-              {isActivating ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Radio className="h-3.5 w-3.5" />
-              )}
-            </Button>
+        <div className="flex flex-wrap items-center gap-3 text-sm">
+          <Badge
+            variant="outline"
+            className={cn("text-xs py-0.5 h-6 font-medium", providerStyle)}
+          >
+            {getProviderDisplayName(config.provider)}
+          </Badge>
+
+          <span className="text-brand-light/40 font-light hidden sm:inline">
+            •
+          </span>
+
+          <span className="truncate font-mono text-xs text-brand-light/60 bg-white/5 px-2 py-0.5 rounded-md">
+            {config.model}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4 mt-3 text-xs text-brand-light/40 font-medium">
+          {config.hasApiKey ? (
+            <span className="flex items-center gap-1.5 text-emerald-400/80">
+              <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_5px_rgba(52,211,153,0.5)]" />
+              Key Configured
+            </span>
+          ) : (
+            <span className="flex items-center gap-1.5 text-amber-400/70">
+              <div className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+              Missing Key
+            </span>
           )}
+          {config.apiBase && (
+            <>
+              <span className="text-white/10">|</span>
+              <span className="flex items-center gap-1.5 truncate max-w-[150px]">
+                <Server className="h-3 w-3" />
+                Custom Base URL
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-2 relative z-10 self-start sm:self-auto">
+        {!config.isActive && (
+          <Button
+            onClick={onActivate}
+            disabled={isActivating}
+            variant="ghost"
+            size="sm"
+            className="h-9 px-3 text-brand-light/60 hover:text-brand-primary hover:bg-brand-primary/10 transition-colors border border-transparent hover:border-brand-primary/20"
+            title="Set as active"
+          >
+            {isActivating ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Zap className="h-4 w-4 mr-2" />
+            )}
+            Activate
+          </Button>
+        )}
+        
+        <div className="flex items-center gap-1 border-l border-white/10 pl-2 ml-1">
           <Button
             onClick={onEdit}
             variant="ghost"
-            size="sm"
-            className="h-8 px-2.5 text-brand-light/50 hover:text-brand-light hover:bg-white/10"
+            size="icon"
+            className="h-9 w-9 text-brand-light/40 hover:text-brand-light hover:bg-white/10 transition-colors rounded-lg"
             title="Edit"
           >
-            <Pencil className="h-3.5 w-3.5" />
+            <Settings2 className="h-4 w-4" />
           </Button>
           <Button
             onClick={onDelete}
             variant="ghost"
-            size="sm"
-            className="h-8 px-2.5 text-brand-light/50 hover:text-red-400 hover:bg-red-500/10"
+            size="icon"
+            className="h-9 w-9 text-brand-light/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors rounded-lg"
             title="Delete"
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -806,9 +854,9 @@ export function LlmConfigPanel() {
 
   if (isLoading) {
     return (
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl">
-        <CardContent className="p-8 flex justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-brand-primary" />
+      <Card className="backdrop-blur-xl bg-white/[0.02] border-white/10 shadow-2xl animate-pulse">
+        <CardContent className="p-12 flex justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-primary/50" />
         </CardContent>
       </Card>
     );
@@ -816,42 +864,47 @@ export function LlmConfigPanel() {
 
   return (
     <>
-      <Card className="backdrop-blur-xl bg-white/10 border-white/20 shadow-xl relative overflow-hidden">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-brand-light flex items-center gap-2">
-                <Chip className="h-5 w-5 text-brand-primary" />
+      <Card className="backdrop-blur-3xl bg-white/[0.04] border-white/10 shadow-2xl relative overflow-hidden group/card">
+        {/* Subtle background gradient mesh */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-primary/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        
+        <CardHeader className="relative z-10 pb-2">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="space-y-1">
+              <CardTitle className="text-2xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-brand-primary/10 border border-brand-primary/20">
+                  <Chip className="h-6 w-6 text-brand-primary" />
+                </div>
                 AI Model Configurations
               </CardTitle>
-              <CardDescription className="text-brand-light/60 mt-1">
+              <CardDescription className="text-brand-light/60 max-w-lg leading-relaxed text-sm">
                 Manage multiple AI provider configurations. The active config is
                 used for all AI operations across the platform.
               </CardDescription>
             </div>
             <Button
               onClick={handleOpenCreate}
-              size="sm"
-              className="bg-brand-primary hover:bg-brand-primary/90 text-white shrink-0"
+              size="default"
+              className="bg-brand-primary hover:bg-brand-primary/90 text-white shadow-[0_0_20px_rgba(var(--brand-primary-rgb),0.2)] hover:shadow-[0_0_30px_rgba(var(--brand-primary-rgb),0.4)] transition-all duration-300 font-medium"
             >
-              <Plus className="mr-1.5 h-4 w-4" />
+              <Plus className="mr-2 h-4 w-4" />
               Add Config
             </Button>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4 pt-6 relative z-10">
           {/* List-level message */}
           <AnimatePresence>
             {listMessage && (
               <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className={`rounded-lg p-3 text-sm flex items-center gap-2 ${
+                initial={{ opacity: 0, height: 0, scale: 0.95 }}
+                animate={{ opacity: 1, height: "auto", scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.95 }}
+                className={`rounded-lg p-3 text-sm flex items-center gap-2 border backdrop-blur-md ${
                   listMessage.type === "success"
-                    ? "bg-green-500/15 text-green-300 border border-green-500/25"
-                    : "bg-red-500/15 text-red-300 border border-red-500/25"
+                    ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                    : "bg-rose-500/10 text-rose-300 border-rose-500/20"
                 }`}
               >
                 {listMessage.type === "success" ? (
@@ -866,37 +919,40 @@ export function LlmConfigPanel() {
 
           {/* Config List */}
           {configs.length === 0 ? (
-            <div className="text-center py-10">
-              <Zap className="h-10 w-10 text-brand-light/20 mx-auto mb-3" />
-              <p className="text-brand-light/50 text-sm mb-1">
+            <div className="text-center py-16 px-4 rounded-xl border border-dashed border-white/10 bg-white/[0.01]">
+              <div className="mx-auto w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4">
+                <Sparkles className="h-8 w-8 text-brand-light/20" />
+              </div>
+              <p className="text-brand-light font-medium mb-1 text-lg">
                 No configurations yet
               </p>
-              <p className="text-brand-light/30 text-xs mb-4">
-                Add your first AI model configuration to get started
+              <p className="text-brand-light/40 text-sm mb-6 max-w-sm mx-auto">
+                Add your first AI model configuration to unlock the full power of the platform.
               </p>
               <Button
                 onClick={handleOpenCreate}
                 variant="outline"
-                size="sm"
-                className="border-white/20 text-brand-light hover:bg-white/10"
+                className="border-white/10 text-brand-light hover:bg-white/5 hover:text-white"
               >
-                <Plus className="mr-1.5 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4" />
                 Create your first config
               </Button>
             </div>
           ) : (
-            <AnimatePresence mode="popLayout">
-              {configs.map((config) => (
-                <ConfigCard
-                  key={config.id}
-                  config={config}
-                  onEdit={() => handleOpenEdit(config)}
-                  onActivate={() => handleActivate(config)}
-                  onDelete={() => setDeleteTarget(config)}
-                  isActivating={isActivating === config.id}
-                />
-              ))}
-            </AnimatePresence>
+            <div className="grid grid-cols-1 gap-4">
+              <AnimatePresence mode="popLayout">
+                {configs.map((config) => (
+                  <ConfigCard
+                    key={config.id}
+                    config={config}
+                    onEdit={() => handleOpenEdit(config)}
+                    onActivate={() => handleActivate(config)}
+                    onDelete={() => setDeleteTarget(config)}
+                    isActivating={isActivating === config.id}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
           )}
         </CardContent>
       </Card>
@@ -909,38 +965,46 @@ export function LlmConfigPanel() {
           if (!open) setFormMessage(null);
         }}
       >
-        <DialogContent className="bg-brand-dark/95 backdrop-blur-xl border-white/15 text-brand-light sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle className="text-brand-light flex items-center gap-2">
+        <DialogContent className="bg-zinc-950 backdrop-blur-2xl border-white/10 text-brand-light sm:max-w-xl shadow-2xl p-0 overflow-hidden gap-0">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-brand-primary to-transparent opacity-50" />
+          
+          <DialogHeader className="p-6 pb-2 space-y-1">
+            <DialogTitle className="text-2xl font-bold text-white flex items-center gap-3">
               {dialogMode === "create" ? (
                 <>
-                  <Plus className="h-5 w-5 text-brand-primary" />
+                  <div className="p-2 rounded-lg bg-brand-primary/10 border border-brand-primary/20">
+                    <Plus className="h-5 w-5 text-brand-primary" />
+                  </div>
                   New Configuration
                 </>
               ) : (
                 <>
-                  <Pencil className="h-5 w-5 text-brand-primary" />
+                  <div className="p-2 rounded-lg bg-brand-primary/10 border border-brand-primary/20">
+                    <Pencil className="h-5 w-5 text-brand-primary" />
+                  </div>
                   Edit Configuration
                 </>
               )}
             </DialogTitle>
-            <DialogDescription className="text-brand-light/50">
+            <DialogDescription className="text-brand-light/50 text-base ml-14">
               {dialogMode === "create"
-                ? "Set up a new AI provider configuration with a custom label."
-                : `Editing "${editingConfig?.label}"`}
+                ? "Connect a new AI provider to your account."
+                : `Update settings for "${editingConfig?.label}"`}
             </DialogDescription>
           </DialogHeader>
 
-          <ConfigEditorForm
-            key={editingConfig?.id || "create"}
-            mode={dialogMode}
-            initialData={editingConfig}
-            onSave={handleSave}
-            onTest={handleTest}
-            isSaving={isSaving}
-            isTesting={isTesting}
-            message={formMessage}
-          />
+          <div className="p-6 pt-4">
+            <ConfigEditorForm
+              key={editingConfig?.id || "create"}
+              mode={dialogMode}
+              initialData={editingConfig}
+              onSave={handleSave}
+              onTest={handleTest}
+              isSaving={isSaving}
+              isTesting={isTesting}
+              message={formMessage}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -951,31 +1015,35 @@ export function LlmConfigPanel() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="bg-brand-dark/95 backdrop-blur-xl border-white/15 text-brand-light sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-brand-light flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-red-400" />
-              Delete Configuration
+        <DialogContent className="bg-zinc-950 backdrop-blur-xl border-white/10 text-brand-light sm:max-w-md p-6 shadow-2xl">
+          <DialogHeader className="space-y-3">
+            <div className="mx-auto w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-2">
+              <Trash2 className="h-6 w-6 text-rose-500" />
+            </div>
+            <DialogTitle className="text-xl font-bold text-white text-center">
+              Delete Configuration?
             </DialogTitle>
-            <DialogDescription className="text-brand-light/50">
+            <DialogDescription className="text-brand-light/60 text-center leading-relaxed">
               Are you sure you want to delete{" "}
-              <span className="text-brand-light font-medium">
+              <span className="text-white font-semibold">
                 &quot;{deleteTarget?.label}&quot;
               </span>
               ? This action cannot be undone.
               {deleteTarget?.isActive && (
-                <span className="block mt-2 text-yellow-400/80">
-                  This is your active configuration. The most recently updated
-                  config will become active instead.
-                </span>
+                <div className="mt-4 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-200 text-xs text-left flex gap-2">
+                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>
+                    Warning: This is your currently active configuration. Deleting it will automatically switch to your most recently updated config.
+                  </span>
+                </div>
               )}
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="grid grid-cols-2 gap-3 sm:space-x-0 mt-6">
             <Button
               onClick={() => setDeleteTarget(null)}
               variant="outline"
-              className="border-white/20 text-brand-light hover:bg-white/10"
+              className="border-white/10 text-brand-light hover:bg-white/5 h-11"
               disabled={isDeleting}
             >
               Cancel
@@ -983,7 +1051,7 @@ export function LlmConfigPanel() {
             <Button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-rose-500 hover:bg-rose-600 text-white h-11 shadow-lg shadow-rose-500/20"
             >
               {isDeleting ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

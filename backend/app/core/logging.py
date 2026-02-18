@@ -13,12 +13,26 @@ def setup_logging() -> None:
         level=logging.DEBUG if settings.DEBUG else logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
+        force=True,
     )
 
+    logging.captureWarnings(True)
+
     # Set log levels for third-party libraries
-    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-    logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
-    logging.getLogger("fastapi").setLevel(logging.WARNING)
+    uvicorn_logger = logging.getLogger("uvicorn")
+    uvicorn_access_logger = logging.getLogger("uvicorn.access")
+    uvicorn_error_logger = logging.getLogger("uvicorn.error")
+    fastapi_logger = logging.getLogger("fastapi")
+
+    for logger in (
+        uvicorn_logger,
+        uvicorn_access_logger,
+        uvicorn_error_logger,
+        fastapi_logger,
+    ):
+        logger.setLevel(logging.INFO)
+        logger.handlers.clear()
+        logger.propagate = True
 
 
 def get_logger(name: str) -> logging.Logger:
