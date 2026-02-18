@@ -15,6 +15,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from app.agents.web_content_agent import return_markdown
 from app.core.llm import MODEL_NAME, get_llm
 from app.core.settings import get_settings
+from app.services.data_processor import polish_resume_json_with_llm
 from app.services.ats import ats_evaluate_service
 
 
@@ -214,6 +215,14 @@ async def run_resume_pipeline(
     # Attempt to parse; try simple fixes if necessary
     try:
         parsed = json.loads(json_text)
+        if isinstance(parsed, dict):
+            polished = polish_resume_json_with_llm(
+                resume_json=parsed,
+                master_resume=resume,
+                llm=llm,
+            )
+            if polished:
+                parsed = polished
         return json.dumps(
             parsed,
             indent=2,
@@ -228,6 +237,14 @@ async def run_resume_pipeline(
                 r"(?<=[\\{\\s,])([A-Za-z0-9_+-]+)\\s*:\\s", r'"\\1": ', fixed
             )
             parsed = json.loads(fixed)
+            if isinstance(parsed, dict):
+                polished = polish_resume_json_with_llm(
+                    resume_json=parsed,
+                    master_resume=resume,
+                    llm=llm,
+                )
+                if polished:
+                    parsed = polished
             return json.dumps(
                 parsed,
                 indent=2,

@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 from langchain_core.language_models import BaseChatModel
 
@@ -7,6 +8,10 @@ from app.data.prompt.ats_analysis import build_ats_analysis_chain
 from app.data.prompt.comprehensive_analysis import build_comprehensive_analysis_chain
 from app.data.prompt.format_analyse import build_format_analyse_chain
 from app.data.prompt.json_extractor import build_json_formatter_chain
+from app.data.prompt.resume_refinement import (
+    AI_PHRASE_REPLACEMENTS,
+    build_validation_polish_chain,
+)
 from app.data.prompt.txt_processor import build_text_formatter_chain
 
 
@@ -144,6 +149,51 @@ def _extract_text_from_llm_result(result) -> str:
         return "".join(text_parts)
 
     return str(content)
+
+
+_AI_REPLACEMENT_KEYS = tuple(
+    sorted(AI_PHRASE_REPLACEMENTS.keys(), key=len, reverse=True)
+)
+_AI_REPLACEMENT_ALLOWED_KEYS = {
+    "bullet_points",
+    "description",
+}
+
+
+def _replace_ai_phrases(text: str) -> str:
+    if not text:
+        return text
+
+    updated = text
+    for phrase in _AI_REPLACEMENT_KEYS:
+        replacement = AI_PHRASE_REPLACEMENTS[phrase]
+        if any(char.isalnum() for char in phrase):
+            pattern = re.compile(r"\b" + re.escape(phrase) + r"\b", re.IGNORECASE)
+        else:
+            pattern = re.compile(re.escape(phrase))
+
+        def _replace(match: re.Match) -> str:
+            matched_text = match.group(0)
+            if matched_text.isupper():
+                return replacement.upper()
+            if matched_text[:1].isupper():
+                return replacement[:1].upper() + replacement[1:]
+            return replacement
+
+        updated = pattern.sub(_replace, updated)
+
+    updated = re.sub(r"\s{2,}", " ", updated).strip()
+    return updated
+
+
+def _apply_ai_phrase_replacements(value, key: str | None = None):
+    if isinstance(value, dict):
+        return {k: _apply_ai_phrase_replacements(v, k) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_apply_ai_phrase_replacements(item, key) for item in value]
+    if isinstance(value, str) and key in _AI_REPLACEMENT_ALLOWED_KEYS:
+        return _replace_ai_phrases(value)
+    return value
 
 
 def comprehensive_analysis_llm(
@@ -303,6 +353,49 @@ def format_and_analyse_resumes(
         return {}
 
     return formatted_json
+
+
+def polish_resume_json_with_llm(
+    resume_json: dict,
+    master_resume: str,
+    llm: BaseChatModel | None,
+) -> dict:
+    if not resume_json:
+        return {}
+
+    polished = resume_json
+
+    if llm is not None:
+        chain = build_validation_polish_chain(llm)
+        result = chain.invoke(
+            {
+                "resume": json.dumps(resume_json, ensure_ascii=True),
+                "master_resume": master_resume,
+            }
+        )
+        raw_response = _extract_text_from_llm_result(result)
+
+        if raw_response.strip().startswith("```json"):
+            raw_response = (
+                raw_response.strip().removeprefix("```json").removesuffix("```").strip()
+            )
+
+        try:
+            parsed = json.loads(raw_response)
+            if isinstance(parsed, dict) and parsed:
+                polished = parsed
+        except json.JSONDecodeError:
+            start = raw_response.find("{")
+            end = raw_response.rfind("}") + 1
+            if start != -1 and end != -1 and end > start:
+                try:
+                    parsed = json.loads(raw_response[start:end])
+                    if isinstance(parsed, dict) and parsed:
+                        polished = parsed
+                except json.JSONDecodeError:
+                    polished = resume_json
+
+    return _apply_ai_phrase_replacements(polished)
 
 
 def ats_analysis_llm(resume_text: str, jd_text: str, llm: BaseChatModel) -> dict:
