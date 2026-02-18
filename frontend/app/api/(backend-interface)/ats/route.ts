@@ -7,6 +7,7 @@ import { getLlmHeaders } from "@/lib/llm-headers";
 interface ATSEvaluationRequest {
   resume_text?: string;
   jd_text?: string;
+  jd_file?: File;
   jd_link?: string;
   company_name?: string;
   company_website?: string;
@@ -31,8 +32,14 @@ interface ATSEvaluationResponse {
 function validateATSRequest(data: any): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
   
-  if (!data.jd_text?.trim() && !data.jd_link?.trim()) {
-    errors.push("Either job description text or job description link is required");
+  const hasJdText = data.jd_text?.trim();
+  const hasJdLink = data.jd_link?.trim();
+  const hasJdFile = !!data.jd_file;
+
+  if (!hasJdText && !hasJdLink && !hasJdFile) {
+    errors.push(
+      "Provide a job description via text, file upload, or link",
+    );
   }
   
   return {
@@ -86,6 +93,7 @@ export async function POST(request: NextRequest) {
     // Extract form fields
     const requestData = {
       jd_text: formData.get('jd_text') as string,
+      jd_file: formData.get('jd_file') as File | null,
       jd_link: formData.get('jd_link') as string,
       company_name: formData.get('company_name') as string,
       company_website: formData.get('company_website') as string,
@@ -96,6 +104,7 @@ export async function POST(request: NextRequest) {
       fileName: file?.name, 
       resumeId,
       hasJdText: !!requestData.jd_text,
+      hasJdFile: !!requestData.jd_file,
       hasJdLink: !!requestData.jd_link,
       companyName: requestData.company_name
     });
@@ -147,6 +156,9 @@ export async function POST(request: NextRequest) {
         
         if (requestData.jd_text) {
           backendFormData.append('jd_text', requestData.jd_text);
+        }
+        if (requestData.jd_file) {
+          backendFormData.append('jd_file', requestData.jd_file);
         }
         if (requestData.jd_link) {
           backendFormData.append('jd_link', requestData.jd_link);
@@ -219,18 +231,34 @@ export async function POST(request: NextRequest) {
         const payload = {
           resume_text: resumeText,
           jd_text: requestData.jd_text || undefined,
+          jd_file: requestData.jd_file || undefined,
           jd_link: requestData.jd_link || undefined,
           company_name: requestData.company_name || undefined,
           company_website: requestData.company_website || undefined,
         };
 
+        const backendFormData = new FormData();
+        backendFormData.append('resume_text', payload.resume_text);
+        if (payload.jd_text) {
+          backendFormData.append('jd_text', payload.jd_text);
+        }
+        if (payload.jd_file) {
+          backendFormData.append('jd_file', payload.jd_file);
+        }
+        if (payload.jd_link) {
+          backendFormData.append('jd_link', payload.jd_link);
+        }
+        if (payload.company_name) {
+          backendFormData.append('company_name', payload.company_name);
+        }
+        if (payload.company_website) {
+          backendFormData.append('company_website', payload.company_website);
+        }
+
         backendResponse = await fetch(`${backendUrl}/api/v2/ats/evaluate`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            ...llmHeaders,
-          },
-          body: JSON.stringify(payload),
+          headers: { ...llmHeaders },
+          body: backendFormData,
           signal: AbortSignal.timeout(60000), // 60 second timeout for ATS evaluation
         });
       } else {

@@ -26,6 +26,7 @@ export default function ATSEvaluationPage() {
 
 	const [resumeFile, setResumeFile] = useState<File | null>(null);
 	const [resumeText, setResumeText] = useState("");
+	const [jdFile, setJdFile] = useState<File | null>(null);
 
 	// Resume selection states
 	const [selectedResumeId, setSelectedResumeId] = useState<string>("");
@@ -101,10 +102,11 @@ export default function ATSEvaluationPage() {
 		}
 
 		// Validate job description
-		if (!formData.jd_text && !formData.jd_link) {
+		if (!formData.jd_text && !formData.jd_link && !jdFile) {
 			toast({
 				title: "Job Description Required",
-				description: "Please provide either job description text or a link.",
+				description:
+					"Please provide job description text, a link, or upload a PDF.",
 				variant: "destructive",
 			});
 			return;
@@ -121,6 +123,9 @@ export default function ATSEvaluationPage() {
 
 		if (formData.jd_text) {
 			formDataToSend.append("jd_text", formData.jd_text);
+		}
+		if (jdFile) {
+			formDataToSend.append("jd_file", jdFile);
 		}
 		if (formData.jd_link) {
 			formDataToSend.append("jd_link", formData.jd_link);
@@ -235,10 +240,12 @@ export default function ATSEvaluationPage() {
 												resumeText={resumeText}
 												setResumeText={setResumeText}
 											/>
-											<JobDescriptionForm
-												formData={formData}
-												handleInputChange={handleInputChange}
-											/>
+								<JobDescriptionForm
+									formData={formData}
+									handleInputChange={handleInputChange}
+									jdFile={jdFile}
+									setJdFile={setJdFile}
+								/>
 											{/* Evaluate Button */}
 											<motion.div
 												whileHover={{ scale: 1.01 }}
@@ -246,13 +253,13 @@ export default function ATSEvaluationPage() {
 											>
 												<Button
 													onClick={evaluateATS}
-													disabled={
-														isEvaluating ||
-														(resumeSelectionMode === "existing"
-															? !selectedResumeId
-															: !resumeFile) ||
-														(!formData.jd_text && !formData.jd_link)
-													}
+											disabled={
+												isEvaluating ||
+												(resumeSelectionMode === "existing"
+													? !selectedResumeId
+													: !resumeFile) ||
+												(!formData.jd_text && !formData.jd_link && !jdFile)
+											}
 													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 												>
 													<div className="relative z-10 flex items-center justify-center">
