@@ -36,6 +36,9 @@ from app.routes.resume_analysis import (
 from app.routes.resume_analysis import (
     text_based_router as resume_text_based_router,
 )
+from app.routes.resume_improvement import router as resume_improvement_router
+from app.routes.resume_enrichment import router as resume_enrichment_router
+from app.routes.cover_letter import router as cover_letter_router
 from app.routes.tailored_resume import (
     file_based_router as tailored_resume_file_based_router,
 )
@@ -160,6 +163,13 @@ app.include_router(
     hiring_file_based_router, prefix="/api/v1", tags=["Hiring Assistant"]
 )
 app.include_router(resume_file_based_router, prefix="/api/v1", tags=["Resume Analysis"])
+app.include_router(
+    resume_improvement_router, prefix="/api/v1", tags=["Resume Improvement"]
+)
+app.include_router(
+    resume_enrichment_router, prefix="/api/v1", tags=["Resume Enrichment"]
+)
+app.include_router(cover_letter_router, prefix="/api/v1", tags=["Cover Letter"])
 app.include_router(ats_file_based_router, prefix="/api/v1", tags=["ATS Evaluation"])
 app.include_router(
     tailored_resume_file_based_router, prefix="/api/v1", tags=["Tailored Resume"]
@@ -171,6 +181,13 @@ app.include_router(
     hiring_text_based_router, prefix="/api/v2", tags=["Hiring Assistant"]
 )
 app.include_router(resume_text_based_router, prefix="/api/v2", tags=["Resume Analysis"])
+app.include_router(
+    resume_improvement_router, prefix="/api/v2", tags=["Resume Improvement"]
+)
+app.include_router(
+    resume_enrichment_router, prefix="/api/v2", tags=["Resume Enrichment"]
+)
+app.include_router(cover_letter_router, prefix="/api/v2", tags=["Cover Letter"])
 app.include_router(ats_text_based_router, prefix="/api/v2", tags=["ATS Evaluation"])
 app.include_router(
     tailored_resume_text_based_router, prefix="/api/v2", tags=["Tailored Resume"]

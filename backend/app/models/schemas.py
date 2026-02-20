@@ -5,6 +5,11 @@ from app.models.ats_evaluator.schemas import (
     JDEvaluatorResponse,
 )
 from app.models.cold_mail.schemas import ColdMailRequest, ColdMailResponse
+from app.models.cover_letter.schemas import (
+    CoverLetterRequest,
+    CoverLetterResponse,
+    CoverLetterEditRequest,
+)
 from app.models.common.schemas import (
     AchievementEntry,
     CertificationEntry,
@@ -62,6 +67,40 @@ from app.models.tailored_resume.schemas import (
     TailoredResumeResponse,
 )
 from app.models.tips.schemas import Tip, TipsData, TipsResponse
+from app.models.refinement.schemas import (
+    AlignmentReport,
+    AlignmentViolation,
+    KeywordGapAnalysis,
+    RefinementConfig,
+    RefinementResult,
+    RefinementStats,
+)
+from app.models.enrichment.schemas import (
+    AnalyzeRequest,
+    AnalysisResponse,
+    AnswerInput,
+    ApplyEnhancementsRequest,
+    ApplyRegeneratedRequest,
+    EnhancedDescription,
+    EnhanceRequest,
+    EnhancementPreview,
+    EnrichmentItem,
+    EnrichmentQuestion,
+    RegenerateItemError,
+    RegenerateItemInput,
+    RegenerateRequest,
+    RegenerateResponse,
+    RegeneratedItem,
+)
+from app.models.improvement.schemas import (
+    ImprovementSuggestion,
+    ResumeDiffSummary,
+    ResumeFieldDiff,
+    ResumeImproveRequest,
+    ResumeImproveResponse,
+    ResumeRefineRequest,
+    ResumeRefineResponse,
+)
 
 __all__ = [
     "WorkExperienceEntry",
@@ -93,6 +132,9 @@ __all__ = [
     "HiringAssistantResponse",
     "ColdMailRequest",
     "ColdMailResponse",
+    "CoverLetterRequest",
+    "CoverLetterResponse",
+    "CoverLetterEditRequest",
     "FormattedAndAnalyzedResumeResponse",
     "ScoreRequest",
     "RecommendationItem",
@@ -117,4 +159,32 @@ __all__ = [
     "ATSEvaluationResponse",
     "JDEvaluatorRequest",
     "JDEvaluatorResponse",
+    "RefinementConfig",
+    "KeywordGapAnalysis",
+    "AlignmentViolation",
+    "AlignmentReport",
+    "RefinementStats",
+    "RefinementResult",
+    "EnrichmentItem",
+    "EnrichmentQuestion",
+    "AnalyzeRequest",
+    "AnalysisResponse",
+    "AnswerInput",
+    "EnhanceRequest",
+    "EnhancedDescription",
+    "EnhancementPreview",
+    "ApplyEnhancementsRequest",
+    "RegenerateItemInput",
+    "RegenerateRequest",
+    "RegeneratedItem",
+    "RegenerateItemError",
+    "RegenerateResponse",
+    "ApplyRegeneratedRequest",
+    "ImprovementSuggestion",
+    "ResumeFieldDiff",
+    "ResumeDiffSummary",
+    "ResumeImproveRequest",
+    "ResumeImproveResponse",
+    "ResumeRefineRequest",
+    "ResumeRefineResponse",
 ]

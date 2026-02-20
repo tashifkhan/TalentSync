@@ -8,6 +8,20 @@ from .resume_refinement import (
     build_keyword_injection_chain,
     build_validation_polish_chain,
 )
+from .resume_improvement import (
+    CRITICAL_TRUTHFULNESS_RULES,
+    DEFAULT_IMPROVE_PROMPT_ID,
+    EXTRACT_KEYWORDS_PROMPT,
+    IMPROVE_PROMPT_OPTIONS,
+    IMPROVE_RESUME_PROMPTS,
+    RESUME_SCHEMA,
+)
+from .enrichment import (
+    ANALYZE_RESUME_PROMPT,
+    ENHANCE_DESCRIPTION_PROMPT,
+    REGENERATE_ITEM_PROMPT,
+    REGENERATE_SKILLS_PROMPT,
+)
 
 __all__ = [
     "AI_PHRASE_BLACKLIST",
@@ -16,4 +30,14 @@ __all__ = [
     "VALIDATION_POLISH_PROMPT",
     "build_keyword_injection_chain",
     "build_validation_polish_chain",
+    "CRITICAL_TRUTHFULNESS_RULES",
+    "DEFAULT_IMPROVE_PROMPT_ID",
+    "EXTRACT_KEYWORDS_PROMPT",
+    "IMPROVE_PROMPT_OPTIONS",
+    "IMPROVE_RESUME_PROMPTS",
+    "RESUME_SCHEMA",
+    "ANALYZE_RESUME_PROMPT",
+    "ENHANCE_DESCRIPTION_PROMPT",
+    "REGENERATE_ITEM_PROMPT",
+    "REGENERATE_SKILLS_PROMPT",
 ]

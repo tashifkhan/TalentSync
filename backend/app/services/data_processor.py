@@ -12,6 +12,7 @@ from app.data.prompt.resume_refinement import (
     AI_PHRASE_REPLACEMENTS,
     build_validation_polish_chain,
 )
+from app.services.llm_helpers import _extract_text_from_llm_result, parse_llm_json
 from app.data.prompt.txt_processor import build_text_formatter_chain
 
 
@@ -128,27 +129,7 @@ def format_resume_json_with_llm(
         return {}
 
 
-def _extract_text_from_llm_result(result) -> str:
-    """Extract text content from LLM result, handling various formats."""
-    if isinstance(result, str):
-        return result
-
-    # Handle AIMessage-like objects with .content attribute
-    content = getattr(result, "content", result)
-
-    # If content is a list (e.g., Gemini API format), extract text parts
-    if isinstance(content, list):
-        text_parts = []
-        for item in content:
-            if isinstance(item, dict) and "text" in item:
-                text_parts.append(item["text"])
-            elif isinstance(item, str):
-                text_parts.append(item)
-            elif hasattr(item, "text"):
-                text_parts.append(getattr(item, "text"))
-        return "".join(text_parts)
-
-    return str(content)
+_extract_text_from_llm_result = _extract_text_from_llm_result
 
 
 _AI_REPLACEMENT_KEYS = tuple(
@@ -186,14 +167,20 @@ def _replace_ai_phrases(text: str) -> str:
     return updated
 
 
-def _apply_ai_phrase_replacements(value, key: str | None = None):
-    if isinstance(value, dict):
-        return {k: _apply_ai_phrase_replacements(v, k) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_apply_ai_phrase_replacements(item, key) for item in value]
-    if isinstance(value, str) and key in _AI_REPLACEMENT_ALLOWED_KEYS:
-        return _replace_ai_phrases(value)
-    return value
+def _apply_ai_phrase_replacements(value: dict) -> dict:
+    if not isinstance(value, dict):
+        return {}
+
+    def _walk(node, key: str | None = None):
+        if isinstance(node, dict):
+            return {k: _walk(v, k) for k, v in node.items()}
+        if isinstance(node, list):
+            return [_walk(item, key) for item in node]
+        if isinstance(node, str) and key in _AI_REPLACEMENT_ALLOWED_KEYS:
+            return _replace_ai_phrases(node)
+        return node
+
+    return _walk(value)
 
 
 def comprehensive_analysis_llm(
@@ -374,28 +361,16 @@ def polish_resume_json_with_llm(
             }
         )
         raw_response = _extract_text_from_llm_result(result)
+        parsed = parse_llm_json(raw_response)
+        if isinstance(parsed, dict) and parsed:
+            polished = parsed
 
-        if raw_response.strip().startswith("```json"):
-            raw_response = (
-                raw_response.strip().removeprefix("```json").removesuffix("```").strip()
-            )
-
-        try:
-            parsed = json.loads(raw_response)
-            if isinstance(parsed, dict) and parsed:
-                polished = parsed
-        except json.JSONDecodeError:
-            start = raw_response.find("{")
-            end = raw_response.rfind("}") + 1
-            if start != -1 and end != -1 and end > start:
-                try:
-                    parsed = json.loads(raw_response[start:end])
-                    if isinstance(parsed, dict) and parsed:
-                        polished = parsed
-                except json.JSONDecodeError:
-                    polished = resume_json
-
-    return _apply_ai_phrase_replacements(polished)
+    replaced = _apply_ai_phrase_replacements(polished)
+    if isinstance(replaced, dict):
+        return replaced
+    if isinstance(polished, dict):
+        return polished
+    return {}
 
 
 def ats_analysis_llm(resume_text: str, jd_text: str, llm: BaseChatModel) -> dict:
