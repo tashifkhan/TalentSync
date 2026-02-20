@@ -58,8 +58,28 @@ async function request<T>(
     const data = await response.json();
 
     if (!response.ok) {
+      let errorMessage = "An error occurred";
+      
+      if (data.message) {
+        errorMessage = typeof data.message === "string" 
+          ? data.message 
+          : Array.isArray(data.message) 
+            ? data.message.map((m: any) => m.msg || m.message || JSON.stringify(m)).join(", ")
+            : JSON.stringify(data.message);
+      } else if (data.detail) {
+        errorMessage = typeof data.detail === "string" 
+          ? data.detail 
+          : Array.isArray(data.detail) 
+            ? data.detail.map((m: any) => m.msg || m.message || JSON.stringify(m)).join(", ")
+            : JSON.stringify(data.detail);
+      } else if (data.error) {
+        errorMessage = typeof data.error === "string"
+          ? data.error
+          : JSON.stringify(data.error);
+      }
+
       throw new ApiError(
-        data.message || "An error occurred",
+        errorMessage,
         response.status,
         data,
       );

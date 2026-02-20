@@ -31,6 +31,7 @@ model User {
     bulkUploads         BulkUpload[]
     recruiter           Recruiter?
     coldMailRequests    ColdMailRequest[]
+    coverLetterRequests CoverLetterRequest[]
     interviewRequests   InterviewRequest[]
     emailTokens         EmailVerificationToken[]
     passwordResetTokens PasswordResetToken[]
@@ -162,6 +163,33 @@ model ColdMailResponse {
     createdAt DateTime @default(now())
 
     request ColdMailRequest @relation(fields: [requestId], references: [id])
+}
+
+model CoverLetterRequest {
+    id               String   @id @default(uuid())
+    userId           String
+    recipientName    String
+    companyName      String
+    senderName       String
+    senderRoleOrGoal String?
+    jobDescription   String?  @db.Text
+    jdUrl            String?
+    keyPoints        String?
+    additionalInfo   String?
+    companyUrl       String?
+    createdAt        DateTime @default(now())
+
+    user      User                 @relation(fields: [userId], references: [id])
+    responses CoverLetterResponse[]
+}
+
+model CoverLetterResponse {
+    id        String   @id @default(uuid())
+    requestId String
+    body      String   @db.Text
+    createdAt DateTime @default(now())
+
+    request CoverLetterRequest @relation(fields: [requestId], references: [id])
 }
 
 model InterviewRequest {

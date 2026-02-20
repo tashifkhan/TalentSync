@@ -8,7 +8,8 @@ import {
 	MessageSquare,
 	Lightbulb,
 	Hash,
-    HomeIcon,
+	HomeIcon,
+	ScrollText,
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -80,6 +81,12 @@ export const actionItems: ActionItem[] = [
 		href: "/dashboard/cold-mail",
 		icon: Mail,
 		description: "Create personalized cold emails",
+	},
+	{
+		label: "Cover Letters",
+		href: "/dashboard/cover-letter",
+		icon: ScrollText,
+		description: "Generate tailored cover letters",
 	},
 	{
 		label: "Interview Answers",

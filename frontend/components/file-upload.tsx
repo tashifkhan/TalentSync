@@ -12,6 +12,7 @@ import {
   Lightbulb,
   Mail,
   Users,
+  ScrollText,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -183,6 +184,26 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       );
     }
     router.push("/dashboard/hiring-assistant");
+  };
+
+  const handleCoverLetterGenerator = () => {
+    // Store the file and analysis data in localStorage to pass to cover-letter page
+    if (file && analysisResult) {
+      localStorage.setItem(
+        "resumeFile",
+        JSON.stringify({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: file.lastModified,
+        }),
+      );
+      localStorage.setItem(
+        "analysisData",
+        JSON.stringify(analysisResult.analysis),
+      );
+    }
+    router.push("/dashboard/cover-letter");
   };
 
   return (
@@ -436,14 +457,22 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
                     <p className="text-brand-light/60 text-sm mb-3 text-center">
                       Quick Actions with Your Resume
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <Button
                         onClick={handleColdMailGenerator}
                         variant="outline"
                         className="flex-1 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/50"
                       >
                         <Mail className="mr-2 h-4 w-4" />
-                        Generate Cold Mail
+                        Cold Mail
+                      </Button>
+                      <Button
+                        onClick={handleCoverLetterGenerator}
+                        variant="outline"
+                        className="flex-1 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary/50"
+                      >
+                        <ScrollText className="mr-2 h-4 w-4" />
+                        Cover Letter
                       </Button>
                       <Button
                         onClick={handleHiringAssistant}
