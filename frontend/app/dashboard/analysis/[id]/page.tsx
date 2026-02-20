@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,12 +24,17 @@ import {
 	GithubIcon,
 	PenBox,
 	ExternalLink,
+	Sparkles,
+	RefreshCw,
 } from "lucide-react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { renderMarkdown } from "@/lib/markdown-renderer";
 import { useResume } from "@/hooks/queries";
+import { EnrichmentModal } from "@/components/enrichment";
+import { RegenerateDialog } from "@/components/regeneration";
+import type { SelectableItem } from "@/types/enrichment";
 
 export default function AnalysisPage() {
 	const params = useParams();
@@ -37,7 +42,11 @@ export default function AnalysisPage() {
 	const router = useRouter();
 	const { data: session, status } = useSession();
 
-	const { data: analysisData, isLoading, error } = useResume(id);
+	const { data: analysisData, isLoading, error, refetch } = useResume(id);
+
+	// Modal states
+	const [isEnrichmentOpen, setIsEnrichmentOpen] = useState(false);
+	const [isRegenerateOpen, setIsRegenerateOpen] = useState(false);
 
 	// Redirect if not authenticated
 	useEffect(() => {
@@ -76,6 +85,50 @@ export default function AnalysisPage() {
 	}
 
 	const { resume, analysis } = analysisData;
+
+	// Build selectable items for regeneration from work experience and projects
+	const selectableItems: SelectableItem[] = useMemo(() => {
+		const items: SelectableItem[] = [];
+
+		// Add work experiences
+		if (analysis.workExperience) {
+			analysis.workExperience.forEach((work: any, index: number) => {
+				items.push({
+					id: `experience-${index}`,
+					type: "experience",
+					title: work.role || "Untitled Role",
+					subtitle: work.company_and_duration,
+					content: work.bullet_points || [],
+					selected: false,
+				});
+			});
+		}
+
+		// Add projects
+		if (analysis.projects) {
+			analysis.projects.forEach((project: any, index: number) => {
+				items.push({
+					id: `project-${index}`,
+					type: "project",
+					title: project.title || "Untitled Project",
+					subtitle: project.technologies_used?.join(", "),
+					content: project.description ? [project.description] : [],
+					selected: false,
+				});
+			});
+		}
+
+		return items;
+	}, [analysis.workExperience, analysis.projects]);
+
+	const handleEnrichmentComplete = () => {
+		refetch();
+	};
+
+	const handleRegenerateComplete = () => {
+		refetch();
+	};
+
 	return (
 		<div className="min-h-screen">
 			<div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -94,15 +147,34 @@ export default function AnalysisPage() {
 							<ArrowLeft className="mr-2 h-4 w-4" />
 							Back
 						</Button>
-						<Button
-							onClick={() => {
-								window.open(`/api/resumes/${id}/download`, "_blank");
-							}}
-							className="bg-brand-primary hover:bg-brand-primary/90"
-						>
-							<Download className="mr-2 h-4 w-4" />
-							Download Resume
-						</Button>
+						<div className="flex items-center gap-2">
+							<Button
+								onClick={() => setIsEnrichmentOpen(true)}
+								variant="outline"
+								className="border-brand-primary/30 text-brand-primary hover:bg-brand-primary/10"
+							>
+								<Sparkles className="mr-2 h-4 w-4" />
+								Enrich Resume
+							</Button>
+							<Button
+								onClick={() => setIsRegenerateOpen(true)}
+								variant="outline"
+								className="border-white/20 text-brand-light hover:bg-white/5"
+								disabled={selectableItems.length === 0}
+							>
+								<RefreshCw className="mr-2 h-4 w-4" />
+								Regenerate
+							</Button>
+							<Button
+								onClick={() => {
+									window.open(`/api/resumes/${id}/download`, "_blank");
+								}}
+								className="bg-brand-primary hover:bg-brand-primary/90"
+							>
+								<Download className="mr-2 h-4 w-4" />
+								Download Resume
+							</Button>
+						</div>
 					</div>
 				</motion.div>
 
@@ -728,6 +800,23 @@ export default function AnalysisPage() {
 					</div>
 				</motion.div>
 			</div>
+
+			{/* Enrichment Modal */}
+			<EnrichmentModal
+				resumeId={id}
+				isOpen={isEnrichmentOpen}
+				onClose={() => setIsEnrichmentOpen(false)}
+				onComplete={handleEnrichmentComplete}
+			/>
+
+			{/* Regenerate Dialog */}
+			<RegenerateDialog
+				resumeId={id}
+				isOpen={isRegenerateOpen}
+				onClose={() => setIsRegenerateOpen(false)}
+				onComplete={handleRegenerateComplete}
+				availableItems={selectableItems}
+			/>
 		</div>
 	);
 }

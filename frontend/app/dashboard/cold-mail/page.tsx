@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Mail, Send } from "lucide-react";
+import { ArrowLeft, Mail, Send, ScrollText } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/use-toast";
@@ -691,24 +691,40 @@ export default function ColdMailGenerator() {
 									</Card>
 								</motion.div>
 
-								<motion.div
-									initial={{ opacity: 0, y: 20 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ duration: 0.8, delay: 0.6 }}
-									className="order-2"
-								>
-									<GeneratedEmailPanel
-										generatedEmail={generatedEmail}
-										editMode={editMode}
-										setEditMode={setEditMode}
-										editInstructions={editInstructions}
-										setEditInstructions={setEditInstructions}
-										isEditing={isEditing}
-										editColdMail={editColdMail}
-										copyToClipboard={copyToClipboard}
-										downloadAsText={downloadAsText}
-									/>
-								</motion.div>
+							<motion.div
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.8, delay: 0.6 }}
+								className="order-2"
+							>
+								{/* Floating Next Step Action */}
+								{generatedEmail && (
+									<div className="flex justify-end mb-4">
+										<Link href="/dashboard/cover-letter">
+											<Button
+												variant="outline"
+												size="sm"
+												className="h-9 px-4 rounded-full bg-brand-primary/10 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20 hover:border-brand-primary/50 text-xs font-medium transition-all duration-300 shadow-sm"
+											>
+												<ScrollText className="h-3.5 w-3.5 mr-1.5" />
+												Also Generate Cover Letter
+											</Button>
+										</Link>
+									</div>
+								)}
+
+								<GeneratedEmailPanel
+									generatedEmail={generatedEmail}
+									editMode={editMode}
+									setEditMode={setEditMode}
+									editInstructions={editInstructions}
+									setEditInstructions={setEditInstructions}
+									isEditing={isEditing}
+									editColdMail={editColdMail}
+									copyToClipboard={copyToClipboard}
+									downloadAsText={downloadAsText}
+								/>
+							</motion.div>
 							</div>
 						</div>
 					</div>

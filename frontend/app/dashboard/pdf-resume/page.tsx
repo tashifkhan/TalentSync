@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { ResumeData, PdfGenerationRequest } from "@/types/resume";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, FileText, ArrowLeft, Eye, Code } from "lucide-react";
+import { Download, FileText, ArrowLeft, Eye, Code, Sparkles, RefreshCw, ScrollText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
@@ -17,12 +17,23 @@ import TailoringForm from "@/components/pdf-resume/TailoringForm";
 import ConfigurationForm from "@/components/pdf-resume/ConfigurationForm";
 import ResumePreview from "@/components/pdf-resume/ResumePreview";
 import LatexOutput from "@/components/pdf-resume/LatexOutput";
+import { DiffPreviewModal } from "@/components/improvement";
+import { EnrichmentModal } from "@/components/enrichment";
+import { RegenerateDialog } from "@/components/regeneration";
 import {
   useUserResumes,
   useTailorResume,
   useGenerateLatex,
   useDownloadPdf,
 } from "@/hooks/queries";
+import { useImproveResume } from "@/hooks/queries/use-improvement";
+import type {
+  ResumeDiffSummary,
+  ResumeFieldDiff,
+  ImprovementSuggestion,
+  RefinementStats,
+} from "@/types/improvement";
+import type { SelectableItem } from "@/types/enrichment";
 
 export default function PdfResumePage() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -48,6 +59,20 @@ export default function PdfResumePage() {
   const [jobDescription, setJobDescription] = useState("");
   const [useTailoring, setUseTailoring] = useState(false);
 
+  // Improvement modal state
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+  const [diffSummary, setDiffSummary] = useState<ResumeDiffSummary | null>(null);
+  const [detailedChanges, setDetailedChanges] = useState<ResumeFieldDiff[]>([]);
+  const [suggestions, setSuggestions] = useState<ImprovementSuggestion[]>([]);
+  const [refinementStats, setRefinementStats] = useState<RefinementStats | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [improvedResumeData, setImprovedResumeData] = useState<ResumeData | null>(null);
+
+  // Enrichment and Regeneration modal states
+  const [isEnrichmentOpen, setIsEnrichmentOpen] = useState(false);
+  const [isRegenerateOpen, setIsRegenerateOpen] = useState(false);
+
   // Queries
   const { data: userResumes = [], isLoading: isLoadingResumes } =
     useUserResumes();
@@ -56,6 +81,7 @@ export default function PdfResumePage() {
   const tailorResumeMutation = useTailorResume();
   const generateLatexMutation = useGenerateLatex();
   const downloadPdfMutation = useDownloadPdf();
+  const improveResumeMutation = useImproveResume();
 
   // Initialize page
   useEffect(() => {
@@ -316,6 +342,159 @@ export default function PdfResumePage() {
     }
   };
 
+  const improveResume = async () => {
+    // Validation
+    if (inputMode === "file" && !resumeFile) {
+      toast({
+        title: "No File",
+        description: "Please upload a resume file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (inputMode === "resumeId" && !selectedResumeId) {
+      toast({
+        title: "No Resume Selected",
+        description: "Please select a resume from your saved resumes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!jobDescription.trim()) {
+      toast({
+        title: "Job Description Required",
+        description: "Please enter a job description to improve your resume.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImproving(true);
+
+    try {
+      // First get the resume data
+      const dataToUse = await getResumeData();
+
+      if (!dataToUse) {
+        throw new Error("Failed to get resume data");
+      }
+
+      // Call the improve endpoint
+      const result = await improveResumeMutation.mutateAsync({
+        resumeId: selectedResumeId || "",
+        jobDescription: jobDescription,
+      });
+
+      if (result.success) {
+        // Set the diff preview state
+        setDiffSummary(result.diff_summary || null);
+        setDetailedChanges(result.detailed_changes || []);
+        setSuggestions(result.improvements || []);
+        setRefinementStats(result.refinement_stats || null);
+        setWarnings(result.warnings || []);
+        setImprovedResumeData(result.improved_resume);
+
+        // Open the diff modal
+        setIsDiffModalOpen(true);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Improvement Failed",
+        description: error.message || "Failed to improve resume",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
+  const handleApplyImprovement = () => {
+    if (improvedResumeData) {
+      setParsedData(improvedResumeData);
+      setIsDiffModalOpen(false);
+
+      toast({
+        title: "Improvements Applied",
+        description: "Your resume has been updated with the improvements.",
+      });
+    }
+  };
+
+  const handleRejectImprovement = () => {
+    setIsDiffModalOpen(false);
+    setImprovedResumeData(null);
+    setDiffSummary(null);
+    setDetailedChanges([]);
+    setSuggestions([]);
+    setRefinementStats(null);
+    setWarnings([]);
+
+    toast({
+      title: "Changes Rejected",
+      description: "The improvements have been discarded.",
+    });
+  };
+
+  // Build selectable items for regeneration from parsed resume data
+  const selectableItems: SelectableItem[] = useMemo(() => {
+    if (!parsedData) return [];
+
+    const items: SelectableItem[] = [];
+
+    // Add work experiences
+    if (parsedData.work_experience) {
+      parsedData.work_experience.forEach((work, index) => {
+        items.push({
+          id: `experience-${index}`,
+          type: "experience",
+          title: work.role || "Untitled Role",
+          subtitle: work.company_and_duration,
+          content: work.bullet_points || [],
+          selected: false,
+        });
+      });
+    }
+
+    // Add projects
+    if (parsedData.projects) {
+      parsedData.projects.forEach((project, index) => {
+        items.push({
+          id: `project-${index}`,
+          type: "project",
+          title: project.title || "Untitled Project",
+          subtitle: project.technologies_used?.join(", "),
+          content: project.description ? [project.description] : [],
+          selected: false,
+        });
+      });
+    }
+
+    return items;
+  }, [parsedData]);
+
+  const handleEnrichmentComplete = () => {
+    // Refetch the resume data after enrichment
+    if (selectedResumeId) {
+      // The parsedData will be updated via user action (preview button)
+      toast({
+        title: "Enrichment Complete",
+        description: "Your resume has been enriched. Click Preview to see the changes.",
+      });
+    }
+  };
+
+  const handleRegenerateComplete = () => {
+    // Similar to enrichment
+    if (selectedResumeId) {
+      toast({
+        title: "Regeneration Complete",
+        description: "Your resume content has been regenerated. Click Preview to see the changes.",
+      });
+    }
+  };
+
   return (
     <>
       <PageLoader isPageLoading={isPageLoading} />
@@ -506,6 +685,60 @@ export default function PdfResumePage() {
                             LaTeX
                           </Button>
                         </div>
+
+                        {/* AI Improve Button */}
+                        {useTailoring && jobDescription.trim() && (
+                          <Button
+                            onClick={improveResume}
+                            disabled={
+                              isImproving ||
+                              isGenerating ||
+                              (inputMode === "file" ? !resumeFile : !selectedResumeId)
+                            }
+                            variant="outline"
+                            className="w-full h-10 bg-brand-primary/10 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20 hover:border-brand-primary/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm"
+                          >
+                            {isImproving ? (
+                              <>
+                                <Loader
+                                  variant="spinner"
+                                  size="sm"
+                                  className="text-brand-primary mr-1.5"
+                                />
+                                Improving...
+                              </>
+                            ) : (
+                              <>
+                                <Sparkles className="h-4 w-4 mr-1.5" />
+                                AI Improve Resume
+                              </>
+                            )}
+                          </Button>
+                        )}
+
+                        {/* Enrich & Regenerate Buttons */}
+                        {selectedResumeId && (
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={() => setIsEnrichmentOpen(true)}
+                              disabled={isGenerating || isImproving}
+                              variant="outline"
+                              className="flex-1 h-10 bg-brand-primary/10 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20 hover:border-brand-primary/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm"
+                            >
+                              <Sparkles className="h-4 w-4 mr-1.5" />
+                              Enrich Resume
+                            </Button>
+                            <Button
+                              onClick={() => setIsRegenerateOpen(true)}
+                              disabled={isGenerating || isImproving || selectableItems.length === 0}
+                              variant="outline"
+                              className="flex-1 h-10 bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-sm"
+                            >
+                              <RefreshCw className="h-4 w-4 mr-1.5" />
+                              Regenerate
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -518,6 +751,21 @@ export default function PdfResumePage() {
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className="order-2 space-y-6"
                 >
+                  {/* Floating Action for Cover Letter in the Output Area */}
+                  {parsedData && (
+                    <div className="flex justify-end mb-2">
+                      <Link href="/dashboard/cover-letter">
+                        <Button
+                          variant="outline"
+                          className="h-9 bg-brand-primary/10 border-brand-primary/30 text-brand-primary hover:bg-brand-primary/20 hover:border-brand-primary/50 hover:text-brand-primary text-xs font-medium rounded-full px-4 transition-all duration-300 shadow-sm"
+                        >
+                          <ScrollText className="h-3.5 w-3.5 mr-1.5" />
+                          Also Generate Cover Letter
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
+
                   {/* Resume Preview */}
                   {parsedData && <ResumePreview parsedData={parsedData} />}
 
@@ -535,6 +783,37 @@ export default function PdfResumePage() {
           </div>
         </div>
       )}
+
+      {/* Diff Preview Modal */}
+      <DiffPreviewModal
+        isOpen={isDiffModalOpen}
+        onClose={() => setIsDiffModalOpen(false)}
+        onApply={handleApplyImprovement}
+        onReject={handleRejectImprovement}
+        diffSummary={diffSummary}
+        detailedChanges={detailedChanges}
+        suggestions={suggestions}
+        refinementStats={refinementStats}
+        warnings={warnings}
+        isApplying={false}
+      />
+
+      {/* Enrichment Modal */}
+      <EnrichmentModal
+        isOpen={isEnrichmentOpen}
+        onClose={() => setIsEnrichmentOpen(false)}
+        resumeId={selectedResumeId}
+        onComplete={handleEnrichmentComplete}
+      />
+
+      {/* Regenerate Dialog */}
+      <RegenerateDialog
+        isOpen={isRegenerateOpen}
+        onClose={() => setIsRegenerateOpen(false)}
+        resumeId={selectedResumeId}
+        availableItems={selectableItems}
+        onComplete={handleRegenerateComplete}
+      />
     </>
   );
 }

@@ -307,7 +307,7 @@ function ConfigEditorForm({
               <SelectTrigger className="bg-white/5 border-white/10 text-brand-light h-11 focus:ring-brand-primary/20">
                 <SelectValue placeholder="Select provider" />
               </SelectTrigger>
-              <SelectContent className="bg-zinc-950 border-white/10 text-brand-light backdrop-blur-xl">
+              <SelectContent className="bg-[#1e2330] border-white/10 text-brand-light backdrop-blur-xl">
                 {PROVIDERS.map((p) => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.name}
@@ -337,7 +337,7 @@ function ConfigEditorForm({
                 <SelectTrigger className="bg-white/5 border-white/10 text-brand-light h-11 focus:ring-brand-primary/20">
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
-                <SelectContent className="bg-brand-dark border-white/10 text-brand-light backdrop-blur-xl max-h-[300px]">
+                <SelectContent className="bg-[#1e2330] border-white/10 text-brand-light backdrop-blur-xl max-h-[300px]">
                   {currentProviderConfig?.models.map((m) => (
                     <SelectItem key={m} value={m}>
                       {m}
@@ -965,7 +965,7 @@ export function LlmConfigPanel() {
           if (!open) setFormMessage(null);
         }}
       >
-        <DialogContent className="bg-zinc-950 backdrop-blur-2xl border-white/10 text-brand-light sm:max-w-xl shadow-2xl p-0 overflow-hidden gap-0">
+        <DialogContent className="bg-[#1e2330] backdrop-blur-2xl border-white/10 text-brand-light sm:max-w-xl shadow-2xl p-0 overflow-hidden gap-0">
           <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-brand-primary to-transparent opacity-50" />
           
           <DialogHeader className="p-6 pb-2 space-y-1">
@@ -1015,7 +1015,7 @@ export function LlmConfigPanel() {
           if (!open) setDeleteTarget(null);
         }}
       >
-        <DialogContent className="bg-zinc-950 backdrop-blur-xl border-white/10 text-brand-light sm:max-w-md p-6 shadow-2xl">
+        <DialogContent className="bg-[#1e2330] backdrop-blur-xl border-white/10 text-brand-light sm:max-w-md p-6 shadow-2xl">
           <DialogHeader className="space-y-3">
             <div className="mx-auto w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center border border-rose-500/20 mb-2">
               <Trash2 className="h-6 w-6 text-rose-500" />
