@@ -111,7 +111,7 @@ export default function ResumePreview({ parsedData }: ResumePreviewProps) {
 										<ul className="list-disc list-inside text-brand-light/70 text-xs mt-1 space-y-1">
 											{exp.bullet_points.map((bp: string, bi: number) => (
 												<li key={bi} className="text-brand-light/70">
-													<span className="inline">{renderMarkdown(bp)}</span>
+													{bp}
 												</li>
 											))}
 										</ul>

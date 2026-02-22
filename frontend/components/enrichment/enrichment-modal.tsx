@@ -50,7 +50,7 @@ export function EnrichmentModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl overflow-hidden p-0">
+      <DialogContent className="sm:max-w-2xl p-0">
         {/* Accent header strip */}
         <div className="h-[2px] w-full bg-gradient-to-r from-brand-primary via-brand-primary/60 to-transparent" />
 
@@ -152,9 +152,26 @@ export function EnrichmentModal({
               <EnrichmentPreviewStep
                 key="preview"
                 enhancements={wizard.state.enhancementPreview.enhancements}
+                patchReviews={wizard.state.patchReviews}
+                onPatchStatusChange={wizard.setPatchStatus}
+                onPatchCommentChange={wizard.setPatchComment}
+                onApproveAll={wizard.approveAll}
+                onRefineRejected={wizard.refineRejected}
                 onApply={wizard.applyEnhancements}
                 onBack={wizard.reset}
                 isApplying={false}
+                isRefining={false}
+                approvedCount={wizard.approvedCount}
+                rejectedWithCommentsCount={wizard.rejectedWithCommentsCount}
+              />
+            )}
+
+            {/* Refining State */}
+            {wizard.state.step === "refining" && (
+              <EnrichmentLoadingStep
+                key="refining"
+                title="Refining Enhancements"
+                description="Revising rejected patches based on your feedback..."
               />
             )}
 

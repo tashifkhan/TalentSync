@@ -47,9 +47,10 @@ export function EnrichmentQuestionStep({
     {} as Record<string, EnrichmentItem>
   );
 
-  const allAnswered = questions.every(
-    (q) => answers[q.question_id]?.trim().length > 0
-  );
+  const answerableQuestions = questions.filter((q) => Boolean(itemMap[q.item_id]));
+  const allAnswered =
+    answerableQuestions.length === 0 ||
+    answerableQuestions.every((q) => answers[q.question_id]?.trim().length > 0);
 
   return (
     <motion.div
@@ -66,7 +67,7 @@ export function EnrichmentQuestionStep({
       )}
 
       {/* Questions grouped by item */}
-      <div className="space-y-8 max-h-[50vh] overflow-y-auto pr-2">
+      <div className="space-y-8">
         {Object.entries(questionsByItem).map(([itemId, itemQuestions]) => {
           const item = itemMap[itemId];
           if (!item) return null;

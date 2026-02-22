@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class WorkExperienceEntry(BaseModel):
@@ -69,6 +69,16 @@ class UIProjectEntry(BaseModel):
     live_link: Optional[str] = None
     repo_link: Optional[str] = None
     description: str
+
+    @field_validator("description", mode="before")
+    @classmethod
+    def _normalize_description(cls, value: object) -> str:
+        if value is None:
+            return ""
+        if isinstance(value, list):
+            lines = [str(item).strip() for item in value if str(item).strip()]
+            return "\n".join(lines)
+        return str(value).strip()
 
 
 class UIPublicationEntry(BaseModel):
