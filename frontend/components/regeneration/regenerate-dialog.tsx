@@ -57,12 +57,12 @@ export function RegenerateDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-hidden p-0 gap-0 flex flex-col">
         {/* Accent header strip */}
-        <div className="h-[2px] w-full bg-gradient-to-r from-brand-primary via-brand-primary/60 to-transparent" />
+        <div className="h-[2px] w-full bg-gradient-to-r from-brand-primary via-brand-primary/60 to-transparent flex-shrink-0" />
 
-        <div className="p-6">
-          <DialogHeader className="mb-4">
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <DialogHeader className="px-6 pt-5 pb-4 border-b border-white/10">
             <DialogTitle className="flex items-center gap-2.5 text-white">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/20 ring-1 ring-brand-primary/40">
                 <RefreshCw className="h-4 w-4 text-brand-primary" />
@@ -71,7 +71,8 @@ export function RegenerateDialog({
             </DialogTitle>
           </DialogHeader>
 
-        <AnimatePresence mode="wait">
+          <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4">
+            <AnimatePresence mode="wait">
           {/* Selection Step */}
           {wizard.state.step === "selecting" && (
             <RegenerateSelectionStep
@@ -195,7 +196,8 @@ export function RegenerateDialog({
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
+            </AnimatePresence>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
