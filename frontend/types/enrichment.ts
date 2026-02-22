@@ -63,10 +63,32 @@ export interface ApplyEnhancementsRequest {
 }
 
 // ============================================================================
+// Refinement Types (re-generate rejected patches)
+// ============================================================================
+
+export interface RefinementInput {
+  item_id: string;
+  item_type: string;
+  title: string;
+  subtitle?: string | null;
+  original_description: string[];
+  rejected_enhancement: string[];
+  user_feedback: string;
+}
+
+// ============================================================================
 // Regeneration Types
 // ============================================================================
 
-export type RegenerateItemType = "experience" | "project" | "skills";
+export type RegenerateItemType =
+  | "experience"
+  | "project"
+  | "skills"
+  | "publication"
+  | "position"
+  | "certification"
+  | "achievement"
+  | "education";
 
 export interface RegenerateItemInput {
   item_id: string;
@@ -107,6 +129,17 @@ export interface RegenerateResponse {
 }
 
 // ============================================================================
+// Patch Review Types
+// ============================================================================
+
+export type PatchStatus = "approved" | "rejected" | "pending";
+
+export interface PatchReviewState {
+  status: PatchStatus;
+  comment: string;
+}
+
+// ============================================================================
 // Wizard State Types
 // ============================================================================
 
@@ -116,6 +149,7 @@ export type EnrichmentWizardStep =
   | "questions"
   | "generating"
   | "preview"
+  | "refining"
   | "applying"
   | "complete"
   | "error";
@@ -126,6 +160,8 @@ export interface EnrichmentWizardState {
   analysisResult: AnalysisResponse | null;
   answers: Record<string, string>;
   enhancementPreview: EnhancementPreview | null;
+  /** Per-patch approval status, keyed by item_id */
+  patchReviews: Record<string, PatchReviewState>;
   appliedEnhancements: EnhancedDescription[];
   error: string | null;
 }
@@ -138,6 +174,12 @@ export type EnrichmentWizardAction =
   | { type: "SUBMIT_ANSWERS" }
   | { type: "ENHANCE_SUCCESS"; preview: EnhancementPreview }
   | { type: "ENHANCE_ERROR"; error: string }
+  | { type: "SET_PATCH_STATUS"; itemId: string; status: PatchStatus }
+  | { type: "SET_PATCH_COMMENT"; itemId: string; comment: string }
+  | { type: "APPROVE_ALL" }
+  | { type: "START_REFINE" }
+  | { type: "REFINE_SUCCESS"; preview: EnhancementPreview }
+  | { type: "REFINE_ERROR"; error: string }
   | { type: "START_APPLY" }
   | { type: "APPLY_SUCCESS"; enhancements: EnhancedDescription[] }
   | { type: "APPLY_ERROR"; error: string }
@@ -200,9 +242,17 @@ export interface QuestionStepProps {
 
 export interface PreviewStepProps {
   enhancements: EnhancedDescription[];
+  patchReviews: Record<string, PatchReviewState>;
+  onPatchStatusChange: (itemId: string, status: PatchStatus) => void;
+  onPatchCommentChange: (itemId: string, comment: string) => void;
+  onApproveAll: () => void;
+  onRefineRejected: () => void;
   onApply: () => void;
   onBack: () => void;
   isApplying: boolean;
+  isRefining: boolean;
+  approvedCount: number;
+  rejectedWithCommentsCount: number;
 }
 
 export interface RegenerateDialogProps {

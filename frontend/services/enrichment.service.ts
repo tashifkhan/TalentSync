@@ -4,6 +4,7 @@ import type {
   EnhancementPreview,
   EnhancedDescription,
   AnswerInput,
+  RefinementInput,
   RegenerateItemInput,
   RegenerateResponse,
   RegeneratedItem,
@@ -34,6 +35,11 @@ export interface EnhanceResumeParams {
 export interface ApplyEnhancementsParams {
   resumeId: string;
   enhancements: EnhancedDescription[];
+}
+
+export interface RefineEnhancementsParams {
+  resumeId: string;
+  refinements: RefinementInput[];
 }
 
 export interface RegenerateItemsParams {
@@ -107,6 +113,28 @@ export const enrichmentService = {
     }
 
     return { appliedCount: response.appliedCount };
+  },
+
+  /**
+   * Refine rejected enhancements using user feedback.
+   * Re-generates rejected patches with comments for better results.
+   */
+  refineEnhancements: async (
+    params: RefineEnhancementsParams
+  ): Promise<EnhancementPreview> => {
+    const response = await apiClient.post<EnrichmentApiResponse<EnhancementPreview>>(
+      "/api/resume-enrichment/refine",
+      {
+        resumeId: params.resumeId,
+        refinements: params.refinements,
+      }
+    );
+
+    if (!response.success) {
+      throw new ApiError((response as ApiErrorResponse).message, 400);
+    }
+
+    return (response as ApiSuccessResponse<EnhancementPreview>).data;
   },
 
   /**

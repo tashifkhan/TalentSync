@@ -4,6 +4,7 @@ import {
   type AnalyzeResumeParams,
   type EnhanceResumeParams,
   type ApplyEnhancementsParams,
+  type RefineEnhancementsParams,
   type RegenerateItemsParams,
   type ApplyRegeneratedParams,
 } from "@/services";
@@ -66,6 +67,26 @@ export const useApplyEnhancements = () => {
       toast({
         title: "Apply Failed",
         description: error.message || "Failed to apply enhancements. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
+/**
+ * Hook for refining rejected enhancements with user feedback.
+ */
+export const useRefineEnhancements = () => {
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: (params: RefineEnhancementsParams) =>
+      enrichmentService.refineEnhancements(params),
+    onError: (error: Error) => {
+      toast({
+        title: "Refinement Failed",
+        description:
+          error.message || "Failed to refine enhancements. Please try again.",
         variant: "destructive",
       });
     },
