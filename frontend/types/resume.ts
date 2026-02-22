@@ -84,7 +84,31 @@ export interface UserResume {
   uploadDate: string;
   candidateName?: string;
   predictedField?: string;
+  source?: "UPLOADED" | "MANUAL";
+  isMaster?: boolean;
+  parentId?: string | null;
 }
+
+export interface SectionMeta {
+  key: string;
+  displayName: string;
+  isVisible: boolean;
+  order: number;
+}
+
+export const DEFAULT_SECTION_ORDER: SectionMeta[] = [
+  { key: "personalInfo", displayName: "Personal Information", isVisible: true, order: 0 },
+  { key: "work_experience", displayName: "Work Experience", isVisible: true, order: 1 },
+  { key: "education", displayName: "Education", isVisible: true, order: 2 },
+  { key: "skills_analysis", displayName: "Skills", isVisible: true, order: 3 },
+  { key: "projects", displayName: "Projects", isVisible: true, order: 4 },
+  { key: "publications", displayName: "Publications", isVisible: true, order: 5 },
+  { key: "certifications", displayName: "Certifications", isVisible: true, order: 6 },
+  { key: "achievements", displayName: "Achievements", isVisible: true, order: 7 },
+  { key: "positions_of_responsibility", displayName: "Positions of Responsibility", isVisible: true, order: 8 },
+  { key: "languages", displayName: "Languages", isVisible: true, order: 9 },
+  { key: "recommended_roles", displayName: "Recommended Roles", isVisible: true, order: 10 },
+];
 
 export interface ResumeTemplate {
   id: string;
