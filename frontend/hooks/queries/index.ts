@@ -1,5 +1,6 @@
 export * from "./use-dashboard";
 export * from "./use-resumes";
+export * from "./use-resume-editor";
 export * from "./use-cold-mails";
 export * from "./use-cover-letters";
 export * from "./use-interviews";

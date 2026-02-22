@@ -39,6 +39,8 @@ import {
   Lightbulb,
   Hash,
   ChevronRight,
+  FilePlus,
+  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { Loader, LoaderOverlay } from "@/components/ui/loader";
@@ -52,9 +54,12 @@ import {
   useDeleteInterview,
   useColdMails,
   useDeleteColdMail,
+  useCreateManualResume,
+  useSetMasterResume,
 } from "@/hooks/queries";
 import { DashboardResume, InterviewSession, ColdMailSession } from "@/types";
 import { actionItems } from "@/lib/navigation";
+import { createEmptyResumeData } from "@/lib/resume-to-text";
 import { cn } from "@/lib/utils";
 
 // Animated Counter Component
@@ -123,6 +128,8 @@ export default function DashboardPage() {
   // Mutations
   const deleteResumeMutation = useDeleteResume();
   const renameResumeMutation = useRenameResume();
+  const createManualResumeMutation = useCreateManualResume();
+  const setMasterResumeMutation = useSetMasterResume();
   const deleteInterviewMutation = useDeleteInterview();
   const deleteColdMailMutation = useDeleteColdMail();
 
@@ -200,6 +207,21 @@ export default function DashboardPage() {
   const handleDeleteColdMail = (coldMailId: string) => {
     deleteColdMailMutation.mutate(coldMailId);
     setDeletingColdMail(null);
+  };
+
+  const handleCreateFromScratch = () => {
+    const emptyData = createEmptyResumeData();
+    createManualResumeMutation.mutate(
+      { customName: "Untitled Resume", data: emptyData },
+      {
+        onSuccess: (response) => {
+          const newId = response.data?.id;
+          if (newId) {
+            router.push(`/dashboard/analysis/${newId}?tab=edit`);
+          }
+        },
+      }
+    );
   };
 
   // Get activity icon
@@ -488,15 +510,29 @@ export default function DashboardPage() {
                       <FileText className="h-6 w-6 text-brand-primary" />
                       Recent Resumes
                     </h2>
-                    <Link href="/dashboard/seeker">
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={handleCreateFromScratch}
+                        disabled={createManualResumeMutation.isPending}
                         className="text-brand-light hover:text-brand-primary hover:bg-white/5"
                       >
-                        Create New <ArrowRight className="ml-2 h-4 w-4" />
+                        <FilePlus className="mr-2 h-4 w-4" />
+                        {createManualResumeMutation.isPending
+                          ? "Creating..."
+                          : "From Scratch"}
                       </Button>
-                    </Link>
+                      <Link href="/dashboard/seeker">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-brand-light hover:text-brand-primary hover:bg-white/5"
+                        >
+                          Upload <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
 
                   {dashboardData?.resumes &&
@@ -514,11 +550,19 @@ export default function DashboardPage() {
                                   <div className="p-2 bg-brand-primary/10 rounded-lg group-hover:bg-brand-primary/20 transition-colors">
                                     <FileText className="h-5 w-5 text-brand-primary" />
                                   </div>
-                                  {resume.predictedField && (
-                                    <Badge className="bg-white/5 text-brand-light/60 border-white/10 text-[10px] hover:bg-white/10">
-                                      {resume.predictedField}
-                                    </Badge>
-                                  )}
+                                  <div className="flex items-center gap-1.5">
+                                    {resume.isMaster && (
+                                      <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px] hover:bg-amber-500/20 gap-1">
+                                        <Crown className="h-2.5 w-2.5" />
+                                        Master
+                                      </Badge>
+                                    )}
+                                    {resume.predictedField && (
+                                      <Badge className="bg-white/5 text-brand-light/60 border-white/10 text-[10px] hover:bg-white/10">
+                                        {resume.predictedField}
+                                      </Badge>
+                                    )}
+                                  </div>
                                 </div>
                                 <h3 className="text-lg font-semibold text-white mb-1 truncate group-hover:text-brand-primary transition-colors">
                                   {resume.customName}
@@ -561,13 +605,26 @@ export default function DashboardPage() {
                         No resumes yet
                       </h3>
                       <p className="text-text-muted-light text-sm mb-6">
-                        Upload your first resume to get AI-powered insights
+                        Upload your resume or create one from scratch
                       </p>
-                      <Link href="/dashboard/seeker">
-                        <Button className="bg-brand-primary text-white hover:bg-brand-primary/90">
-                          Upload Resume
+                      <div className="flex items-center justify-center gap-3">
+                        <Link href="/dashboard/seeker">
+                          <Button className="bg-brand-primary text-white hover:bg-brand-primary/90">
+                            Upload Resume
+                          </Button>
+                        </Link>
+                        <Button
+                          variant="outline"
+                          onClick={handleCreateFromScratch}
+                          disabled={createManualResumeMutation.isPending}
+                          className="border-white/10 text-brand-light hover:bg-white/5"
+                        >
+                          <FilePlus className="mr-2 h-4 w-4" />
+                          {createManualResumeMutation.isPending
+                            ? "Creating..."
+                            : "Create from Scratch"}
                         </Button>
-                      </Link>
+                      </div>
                     </Card>
                   )}
                 </motion.div>
@@ -825,6 +882,15 @@ export default function DashboardPage() {
                             <div>
                               <h3 className="font-semibold text-brand-light truncate flex items-center gap-2">
                                 {resume.customName}
+                                {resume.isMaster && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[10px] py-0 h-5 border-amber-500/30 text-amber-400 bg-amber-500/5 gap-1"
+                                  >
+                                    <Crown className="h-2.5 w-2.5" />
+                                    Master
+                                  </Badge>
+                                )}
                                 {resume.predictedField && (
                                   <Badge
                                     variant="outline"
@@ -851,6 +917,20 @@ export default function DashboardPage() {
 
                         {editingResume?.id !== resume.id && (
                           <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {!resume.isMaster && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() =>
+                                  setMasterResumeMutation.mutate(resume.id)
+                                }
+                                disabled={setMasterResumeMutation.isPending}
+                                className="h-8 w-8 p-0 text-brand-light/70 hover:text-amber-400"
+                                title="Set as Master Resume"
+                              >
+                                <Crown className="h-4 w-4" />
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"

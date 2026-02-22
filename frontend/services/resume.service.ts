@@ -8,6 +8,9 @@ export interface ResumeResponseData {
     rawText: string;
     uploadDate: string;
     showInCentral: boolean;
+    source: "UPLOADED" | "MANUAL";
+    isMaster: boolean;
+    parentId: string | null;
     user: {
       id: string;
       name: string | null;
@@ -44,4 +47,19 @@ export const resumeService = {
 
     return apiClient.post<ApiResponse<{ resumeId: string; analysis: ResumeData; cleanedText: string }>>("/api/analysis", formData);
   },
+
+  createManualResume: (customName: string, data: ResumeData) =>
+    apiClient.post<ApiResponse<{ id: string; customName: string }>>(
+      "/api/resumes/manual",
+      { customName, data }
+    ),
+
+  updateResumeAnalysis: (id: string, data: Partial<ResumeData>) =>
+    apiClient.patch<ApiResponse<any>>(`/api/resumes/${id}/analysis`, data),
+
+  setMasterResume: (id: string) =>
+    apiClient.patch<{ success: boolean; message: string }>(
+      `/api/resumes/${id}/master`,
+      {}
+    ),
 };

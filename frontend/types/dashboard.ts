@@ -26,6 +26,8 @@ export interface DashboardResume {
   uploadDate: string;
   predictedField?: string;
   candidateName?: string;
+  source?: "UPLOADED" | "MANUAL";
+  isMaster?: boolean;
 }
 
 export interface DashboardData {

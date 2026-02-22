@@ -41,11 +41,13 @@ import { EnrichmentModal } from "@/components/enrichment";
 import { RegenerateDialog } from "@/components/regeneration";
 import { JDEditPanel } from "@/components/jd-editor/jd-edit-panel";
 import ExportTab from "@/components/pdf-resume/ExportTab";
+import { ResumeEditorTab } from "@/components/resume-editor/resume-editor-tab";
 import type { SelectableItem } from "@/types/enrichment";
 import type { JDEditResponse } from "@/types/jd-editor";
 
 type WorkspaceTab =
   | "overview"
+  | "edit"
   | "enrich"
   | "improve-by-jd"
   | "regenerate"
@@ -289,13 +291,20 @@ export default function AnalysisPage() {
             value={activeTab}
             onValueChange={(v) => setActiveTab(v as WorkspaceTab)}
           >
-            <TabsList className="w-full grid grid-cols-5 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 h-auto">
+            <TabsList className="w-full grid grid-cols-6 mb-8 bg-white/5 border border-white/10 rounded-xl p-1 h-auto">
               <TabsTrigger
                 value="overview"
                 className="flex items-center gap-2 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-white rounded-lg text-sm"
               >
                 <FileText className="h-4 w-4" />
                 <span className="hidden sm:inline">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="edit"
+                className="flex items-center gap-2 py-2.5 data-[state=active]:bg-brand-primary data-[state=active]:text-white rounded-lg text-sm"
+              >
+                <PenBox className="h-4 w-4" />
+                <span className="hidden sm:inline">Edit</span>
               </TabsTrigger>
               <TabsTrigger
                 value="enrich"
@@ -723,6 +732,11 @@ export default function AnalysisPage() {
                   </Card>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* ── Edit ──────────────────────────────────────────────── */}
+            <TabsContent value="edit">
+              <ResumeEditorTab resumeId={id} analysis={analysis} />
             </TabsContent>
 
             {/* ── Enrich ───────────────────────────────────────────────── */}
