@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { getLlmHeaders } from "@/lib/llm-headers";
 
+export const maxDuration = 1800;
+
 interface TailoredResumeRequest {
   resume_text?: string;
   job_role: string;
@@ -130,7 +132,7 @@ export async function POST(request: NextRequest) {
         backendResponse = await fetch(`${backendUrl}/api/v1/resume/tailor`, {
           method: 'POST',
           body: backendFormData,
-          signal: AbortSignal.timeout(60000), // 60 second timeout for resume analysis
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
           headers: { ...llmHeaders },
         });
       } else if (resumeId) {
@@ -198,7 +200,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', ...llmHeaders },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(60000), // 60 second timeout for resume analysis
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         });
       } else {
         // This should not happen due to earlier validation, but handle it just in case

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, Download, Copy } from "lucide-react";
 import { motion } from "framer-motion";
-import { renderMarkdown } from "@/lib/markdown-renderer";
+import MarkdownRenderer from "@/components/ui/markdown-renderer";
 
 interface GeneratedAnswersPanelProps {
   generatedAnswers: { [key: string]: string } | null;
@@ -73,9 +73,7 @@ export default function GeneratedAnswersPanel({
                     </Button>
                   </div>
                   <div className="p-3 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-lg backdrop-blur-sm">
-                    <p className="text-brand-light/90 text-sm leading-relaxed">
-                      {renderMarkdown(answer)}
-                    </p>
+                    <MarkdownRenderer content={answer} className="text-sm" />
                   </div>
                 </motion.div>
               ),

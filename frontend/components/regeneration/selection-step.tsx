@@ -4,7 +4,20 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Briefcase, FolderOpen, Star, CheckSquare, Square } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  FolderOpen,
+  Star,
+  CheckSquare,
+  Square,
+  BookOpen,
+  Shield,
+  Award,
+  Trophy,
+  GraduationCap,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { SelectableItem } from "@/types/enrichment";
 
 interface RegenerateSelectionStepProps {
@@ -18,7 +31,10 @@ interface RegenerateSelectionStepProps {
   selectedCount: number;
 }
 
-const itemTypeConfig = {
+const itemTypeConfig: Record<
+  string,
+  { icon: typeof Briefcase; label: string; color: string }
+> = {
   experience: {
     icon: Briefcase,
     label: "Experience",
@@ -34,6 +50,31 @@ const itemTypeConfig = {
     label: "Skills",
     color: "text-amber-400",
   },
+  publication: {
+    icon: BookOpen,
+    label: "Publication",
+    color: "text-purple-400",
+  },
+  position: {
+    icon: Shield,
+    label: "Position",
+    color: "text-cyan-400",
+  },
+  certification: {
+    icon: Award,
+    label: "Certification",
+    color: "text-orange-400",
+  },
+  achievement: {
+    icon: Trophy,
+    label: "Achievement",
+    color: "text-yellow-400",
+  },
+  education: {
+    icon: GraduationCap,
+    label: "Education",
+    color: "text-indigo-400",
+  },
 };
 
 export function RegenerateSelectionStep({
@@ -47,14 +88,13 @@ export function RegenerateSelectionStep({
   selectedCount,
 }: RegenerateSelectionStepProps) {
   const allSelected = items.length > 0 && items.every((item) => item.selected);
-  const noneSelected = items.every((item) => !item.selected);
 
   return (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="space-y-6"
+      className="space-y-5"
     >
       {/* Header */}
       <div>
@@ -62,7 +102,8 @@ export function RegenerateSelectionStep({
           Select Items to Regenerate
         </h3>
         <p className="text-sm text-brand-light/60">
-          Choose which parts of your resume you want to rewrite with AI assistance.
+          Choose which parts of your resume you want to rewrite with AI
+          assistance.
         </p>
       </div>
 
@@ -72,16 +113,16 @@ export function RegenerateSelectionStep({
           variant="ghost"
           size="sm"
           onClick={allSelected ? onDeselectAll : onSelectAll}
-          className="text-brand-light/60 hover:text-brand-light"
+          className="text-brand-light/60 hover:text-brand-light h-8 px-2"
         >
           {allSelected ? (
             <>
-              <Square className="h-4 w-4 mr-1" />
+              <Square className="h-4 w-4 mr-1.5" />
               Deselect All
             </>
           ) : (
             <>
-              <CheckSquare className="h-4 w-4 mr-1" />
+              <CheckSquare className="h-4 w-4 mr-1.5" />
               Select All
             </>
           )}
@@ -94,50 +135,51 @@ export function RegenerateSelectionStep({
       </div>
 
       {/* Item List */}
-      <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2">
+      <div className="space-y-2 max-h-[45vh] overflow-y-auto pr-1 -mr-1">
         {items.map((item, index) => {
-          const config = itemTypeConfig[item.type];
+          const config = itemTypeConfig[item.type] ?? itemTypeConfig.experience;
           const Icon = config.icon;
 
           return (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: index * 0.03 }}
               onClick={() => onToggle(item.id)}
-              className={`
-                p-4 rounded-lg border cursor-pointer transition-all
-                ${
-                  item.selected
-                    ? "bg-brand-primary/10 border-brand-primary/30"
-                    : "bg-white/5 border-white/10 hover:border-white/20"
-                }
-              `}
+              className={cn(
+                "group px-3 py-3 rounded-lg border cursor-pointer transition-all duration-150",
+                item.selected
+                  ? "bg-brand-primary/10 border-brand-primary/30"
+                  : "bg-white/[0.03] border-white/10 hover:border-white/20 hover:bg-white/[0.05]"
+              )}
             >
               <div className="flex items-start gap-3">
                 <Checkbox
                   checked={item.selected}
                   onCheckedChange={() => onToggle(item.id)}
-                  className="mt-1 border-white/30 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                  className="mt-0.5 shrink-0 border-white/30 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Icon className={`h-4 w-4 ${config.color}`} />
-                    <span className="font-medium text-brand-light truncate">
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  {/* Title row */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Icon
+                      className={cn("h-3.5 w-3.5 shrink-0", config.color)}
+                    />
+                    <span className="text-sm font-medium text-brand-light truncate">
                       {item.title}
                     </span>
                   </div>
+                  {/* Subtitle */}
                   {item.subtitle && (
-                    <p className="text-sm text-brand-light/60 truncate mb-2">
+                    <p className="text-xs text-brand-light/50 truncate mt-0.5 pl-[22px]">
                       {item.subtitle}
                     </p>
                   )}
+                  {/* Content preview */}
                   {item.content.length > 0 && (
-                    <p className="text-xs text-brand-light/40 line-clamp-2">
+                    <p className="text-[11px] text-brand-light/35 truncate mt-1 pl-[22px]">
                       {item.content[0]}
-                      {item.content.length > 1 &&
-                        ` (+${item.content.length - 1} more)`}
                     </p>
                   )}
                 </div>

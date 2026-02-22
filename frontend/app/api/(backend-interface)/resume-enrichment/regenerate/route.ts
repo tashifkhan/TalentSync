@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getLlmHeaders } from "@/lib/llm-headers";
 import type { RegenerateResponse, RegenerateItemInput } from "@/types/enrichment";
 
+export const maxDuration = 1800;
+
 interface RegenerateRequestBody {
   resumeId: string;
   items: RegenerateItemInput[];
@@ -145,7 +147,7 @@ export async function POST(request: NextRequest) {
           ...llmHeaders,
         },
         body: JSON.stringify(backendPayload),
-        signal: AbortSignal.timeout(180000), // 3 minute timeout for multiple items
+        signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
       }
     );
 

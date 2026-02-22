@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getLlmHeaders } from "@/lib/llm-headers";
 
+export const maxDuration = 1800;
+
 interface Tip {
 	category: string;
 	advice: string;
@@ -73,6 +75,7 @@ export async function GET(request: NextRequest) {
 					"Content-Type": "application/json",
                     ...llmHeaders,
 				},
+				signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
 			}
 		);
 

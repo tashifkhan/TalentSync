@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { getLlmHeaders } from '@/lib/llm-headers';
 
+export const maxDuration = 1800;
+
 /**
  * Hiring Assistant Bridge API
  * 
@@ -267,7 +269,7 @@ export async function POST(request: NextRequest) {
       const backendResponse = await fetch(`${BACKEND_URL}/api/v2/hiring-assistant/`, {
         method: 'POST',
         body: backendFormData,
-        signal: AbortSignal.timeout(300000), // 5 minutes timeout
+        signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         headers: { ...llmHeaders },
       });
 
@@ -453,7 +455,7 @@ export async function POST(request: NextRequest) {
       const backendResponse = await fetch(`${BACKEND_URL}/api/v1/hiring-assistant/`, {
         method: 'POST',
         body: backendFormData,
-        signal: AbortSignal.timeout(300000), // 5 minutes timeout
+        signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         headers: { ...llmHeaders },
       });
 

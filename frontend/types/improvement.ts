@@ -55,14 +55,6 @@ export interface RefinementConfig {
   max_refinement_passes?: number;
 }
 
-export interface KeywordGapAnalysis {
-  missing_keywords: string[];
-  injectable_keywords: string[];
-  non_injectable_keywords: string[];
-  current_match_percentage: number;
-  potential_match_percentage: number;
-}
-
 export interface AlignmentViolation {
   field_path: string;
   violation_type: string;
@@ -128,33 +120,4 @@ export interface ResumeRefineResponse {
   refinement_stats?: RefinementStats | null;
 }
 
-// ============================================================================
-// UI State Types
-// ============================================================================
 
-export type ImprovementStep =
-  | "idle"
-  | "improving"
-  | "preview"
-  | "applying"
-  | "complete"
-  | "error";
-
-export interface ImprovementState {
-  step: ImprovementStep;
-  originalResume: ResumeData | null;
-  improvedResume: ResumeData | null;
-  diffSummary: ResumeDiffSummary | null;
-  detailedChanges: ResumeFieldDiff[];
-  suggestions: ImprovementSuggestion[];
-  refinementStats: RefinementStats | null;
-  warnings: string[];
-  error: string | null;
-}
-
-export interface DiffViewOptions {
-  showOnlyChanges: boolean;
-  highlightAdditions: boolean;
-  highlightRemovals: boolean;
-  groupBySection: boolean;
-}

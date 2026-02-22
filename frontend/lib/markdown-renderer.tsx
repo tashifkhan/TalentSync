@@ -62,8 +62,10 @@ const parseMarkdownText = (text: string) => {
   return parts.length > 0 ? parts : text;
 };
 
-export const renderMarkdown = (text: string): JSX.Element[] => {
-  const lines = text.split("\n");
+export const renderMarkdown = (text: unknown): JSX.Element[] => {
+  if (text === null || text === undefined || text === "") return [];
+  const safeText = typeof text === "string" ? text : String(text);
+  const lines = safeText.split("\n");
   const result: JSX.Element[] = [];
   let currentList: string[] = [];
   let key = 0;
@@ -133,4 +135,12 @@ export const renderMarkdown = (text: string): JSX.Element[] => {
 
   flushList();
   return result;
+};
+
+export const renderMarkdownInline = (text: unknown): React.ReactNode => {
+  if (text === null || text === undefined || text === "") return null;
+  const safeText = typeof text === "string" ? text : String(text);
+  const normalized = safeText.replace(/\r?\n+/g, " ").trim();
+  if (!normalized) return null;
+  return parseMarkdownText(normalized);
 };

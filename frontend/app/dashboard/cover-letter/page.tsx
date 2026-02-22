@@ -4,28 +4,20 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	ArrowLeft,
 	FileText,
 	Send,
-	Upload,
-	CheckCircle,
-	ChevronDown,
-	Calendar,
-	User,
 } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/use-toast";
-import { AnimatePresence } from "framer-motion";
 import CoverLetterDetailsForm from "@/components/cover-letter/CoverLetterDetailsForm";
 import GeneratedLetterPanel from "@/components/cover-letter/GeneratedLetterPanel";
 import LoadingOverlay from "@/components/cold-mail/LoadingOverlay";
 import PageLoader from "@/components/cold-mail/PageLoader";
+import { ResumeSelector } from "@/components/shared/resume-selector";
 import {
-	useUserResumes,
 	useGenerateCoverLetter,
 	useEditCoverLetter,
 } from "@/hooks/queries";
@@ -36,17 +28,15 @@ export default function CoverLetterGenerator() {
 	const [generatedLetter, setGeneratedLetter] =
 		useState<CoverLetterResponseData | null>(null);
 	const [resumeFile, setResumeFile] = useState<File | null>(null);
-	const [resumeText, setResumeText] = useState("");
 	const [isPreloaded, setIsPreloaded] = useState(false);
 	const [editMode, setEditMode] = useState(false);
 	const [editInstructions, setEditInstructions] = useState("");
 
 	// Resume selection states
 	const [selectedResumeId, setSelectedResumeId] = useState<string>("");
-	const [showResumeDropdown, setShowResumeDropdown] = useState(false);
 	const [resumeSelectionMode, setResumeSelectionMode] = useState<
-		"existing" | "upload"
-	>("existing");
+		"resumeId" | "file"
+	>("resumeId");
 
 	const { toast } = useToast();
 
@@ -63,32 +53,11 @@ export default function CoverLetterGenerator() {
 	});
 
 	// Queries
-	const { data: userResumes = [], isLoading: isLoadingResumes } =
-		useUserResumes();
-
-	// Mutations
 	const generateCoverLetterMutation = useGenerateCoverLetter();
 	const editCoverLetterMutation = useEditCoverLetter();
 
 	const isGenerating = generateCoverLetterMutation.isPending;
 	const isEditing = editCoverLetterMutation.isPending;
-
-	// Close dropdown when clicking outside
-	useEffect(() => {
-		const handleClickOutside = () => {
-			if (showResumeDropdown) {
-				setShowResumeDropdown(false);
-			}
-		};
-
-		if (showResumeDropdown) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [showResumeDropdown]);
 
 	// Simulate page load and check for pre-populated data
 	useEffect(() => {
@@ -100,17 +69,11 @@ export default function CoverLetterGenerator() {
 
 		if (storedResumeFile && storedAnalysisData) {
 			try {
-				const fileData = JSON.parse(storedResumeFile);
 				const analysisData = JSON.parse(storedAnalysisData);
 
-				// Set pre-loaded file info
-				setResumeText(
-					`${fileData.name} (${(fileData.size / 1024).toFixed(
-						1,
-					)} KB) - Pre-loaded from analysis`,
-				);
+				// Mark as pre-loaded (file was uploaded in a prior session)
 				setIsPreloaded(true);
-				setResumeSelectionMode("upload"); // Switch to upload mode if preloaded
+				setResumeSelectionMode("file"); // Switch to upload mode if preloaded
 
 				// Pre-populate form fields from analysis data
 				setFormData((prev) => ({
@@ -143,31 +106,8 @@ export default function CoverLetterGenerator() {
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
-	const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const file = event.target.files?.[0];
-		if (file) {
-			setResumeFile(file);
-			setIsPreloaded(false);
-			const fileExtension = file.name.toLowerCase().split(".").pop();
-			if (fileExtension === "txt" || fileExtension === "md") {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					const text = e.target?.result as string;
-					setResumeText(text.substring(0, 500) + "...");
-				};
-				reader.readAsText(file);
-			} else {
-				setResumeText(
-					`${file.name} (${(file.size / 1024).toFixed(
-						1,
-					)} KB) - ${fileExtension?.toUpperCase()} file selected`,
-				);
-			}
-		}
-	};
-
 	const generateCoverLetter = () => {
-		if (resumeSelectionMode === "existing") {
+		if (resumeSelectionMode === "resumeId") {
 			if (!selectedResumeId) {
 				toast({
 					title: "Resume Required",
@@ -176,7 +116,7 @@ export default function CoverLetterGenerator() {
 				});
 				return;
 			}
-		} else if (resumeSelectionMode === "upload") {
+		} else if (resumeSelectionMode === "file") {
 			if (!resumeFile && !isPreloaded) {
 				toast({
 					title: "Resume Required",
@@ -208,9 +148,9 @@ export default function CoverLetterGenerator() {
 
 		const formDataToSend = new FormData();
 
-		if (resumeSelectionMode === "existing") {
+		if (resumeSelectionMode === "resumeId") {
 			formDataToSend.append("resumeId", selectedResumeId);
-		} else if (resumeSelectionMode === "upload") {
+		} else if (resumeSelectionMode === "file") {
 			formDataToSend.append("file", resumeFile!);
 		}
 
@@ -311,7 +251,7 @@ export default function CoverLetterGenerator() {
 		const formDataToSend = new FormData();
 
 		// Add resume data
-		if (resumeSelectionMode === "existing" && selectedResumeId) {
+		if (resumeSelectionMode === "resumeId" && selectedResumeId) {
 			formDataToSend.append("resumeId", selectedResumeId);
 		} else if (resumeFile) {
 			formDataToSend.append("file", resumeFile);
@@ -457,297 +397,22 @@ export default function CoverLetterGenerator() {
 											</p>
 										</CardHeader>
 										<CardContent className="space-y-6">
-											{/* Resume Selection - inline since we only need existing + upload */}
-											<div className="space-y-3">
-												{/* Resume Selection Mode Toggle */}
-												<div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
-													<button
-														onClick={() => setResumeSelectionMode("existing")}
-														className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-															resumeSelectionMode === "existing"
-																? "bg-brand-primary text-white shadow-lg"
-																: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-														}`}
-													>
-														Use Existing Resume
-													</button>
-													<button
-														onClick={() => setResumeSelectionMode("upload")}
-														className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-															resumeSelectionMode === "upload"
-																? "bg-brand-primary text-white shadow-lg"
-																: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-														}`}
-													>
-														Upload New Resume
-													</button>
-												</div>
-
-												{/* Existing Resume Selection */}
-												{resumeSelectionMode === "existing" ? (
-													<div>
-														<Label className="text-brand-light text-sm font-medium flex items-center">
-															<FileText className="h-4 w-4 mr-2 text-brand-primary" />
-															Select Resume *
-														</Label>
-														<div className="relative">
-															<button
-																onClick={() =>
-																	setShowResumeDropdown(!showResumeDropdown)
-																}
-																className="relative flex items-center justify-between w-full h-12 px-4 border border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-300 cursor-pointer group"
-															>
-																<div className="flex items-center space-x-3">
-																	<FileText className="h-4 w-4 text-brand-primary" />
-																	<div className="text-left">
-																		{selectedResumeId ? (
-																			<div>
-																				<p className="text-brand-light text-sm font-medium">
-																					{
-																						userResumes.find(
-																							(r) =>
-																								r.id === selectedResumeId,
-																						)?.customName
-																					}
-																				</p>
-																				<p className="text-brand-light/60 text-xs">
-																					{userResumes.find(
-																						(r) =>
-																							r.id === selectedResumeId,
-																					)?.predictedField ||
-																						"Resume Selected"}
-																				</p>
-																			</div>
-																		) : (
-																			<p className="text-brand-light/50 text-sm">
-																				{isLoadingResumes
-																					? "Loading resumes..."
-																					: "Choose a resume"}
-																			</p>
-																		)}
-																	</div>
-																</div>
-																<ChevronDown
-																	className={`h-4 w-4 text-brand-light/60 transition-transform duration-200 ${
-																		showResumeDropdown ? "rotate-180" : ""
-																	}`}
-																/>
-															</button>
-
-															<AnimatePresence>
-																{showResumeDropdown && (
-																	<motion.div
-																		initial={{
-																			opacity: 0,
-																			y: -10,
-																			scale: 0.95,
-																		}}
-																		animate={{ opacity: 1, y: 0, scale: 1 }}
-																		exit={{
-																			opacity: 0,
-																			y: -10,
-																			scale: 0.95,
-																		}}
-																		transition={{ duration: 0.2 }}
-																		className="absolute top-full mt-2 w-full bg-surface border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden"
-																	>
-																		{isLoadingResumes ? (
-																			<div className="p-4 text-center">
-																				<Loader
-																					variant="spinner"
-																					size="sm"
-																					className="text-brand-primary"
-																				/>
-																			</div>
-																		) : userResumes.length > 0 ? (
-																			<div className="max-h-64 overflow-y-auto">
-																				{userResumes.map((resume) => (
-																					<button
-																						key={resume.id}
-																						onClick={() => {
-																							setSelectedResumeId(resume.id);
-																							setShowResumeDropdown(false);
-																							if (
-																								resume.candidateName &&
-																								!formData.sender_name
-																							) {
-																								setFormData((prev) => ({
-																									...prev,
-																									sender_name:
-																										resume.candidateName ||
-																										"",
-																								}));
-																							}
-																							if (
-																								resume.predictedField &&
-																								!formData.sender_role_or_goal
-																							) {
-																								setFormData((prev) => ({
-																									...prev,
-																									sender_role_or_goal:
-																										resume.predictedField ||
-																										"",
-																								}));
-																							}
-																						}}
-																						className="w-full p-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
-																					>
-																						<div className="flex items-center space-x-3">
-																							<FileText className="h-4 w-4 text-brand-primary flex-shrink-0" />
-																							<div className="flex-1 min-w-0">
-																								<p className="text-brand-light text-sm font-medium truncate">
-																									{resume.customName}
-																								</p>
-																								<div className="flex items-center space-x-2 mt-1">
-																									{resume.candidateName && (
-																										<div className="flex items-center space-x-1">
-																											<User className="h-3 w-3 text-brand-light/40" />
-																											<span className="text-brand-light/60 text-xs">
-																												{
-																													resume.candidateName
-																												}
-																											</span>
-																										</div>
-																									)}
-																									{resume.predictedField && (
-																										<span className="px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-xs rounded-full">
-																											{
-																												resume.predictedField
-																											}
-																										</span>
-																									)}
-																								</div>
-																								<div className="flex items-center space-x-1 mt-1">
-																									<Calendar className="h-3 w-3 text-brand-light/40" />
-																									<span className="text-brand-light/40 text-xs">
-																										{new Date(
-																											resume.uploadDate,
-																										).toLocaleDateString()}
-																									</span>
-																								</div>
-																							</div>
-																						</div>
-																					</button>
-																				))}
-																			</div>
-																		) : (
-																			<div className="p-4 text-center">
-																				<FileText className="h-8 w-8 text-brand-light/30 mx-auto mb-2" />
-																				<p className="text-brand-light/60 text-sm">
-																					No resumes found
-																				</p>
-																				<p className="text-brand-light/40 text-xs mt-1">
-																					Upload a resume first in the
-																					analysis section
-																				</p>
-																			</div>
-																		)}
-																	</motion.div>
-																)}
-															</AnimatePresence>
-														</div>
-													</div>
-												) : (
-													<div>
-														<Label
-															htmlFor="cover-letter-resume"
-															className="text-brand-light text-sm font-medium flex items-center"
-														>
-															<FileText className="h-4 w-4 mr-2 text-brand-primary" />
-															Resume File *
-														</Label>
-														<div className="relative">
-															<Input
-																id="cover-letter-resume"
-																type="file"
-																accept=".pdf,.doc,.docx,.txt,.md"
-																onChange={handleFileUpload}
-																className="hidden"
-															/>
-															<motion.label
-																htmlFor="cover-letter-resume"
-																whileHover={{ scale: 1.01 }}
-																whileTap={{ scale: 0.99 }}
-																className="relative flex items-center justify-center w-full h-28 border-2 border-dashed border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-500 cursor-pointer group overflow-hidden"
-															>
-																<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/5 to-brand-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-																<div className="relative z-10 text-center">
-																	{resumeFile || isPreloaded ? (
-																		<motion.div
-																			initial={{ opacity: 0, scale: 0.8 }}
-																			animate={{ opacity: 1, scale: 1 }}
-																			className="flex flex-col items-center"
-																		>
-																			<div className="relative mb-2">
-																				<div className="absolute inset-0 bg-brand-primary/20 rounded-full blur-lg"></div>
-																				<CheckCircle className="relative h-6 w-6 text-brand-primary" />
-																			</div>
-																			<p className="text-brand-light text-sm font-medium mb-1 max-w-44 truncate">
-																				{resumeFile?.name ||
-																					"Pre-loaded Resume"}
-																			</p>
-																			<p className="text-brand-primary text-xs font-medium">
-																				{isPreloaded
-																					? "Pre-loaded from analysis"
-																					: "Ready for analysis"}
-																			</p>
-																		</motion.div>
-																	) : (
-																		<motion.div
-																			className="flex flex-col items-center"
-																			whileHover={{ y: -1 }}
-																			transition={{ duration: 0.2 }}
-																		>
-																			<div className="relative mb-2">
-																				<div className="absolute inset-0 bg-brand-primary/10 rounded-full blur-lg group-hover:bg-brand-primary/20 transition-colors duration-500"></div>
-																				<Upload className="relative h-6 w-6 text-brand-light/60 group-hover:text-brand-primary transition-colors duration-300" />
-																			</div>
-																			<p className="text-brand-light text-sm font-medium mb-1">
-																				Upload Resume
-																			</p>
-																			<div className="flex items-center space-x-2 text-xs text-brand-light/50 mt-2">
-																				<span className="px-2 py-1 bg-white/10 rounded-full">
-																					PDF
-																				</span>
-																				<span className="px-2 py-1 bg-white/10 rounded-full">
-																					DOC
-																				</span>
-																				<span className="px-2 py-1 bg-white/10 rounded-full">
-																					TXT
-																				</span>
-																				<span className="px-2 py-1 bg-white/10 rounded-full">
-																					MD
-																				</span>
-																			</div>
-																		</motion.div>
-																	)}
-																</div>
-															</motion.label>
-														</div>
-														{resumeText && (
-															<motion.div
-																initial={{ opacity: 0, height: 0 }}
-																animate={{ opacity: 1, height: "auto" }}
-																transition={{ duration: 0.3 }}
-																className="p-4 bg-gradient-to-r from-brand-primary/10 to-white/5 border border-brand-primary/20 rounded-xl backdrop-blur-sm mt-2"
-															>
-																<div className="flex items-start space-x-3">
-																	<FileText className="h-4 w-4 text-brand-primary mt-0.5 flex-shrink-0" />
-																	<div>
-																		<p className="text-brand-light/90 text-sm font-medium mb-1">
-																			File Preview:
-																		</p>
-																		<p className="text-brand-light/70 text-xs leading-relaxed">
-																			{resumeText}
-																		</p>
-																	</div>
-																</div>
-															</motion.div>
-														)}
-													</div>
-												)}
-											</div>
+											{/* Resume Selection */}
+											<ResumeSelector
+												resumeFile={resumeFile}
+												onSelect={(id) => {
+													setSelectedResumeId(id);
+													// The cover-letter page needs candidate name + predicted field
+													// but ResumeSelector doesn't expose the full resume object.
+													// We rely on the form fields already being pre-populated from
+													// the localStorage preload path, or the user fills them in.
+												}}
+												onFileUpload={(file) => {
+													setResumeFile(file);
+													setIsPreloaded(false);
+												}}
+												onModeChange={setResumeSelectionMode}
+											/>
 
 											<CoverLetterDetailsForm
 												formData={formData}
@@ -763,7 +428,7 @@ export default function CoverLetterGenerator() {
 													onClick={generateCoverLetter}
 													disabled={
 														isGenerating ||
-														(resumeSelectionMode === "existing"
+														(resumeSelectionMode === "resumeId"
 															? !selectedResumeId
 															: !resumeFile && !isPreloaded) ||
 														!formData.sender_name

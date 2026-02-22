@@ -14,6 +14,11 @@ import {
   ArrowRight,
   Minus,
   Plus,
+  BookOpen,
+  Shield,
+  Award,
+  Trophy,
+  GraduationCap,
 } from "lucide-react";
 import type { RegeneratedItem, RegenerateItemError } from "@/types/enrichment";
 
@@ -43,6 +48,36 @@ const itemTypeConfig = {
     label: "Skills",
     color: "text-amber-400",
     bgColor: "bg-amber-500/20",
+  },
+  publication: {
+    icon: BookOpen,
+    label: "Publication",
+    color: "text-purple-400",
+    bgColor: "bg-purple-500/20",
+  },
+  position: {
+    icon: Shield,
+    label: "Position",
+    color: "text-cyan-400",
+    bgColor: "bg-cyan-500/20",
+  },
+  certification: {
+    icon: Award,
+    label: "Certification",
+    color: "text-orange-400",
+    bgColor: "bg-orange-500/20",
+  },
+  achievement: {
+    icon: Trophy,
+    label: "Achievement",
+    color: "text-yellow-400",
+    bgColor: "bg-yellow-500/20",
+  },
+  education: {
+    icon: GraduationCap,
+    label: "Education",
+    color: "text-indigo-400",
+    bgColor: "bg-indigo-500/20",
   },
 };
 

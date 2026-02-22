@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { getLlmHeaders } from "@/lib/llm-headers";
 
+export const maxDuration = 1800;
+
 interface ATSEvaluationRequest {
   resume_text?: string;
   jd_text?: string;
@@ -174,6 +176,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           body: backendFormData,
           headers: { ...llmHeaders },
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         });
       } else if (resumeId) {
         // Scenario 2: Use existing resume from database - use v2 endpoint
@@ -259,7 +262,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           headers: { ...llmHeaders },
           body: backendFormData,
-          signal: AbortSignal.timeout(60000), // 60 second timeout for ATS evaluation
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         });
       } else {
         // This should not happen due to earlier validation, but handle it just in case

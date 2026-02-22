@@ -32,7 +32,7 @@ import {
 	Settings,
 	Sparkles,
 } from "lucide-react";
-import { renderMarkdown } from "@/lib/markdown-renderer";
+import MarkdownRenderer from "@/components/ui/markdown-renderer";
 import { useGenerateLinkedInPosts } from "@/hooks/queries";
 import { GeneratedPost } from "@/services/linkedin.service";
 
@@ -678,9 +678,7 @@ export default function LinkedInPostsGenerator() {
 																		CTA SUGGESTION
 																	</p>
 																	<div className="text-sm text-brand-light/90 italic">
-																		{renderMarkdown(
-																			processedPost.cta_suggestion,
-																		)}
+																		<MarkdownRenderer content={processedPost.cta_suggestion} className="text-sm" />
 																	</div>
 																</div>
 															)}

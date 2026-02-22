@@ -45,6 +45,7 @@ from app.routes.tailored_resume import (
 from app.routes.tailored_resume import (
     text_based_router as tailored_resume_text_based_router,
 )
+from app.routes.jd_editor import router as jd_editor_router
 from app.routes.tips import router as tips_router
 
 settings = get_settings()
@@ -192,6 +193,7 @@ app.include_router(ats_text_based_router, prefix="/api/v2", tags=["ATS Evaluatio
 app.include_router(
     tailored_resume_text_based_router, prefix="/api/v2", tags=["Tailored Resume"]
 )
+app.include_router(jd_editor_router, prefix="/api/v2", tags=["JD Resume Editor"])
 
 # Interview Routes (v1)
 app.include_router(interview_router, prefix="/api/v1", tags=["Digital Interviewer"])

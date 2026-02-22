@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { getLlmHeaders } from '@/lib/llm-headers';
 
+export const maxDuration = 1800;
+
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
@@ -59,6 +61,7 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       body: backendFormData,
       headers: { ...llmHeaders },
+      signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
     });
 
     if (!backendResponse.ok) {

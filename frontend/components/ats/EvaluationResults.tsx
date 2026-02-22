@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, CheckCircle, Lightbulb } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Target, CheckCircle, Lightbulb, Wand2 } from "lucide-react";
 
 interface EvaluationResultsProps {
 	evaluationResult: {
@@ -10,10 +11,16 @@ interface EvaluationResultsProps {
 		reasons_for_the_score: string[];
 		suggestions: string[];
 	} | null;
+	/** Called when the user clicks "Optimize Resume for this JD". Only rendered when a resume ID is available. */
+	onOptimize?: () => void;
+	/** Whether the optimize CTA should be shown (requires a saved resume, not an uploaded file) */
+	canOptimize?: boolean;
 }
 
 export default function EvaluationResults({
 	evaluationResult,
+	onOptimize,
+	canOptimize = false,
 }: EvaluationResultsProps) {
 	const getScoreColor = (score: number) => {
 		if (score >= 80) return "text-success";
@@ -139,6 +146,27 @@ export default function EvaluationResults({
 									))}
 								</div>
 							</div>
+						)}
+
+						{/* Optimize CTA */}
+						{canOptimize && onOptimize && (
+							<motion.div
+								initial={{ opacity: 0, y: 10 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ duration: 0.5, delay: 0.4 }}
+								className="pt-2 border-t border-white/10"
+							>
+								<Button
+									onClick={onOptimize}
+									className="w-full h-12 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
+								>
+									<Wand2 className="mr-2 h-4 w-4" />
+									Optimize Resume for this JD
+								</Button>
+								<p className="text-brand-light/50 text-xs text-center mt-2">
+									Rewrites your resume to maximize ATS match without fabricating experience
+								</p>
+							</motion.div>
 						)}
 					</div>
 				)}

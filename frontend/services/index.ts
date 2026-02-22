@@ -11,3 +11,4 @@ export * from "./recruiter.service";
 export * from "./tips.service";
 export * from "./improvement.service";
 export * from "./enrichment.service";
+export * from "./jd-editor.service";

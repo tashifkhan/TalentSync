@@ -1,18 +1,40 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useReducer, useCallback } from "react";
 import type {
   RegenerateWizardState,
   RegenerateWizardStep,
   SelectableItem,
   RegenerateItemInput,
-  RegeneratedItem,
-  RegenerateItemError,
 } from "@/types/enrichment";
 import {
   useRegenerateItems,
   useApplyRegeneratedItems,
 } from "@/hooks/queries/use-enrichment";
+import { extractErrorMessage } from "@/lib/error-utils";
+
+// ---------------------------------------------------------------------------
+// Action types
+// ---------------------------------------------------------------------------
+
+type RegenerateAction =
+  | { type: "OPEN"; resumeId: string; items: SelectableItem[] }
+  | { type: "TOGGLE_ITEM"; itemId: string }
+  | { type: "SELECT_ALL" }
+  | { type: "DESELECT_ALL" }
+  | { type: "PROCEED_TO_INSTRUCTION"; selectedItems: RegenerateItemInput[] }
+  | { type: "SET_INSTRUCTION"; instruction: string }
+  | { type: "START_GENERATING" }
+  | { type: "GENERATING_SUCCESS"; regeneratedItems: RegenerateWizardState["regeneratedItems"]; errors: RegenerateWizardState["errors"] }
+  | { type: "START_APPLYING" }
+  | { type: "APPLYING_SUCCESS" }
+  | { type: "SET_ERROR"; error: string }
+  | { type: "GO_BACK" }
+  | { type: "RESET" };
+
+// ---------------------------------------------------------------------------
+// Initial state
+// ---------------------------------------------------------------------------
 
 const initialState: RegenerateWizardState = {
   step: "idle",
@@ -24,6 +46,115 @@ const initialState: RegenerateWizardState = {
   errors: [],
   error: null,
 };
+
+// ---------------------------------------------------------------------------
+// Step ordering (used by GO_BACK)
+// ---------------------------------------------------------------------------
+
+const STEP_ORDER: RegenerateWizardStep[] = [
+  "idle",
+  "selecting",
+  "instructing",
+  "generating",
+  "previewing",
+  "applying",
+  "complete",
+];
+
+/** Map error state to the step the user was on before the error occurred */
+function prevStepForError(state: RegenerateWizardState): RegenerateWizardStep {
+  // Determine prior step based on what data is present
+  if (state.regeneratedItems.length > 0) return "previewing";
+  if (state.selectedItems.length > 0) return "instructing";
+  return "selecting";
+}
+
+// ---------------------------------------------------------------------------
+// Reducer
+// ---------------------------------------------------------------------------
+
+function regenerateReducer(
+  state: RegenerateWizardState,
+  action: RegenerateAction
+): RegenerateWizardState {
+  switch (action.type) {
+    case "OPEN":
+      return {
+        ...initialState,
+        step: "selecting",
+        resumeId: action.resumeId,
+        availableItems: action.items.map((item) => ({ ...item, selected: false })),
+      };
+
+    case "TOGGLE_ITEM":
+      return {
+        ...state,
+        availableItems: state.availableItems.map((item) =>
+          item.id === action.itemId ? { ...item, selected: !item.selected } : item
+        ),
+      };
+
+    case "SELECT_ALL":
+      return {
+        ...state,
+        availableItems: state.availableItems.map((item) => ({ ...item, selected: true })),
+      };
+
+    case "DESELECT_ALL":
+      return {
+        ...state,
+        availableItems: state.availableItems.map((item) => ({ ...item, selected: false })),
+      };
+
+    case "PROCEED_TO_INSTRUCTION":
+      return { ...state, step: "instructing", selectedItems: action.selectedItems };
+
+    case "SET_INSTRUCTION":
+      return { ...state, instruction: action.instruction };
+
+    case "START_GENERATING":
+      return { ...state, step: "generating", error: null };
+
+    case "GENERATING_SUCCESS":
+      return {
+        ...state,
+        step: "previewing",
+        regeneratedItems: action.regeneratedItems,
+        errors: action.errors,
+      };
+
+    case "START_APPLYING":
+      return { ...state, step: "applying", error: null };
+
+    case "APPLYING_SUCCESS":
+      return { ...state, step: "complete" };
+
+    case "SET_ERROR":
+      return { ...state, step: "error", error: action.error };
+
+    case "GO_BACK": {
+      if (state.step === "error") {
+        // Return to whichever step preceded the error
+        return { ...state, step: prevStepForError(state), error: null };
+      }
+      const currentIndex = STEP_ORDER.indexOf(state.step);
+      if (currentIndex <= 1) {
+        return { ...state, step: "idle" };
+      }
+      return { ...state, step: STEP_ORDER[currentIndex - 1], error: null };
+    }
+
+    case "RESET":
+      return initialState;
+
+    default:
+      return state;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Public interface
+// ---------------------------------------------------------------------------
 
 export interface UseRegenerateWizardReturn {
   state: RegenerateWizardState;
@@ -48,78 +179,51 @@ export interface UseRegenerateWizardReturn {
 /**
  * Wizard hook for the regeneration flow.
  * Manages state: idle -> selecting -> instructing -> generating -> previewing -> applying -> complete
+ * Uses useReducer for predictable, testable state transitions.
  */
 export function useRegenerateWizard(): UseRegenerateWizardReturn {
-  const [state, setState] = useState<RegenerateWizardState>(initialState);
+  const [state, dispatch] = useReducer(regenerateReducer, initialState);
 
   const regenerateItemsMutation = useRegenerateItems();
   const applyRegeneratedMutation = useApplyRegeneratedItems();
 
   const openWizard = useCallback((resumeId: string, items: SelectableItem[]) => {
-    setState({
-      ...initialState,
-      step: "selecting",
-      resumeId,
-      availableItems: items.map((item) => ({ ...item, selected: false })),
-    });
+    dispatch({ type: "OPEN", resumeId, items });
   }, []);
 
   const toggleItemSelection = useCallback((itemId: string) => {
-    setState((prev) => ({
-      ...prev,
-      availableItems: prev.availableItems.map((item) =>
-        item.id === itemId ? { ...item, selected: !item.selected } : item
-      ),
-    }));
+    dispatch({ type: "TOGGLE_ITEM", itemId });
   }, []);
 
   const selectAllItems = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      availableItems: prev.availableItems.map((item) => ({
-        ...item,
-        selected: true,
-      })),
-    }));
+    dispatch({ type: "SELECT_ALL" });
   }, []);
 
   const deselectAllItems = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      availableItems: prev.availableItems.map((item) => ({
-        ...item,
-        selected: false,
-      })),
-    }));
+    dispatch({ type: "DESELECT_ALL" });
   }, []);
 
   const proceedToInstruction = useCallback(() => {
-    setState((prev) => {
-      const selected = prev.availableItems.filter((item) => item.selected);
-      const selectedItems: RegenerateItemInput[] = selected.map((item) => ({
+    const selectedItems: RegenerateItemInput[] = state.availableItems
+      .filter((item) => item.selected)
+      .map((item) => ({
         item_id: item.id,
         item_type: item.type,
         title: item.title,
         subtitle: item.subtitle,
         current_content: item.content,
       }));
-
-      return {
-        ...prev,
-        step: "instructing",
-        selectedItems,
-      };
-    });
-  }, []);
+    dispatch({ type: "PROCEED_TO_INSTRUCTION", selectedItems });
+  }, [state.availableItems]);
 
   const setInstruction = useCallback((instruction: string) => {
-    setState((prev) => ({ ...prev, instruction }));
+    dispatch({ type: "SET_INSTRUCTION", instruction });
   }, []);
 
   const submitRegeneration = useCallback(async () => {
     if (!state.resumeId || state.selectedItems.length === 0) return;
 
-    setState((prev) => ({ ...prev, step: "generating", error: null }));
+    dispatch({ type: "START_GENERATING" });
 
     try {
       const result = await regenerateItemsMutation.mutateAsync({
@@ -128,25 +232,20 @@ export function useRegenerateWizard(): UseRegenerateWizardReturn {
         instruction: state.instruction,
       });
 
-      setState((prev) => ({
-        ...prev,
-        step: "previewing",
+      dispatch({
+        type: "GENERATING_SUCCESS",
         regeneratedItems: result.regenerated_items,
         errors: result.errors,
-      }));
+      });
     } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        step: "error",
-        error: error instanceof Error ? error.message : "Regeneration failed",
-      }));
+      dispatch({ type: "SET_ERROR", error: extractErrorMessage(error) });
     }
   }, [state.resumeId, state.selectedItems, state.instruction, regenerateItemsMutation]);
 
   const applyRegenerated = useCallback(async () => {
     if (!state.resumeId || state.regeneratedItems.length === 0) return;
 
-    setState((prev) => ({ ...prev, step: "applying", error: null }));
+    dispatch({ type: "START_APPLYING" });
 
     try {
       await applyRegeneratedMutation.mutateAsync({
@@ -154,44 +253,18 @@ export function useRegenerateWizard(): UseRegenerateWizardReturn {
         items: state.regeneratedItems,
       });
 
-      setState((prev) => ({
-        ...prev,
-        step: "complete",
-      }));
+      dispatch({ type: "APPLYING_SUCCESS" });
     } catch (error) {
-      setState((prev) => ({
-        ...prev,
-        step: "error",
-        error: error instanceof Error ? error.message : "Apply failed",
-      }));
+      dispatch({ type: "SET_ERROR", error: extractErrorMessage(error) });
     }
   }, [state.resumeId, state.regeneratedItems, applyRegeneratedMutation]);
 
   const goBack = useCallback(() => {
-    setState((prev) => {
-      const stepOrder: RegenerateWizardStep[] = [
-        "idle",
-        "selecting",
-        "instructing",
-        "generating",
-        "previewing",
-        "applying",
-        "complete",
-      ];
-      const currentIndex = stepOrder.indexOf(prev.step);
-
-      if (currentIndex <= 1) {
-        return { ...prev, step: "idle" };
-      }
-
-      // Go back one step
-      const prevStep = stepOrder[currentIndex - 1];
-      return { ...prev, step: prevStep, error: null };
-    });
+    dispatch({ type: "GO_BACK" });
   }, []);
 
   const reset = useCallback(() => {
-    setState(initialState);
+    dispatch({ type: "RESET" });
   }, []);
 
   const selectedCount = state.availableItems.filter((item) => item.selected).length;

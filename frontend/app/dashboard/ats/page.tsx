@@ -1,22 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Target, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/use-toast";
-import ResumeSelection from "@/components/ats/ResumeSelection";
+import { ResumeSelector } from "@/components/shared/resume-selector";
 import JobDescriptionForm from "@/components/ats/JobDescriptionForm";
 import EvaluationResults from "@/components/ats/EvaluationResults";
 import LoadingOverlay from "@/components/ats/LoadingOverlay";
 import PageLoader from "@/components/ats/PageLoader";
-import { useAtsUserResumes, useEvaluateResume } from "@/hooks/queries";
-import { ATSEvaluationResponse } from "@/services/ats.service";
+import { useEvaluateResume } from "@/hooks/queries";
 
 export default function ATSEvaluationPage() {
+	const router = useRouter();
 	const [isPageLoading, setIsPageLoading] = useState(true);
 	const [evaluationResult, setEvaluationResult] = useState<{
 		score: number;
@@ -25,15 +26,13 @@ export default function ATSEvaluationPage() {
 	} | null>(null);
 
 	const [resumeFile, setResumeFile] = useState<File | null>(null);
-	const [resumeText, setResumeText] = useState("");
 	const [jdFile, setJdFile] = useState<File | null>(null);
 
 	// Resume selection states
 	const [selectedResumeId, setSelectedResumeId] = useState<string>("");
-	const [showResumeDropdown, setShowResumeDropdown] = useState(false);
 	const [resumeSelectionMode, setResumeSelectionMode] = useState<
-		"existing" | "upload"
-	>("existing");
+		"resumeId" | "file"
+	>("resumeId");
 
 	const { toast } = useToast();
 
@@ -44,30 +43,9 @@ export default function ATSEvaluationPage() {
 		company_website: "",
 	});
 
-	// Queries
-	const { data: userResumes = [], isLoading: isLoadingResumes } =
-		useAtsUserResumes();
-
 	// Mutations
 	const evaluateResumeMutation = useEvaluateResume();
 	const isEvaluating = evaluateResumeMutation.isPending;
-
-	// Close dropdown when clicking outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (showResumeDropdown) {
-				setShowResumeDropdown(false);
-			}
-		};
-
-		if (showResumeDropdown) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [showResumeDropdown]);
 
 	// Initialize page
 	useEffect(() => {
@@ -81,7 +59,7 @@ export default function ATSEvaluationPage() {
 
 	const evaluateATS = () => {
 		// Validate resume source
-		if (resumeSelectionMode === "existing") {
+		if (resumeSelectionMode === "resumeId") {
 			if (!selectedResumeId) {
 				toast({
 					title: "Resume Required",
@@ -90,7 +68,7 @@ export default function ATSEvaluationPage() {
 				});
 				return;
 			}
-		} else if (resumeSelectionMode === "upload") {
+		} else if (resumeSelectionMode === "file") {
 			if (!resumeFile) {
 				toast({
 					title: "Resume Required",
@@ -115,9 +93,9 @@ export default function ATSEvaluationPage() {
 		const formDataToSend = new FormData();
 
 		// Add resume data based on selection mode
-		if (resumeSelectionMode === "existing") {
+		if (resumeSelectionMode === "resumeId") {
 			formDataToSend.append("resumeId", selectedResumeId);
-		} else if (resumeSelectionMode === "upload") {
+		} else if (resumeSelectionMode === "file") {
 			formDataToSend.append("file", resumeFile!);
 		}
 
@@ -159,6 +137,14 @@ export default function ATSEvaluationPage() {
 		});
 	};
 
+	const handleOptimize = useCallback(() => {
+		if (!selectedResumeId) return;
+		const params = new URLSearchParams({ tab: "improve-by-jd" });
+		if (formData.jd_text) params.set("jd", formData.jd_text);
+		if (formData.jd_link) params.set("jdUrl", formData.jd_link);
+		if (formData.company_name) params.set("company", formData.company_name);
+		router.push(`/dashboard/analysis/${selectedResumeId}?${params.toString()}`);
+	}, [selectedResumeId, formData, router]);
 	return (
 		<>
 			<PageLoader isPageLoading={isPageLoading} />
@@ -226,19 +212,11 @@ export default function ATSEvaluationPage() {
 											</p>
 										</CardHeader>
 										<CardContent className="space-y-6">
-											<ResumeSelection
-												resumeSelectionMode={resumeSelectionMode}
-												setResumeSelectionMode={setResumeSelectionMode}
-												userResumes={userResumes}
-												selectedResumeId={selectedResumeId}
-												setSelectedResumeId={setSelectedResumeId}
-												isLoadingResumes={isLoadingResumes}
-												showResumeDropdown={showResumeDropdown}
-												setShowResumeDropdown={setShowResumeDropdown}
+											<ResumeSelector
 												resumeFile={resumeFile}
-												setResumeFile={setResumeFile}
-												resumeText={resumeText}
-												setResumeText={setResumeText}
+												onSelect={setSelectedResumeId}
+												onFileUpload={(file) => setResumeFile(file)}
+												onModeChange={setResumeSelectionMode}
 											/>
 								<JobDescriptionForm
 									formData={formData}
@@ -253,13 +231,13 @@ export default function ATSEvaluationPage() {
 											>
 												<Button
 													onClick={evaluateATS}
-											disabled={
-												isEvaluating ||
-												(resumeSelectionMode === "existing"
-													? !selectedResumeId
-													: !resumeFile) ||
-												(!formData.jd_text && !formData.jd_link && !jdFile)
-											}
+										disabled={
+											isEvaluating ||
+											(resumeSelectionMode === "resumeId"
+												? !selectedResumeId
+												: !resumeFile) ||
+											(!formData.jd_text && !formData.jd_link && !jdFile)
+										}
 													className="relative w-full h-14 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 												>
 													<div className="relative z-10 flex items-center justify-center">
@@ -294,7 +272,11 @@ export default function ATSEvaluationPage() {
 									transition={{ duration: 0.8, delay: 0.6 }}
 									className="order-2"
 								>
-									<EvaluationResults evaluationResult={evaluationResult} />
+									<EvaluationResults
+										evaluationResult={evaluationResult}
+										canOptimize={!!selectedResumeId && resumeSelectionMode === "resumeId" && !!evaluationResult}
+										onOptimize={handleOptimize}
+									/>
 								</motion.div>
 							</div>
 						</div>

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth-options";
 import { prisma } from "@/lib/prisma";
 import { getLlmHeaders } from "@/lib/llm-headers";
 
+export const maxDuration = 1800;
+
 interface ColdMailRequest {
   resume_text?: string;
   recipient_name: string;
@@ -186,6 +188,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           body: backendFormData,
           headers: { ...llmHeaders },
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         });
       } else if (resumeId) {
         // Scenario 2: Use existing resume from database - use v2 endpoint
@@ -256,7 +259,7 @@ export async function POST(request: NextRequest) {
           method: 'POST',
           body: backendFormData,
           // Add timeout and other fetch options
-          signal: AbortSignal.timeout(30000), // 30 second timeout
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
           headers: { ...llmHeaders },
         });
       } else {

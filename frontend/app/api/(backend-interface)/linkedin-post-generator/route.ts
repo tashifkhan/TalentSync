@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
 import { getLlmHeaders } from "@/lib/llm-headers";
 
+export const maxDuration = 1800;
+
 /**
  * LinkedIn Post Generator Bridge API
  * 
@@ -119,7 +121,7 @@ export async function POST(request: NextRequest) {
 				method: "POST",
 				headers: { "Content-Type": "application/json", ...llmHeaders },
 				body: JSON.stringify(backendBody),
-				signal: AbortSignal.timeout(300000), // 5 minutes timeout
+				signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
 			});
 		} catch (err) {
 			const message = err instanceof Error && err.name === 'AbortError'

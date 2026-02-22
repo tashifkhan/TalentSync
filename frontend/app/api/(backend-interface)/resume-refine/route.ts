@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getLlmHeaders } from "@/lib/llm-headers";
 import type { ResumeRefineResponse } from "@/types/improvement";
 
+export const maxDuration = 1800;
+
 interface RefineRequestBody {
   resumeId: string;
   tailoredResume: Record<string, unknown>;
@@ -130,7 +132,7 @@ export async function POST(request: NextRequest) {
           ...llmHeaders,
         },
         body: JSON.stringify(backendPayload),
-        signal: AbortSignal.timeout(120000), // 2 minute timeout
+        signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
       }
     );
 
