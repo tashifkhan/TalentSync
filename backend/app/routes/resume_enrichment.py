@@ -11,6 +11,7 @@ from app.models.enrichment.schemas import (
     ApplyRegeneratedRequest,
     EnhanceRequest,
     EnhancementPreview,
+    RefineEnhancementsRequest,
     RegenerateRequest,
     RegenerateResponse,
 )
@@ -19,6 +20,7 @@ from app.services.enrichment import (
     apply_enhancements_to_resume,
     apply_regenerated_items,
     generate_enhancements_preview,
+    refine_enhancements,
     regenerate_items,
 )
 
@@ -47,6 +49,22 @@ async def generate_enhancements(
     llm: BaseChatModel = Depends(get_request_llm),
 ) -> EnhancementPreview:
     return await generate_enhancements_preview(
+        resume_data=request.resume_data.model_dump(),
+        request=request,
+        llm=llm,
+    )
+
+
+@router.post(
+    "/resume/enrichment/refine",
+    response_model=EnhancementPreview,
+    summary="Refine rejected enhancements using user feedback.",
+)
+async def refine_rejected_enhancements(
+    request: RefineEnhancementsRequest,
+    llm: BaseChatModel = Depends(get_request_llm),
+) -> EnhancementPreview:
+    return await refine_enhancements(
         resume_data=request.resume_data.model_dump(),
         request=request,
         llm=llm,

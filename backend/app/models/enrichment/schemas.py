@@ -78,7 +78,16 @@ class ApplyEnhancementsRequest(BaseModel):
     enhancements: list[EnhancedDescription]
 
 
-RegenerateItemType = Literal["experience", "project", "skills"]
+RegenerateItemType = Literal[
+    "experience",
+    "project",
+    "skills",
+    "publication",
+    "position",
+    "certification",
+    "achievement",
+    "education",
+]
 
 
 class RegenerateItemInput(BaseModel):
@@ -133,3 +142,22 @@ class ApplyRegeneratedRequest(BaseModel):
 
     resume_data: ComprehensiveAnalysisData
     items: list[RegeneratedItem]
+
+
+class RefinementInput(BaseModel):
+    """A single rejected enhancement that the user wants refined."""
+
+    item_id: str
+    item_type: str
+    title: str
+    subtitle: str | None = None
+    original_description: list[str] = Field(default_factory=list)
+    rejected_enhancement: list[str] = Field(default_factory=list)
+    user_feedback: str = Field(max_length=2000)
+
+
+class RefineEnhancementsRequest(BaseModel):
+    """Request to refine rejected enhancements with user feedback."""
+
+    resume_data: ComprehensiveAnalysisData
+    refinements: list[RefinementInput]

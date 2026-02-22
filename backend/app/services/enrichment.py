@@ -8,6 +8,7 @@ import re
 from app.data.prompt.enrichment import (
     ANALYZE_RESUME_PROMPT,
     ENHANCE_DESCRIPTION_PROMPT,
+    REFINE_ENHANCEMENT_PROMPT,
     REGENERATE_ITEM_PROMPT,
     REGENERATE_SKILLS_PROMPT,
 )
@@ -20,6 +21,8 @@ from app.models.enrichment.schemas import (
     EnhancementPreview,
     EnrichmentItem,
     EnrichmentQuestion,
+    RefineEnhancementsRequest,
+    RefinementInput,
     RegenerateItemError,
     RegenerateItemInput,
     RegenerateRequest,
@@ -31,6 +34,11 @@ from app.services.llm_helpers import llm_complete_json_async
 
 _WORK_ITEM_PATTERN = re.compile(r"^experience-(\d+)$")
 _PROJECT_ITEM_PATTERN = re.compile(r"^project-(\d+)$")
+_PUBLICATION_ITEM_PATTERN = re.compile(r"^publication-(\d+)$")
+_POSITION_ITEM_PATTERN = re.compile(r"^position-(\d+)$")
+_CERTIFICATION_ITEM_PATTERN = re.compile(r"^certification-(\d+)$")
+_ACHIEVEMENT_ITEM_PATTERN = re.compile(r"^achievement-(\d+)$")
+_EDUCATION_ITEM_PATTERN = re.compile(r"^education-(\d+)$")
 
 
 def _extract_bullets(value: object) -> list[str]:
@@ -85,6 +93,103 @@ def _build_enrichment_payload(resume_data: dict) -> dict:
                 }
             )
 
+    publication_entries = resume_data.get("publications", [])
+    if isinstance(publication_entries, list):
+        for index, entry in enumerate(publication_entries):
+            if not isinstance(entry, dict):
+                continue
+            subtitle_parts = []
+            if entry.get("journal_conference"):
+                subtitle_parts.append(entry["journal_conference"])
+            if entry.get("year"):
+                subtitle_parts.append(entry["year"])
+            items_to_enrich.append(
+                {
+                    "item_id": f"publication-{index}",
+                    "item_type": "publication",
+                    "title": entry.get("title", ""),
+                    "subtitle": ", ".join(subtitle_parts) if subtitle_parts else None,
+                    "current_description": _extract_bullets(entry.get("authors")),
+                }
+            )
+
+    position_entries = resume_data.get("positions_of_responsibility", [])
+    if isinstance(position_entries, list):
+        for index, entry in enumerate(position_entries):
+            if not isinstance(entry, dict):
+                continue
+            subtitle_parts = []
+            if entry.get("organization"):
+                subtitle_parts.append(entry["organization"])
+            if entry.get("duration"):
+                subtitle_parts.append(entry["duration"])
+            items_to_enrich.append(
+                {
+                    "item_id": f"position-{index}",
+                    "item_type": "position",
+                    "title": entry.get("title", ""),
+                    "subtitle": ", ".join(subtitle_parts) if subtitle_parts else None,
+                    "current_description": _extract_bullets(entry.get("description")),
+                }
+            )
+
+    certification_entries = resume_data.get("certifications", [])
+    if isinstance(certification_entries, list):
+        for index, entry in enumerate(certification_entries):
+            if not isinstance(entry, dict):
+                continue
+            subtitle_parts = []
+            if entry.get("issuing_organization"):
+                subtitle_parts.append(entry["issuing_organization"])
+            if entry.get("issue_date"):
+                subtitle_parts.append(entry["issue_date"])
+            items_to_enrich.append(
+                {
+                    "item_id": f"certification-{index}",
+                    "item_type": "certification",
+                    "title": entry.get("name", ""),
+                    "subtitle": ", ".join(subtitle_parts) if subtitle_parts else None,
+                    "current_description": _extract_bullets(entry.get("credential_id")),
+                }
+            )
+
+    achievement_entries = resume_data.get("achievements", [])
+    if isinstance(achievement_entries, list):
+        for index, entry in enumerate(achievement_entries):
+            if not isinstance(entry, dict):
+                continue
+            subtitle_parts = []
+            if entry.get("year"):
+                subtitle_parts.append(entry["year"])
+            if entry.get("category"):
+                subtitle_parts.append(entry["category"])
+            items_to_enrich.append(
+                {
+                    "item_id": f"achievement-{index}",
+                    "item_type": "achievement",
+                    "title": entry.get("title", ""),
+                    "subtitle": ", ".join(subtitle_parts) if subtitle_parts else None,
+                    "current_description": _extract_bullets(entry.get("description")),
+                }
+            )
+
+    education_entries = resume_data.get("education", [])
+    if isinstance(education_entries, list):
+        for index, entry in enumerate(education_entries):
+            if not isinstance(entry, dict):
+                continue
+            items_to_enrich.append(
+                {
+                    "item_id": f"education-{index}",
+                    "item_type": "education",
+                    "title": entry.get("education_detail", ""),
+                    "subtitle": None,
+                    "current_description": _extract_bullets(
+                        entry.get("education_detail")
+                    ),
+                }
+            )
+
     return {
         "summary": _normalize_summary(resume_data.get("summary")),
         "items_to_enrich": items_to_enrich,
@@ -98,6 +203,21 @@ def _map_enrichment_item_id(item_id: str) -> tuple[str, int | None]:
     project_match = _PROJECT_ITEM_PATTERN.match(item_id)
     if project_match:
         return "project", int(project_match.group(1))
+    publication_match = _PUBLICATION_ITEM_PATTERN.match(item_id)
+    if publication_match:
+        return "publication", int(publication_match.group(1))
+    position_match = _POSITION_ITEM_PATTERN.match(item_id)
+    if position_match:
+        return "position", int(position_match.group(1))
+    certification_match = _CERTIFICATION_ITEM_PATTERN.match(item_id)
+    if certification_match:
+        return "certification", int(certification_match.group(1))
+    achievement_match = _ACHIEVEMENT_ITEM_PATTERN.match(item_id)
+    if achievement_match:
+        return "achievement", int(achievement_match.group(1))
+    education_match = _EDUCATION_ITEM_PATTERN.match(item_id)
+    if education_match:
+        return "education", int(education_match.group(1))
     return "", None
 
 
@@ -171,8 +291,11 @@ async def generate_enhancements_preview(
     )
 
     question_to_item: dict[str, str] = {}
+    question_details: dict[str, dict] = {}
     for q in analysis_result.get("questions", []):
-        question_to_item[q.get("question_id", "")] = q.get("item_id", "")
+        qid = q.get("question_id", "")
+        question_to_item[qid] = q.get("item_id", "")
+        question_details[qid] = q
 
     item_details: dict[str, dict] = {}
     for item in analysis_result.get("items_to_enrich", []):
@@ -184,6 +307,9 @@ async def generate_enhancements_preview(
         item_id = question_to_item.get(answer.question_id, "")
         if item_id:
             answers_by_item.setdefault(item_id, []).append(answer)
+
+    # Build full resume context string (condensed for the LLM)
+    resume_context = json.dumps(resume_data, indent=1, ensure_ascii=False)
 
     enhancements: list[EnhancedDescription] = []
 
@@ -198,7 +324,9 @@ async def generate_enhancements_preview(
             if q.get("item_id") == item_id
         ]
 
+        # Build Q&A text with full question context
         answers_text = ""
+        questions_context_text = ""
         for answer in answers:
             matching_q = next(
                 (
@@ -211,6 +339,12 @@ async def generate_enhancements_preview(
             if matching_q:
                 answers_text += f"Q: {matching_q.get('question', '')}\n"
                 answers_text += f"A: {answer.answer}\n\n"
+                questions_context_text += (
+                    f"- Question: {matching_q.get('question', '')}\n"
+                    f"  Why this was asked: To address the weakness -- "
+                    f"{item.get('weakness_reason', 'improve description quality')}\n"
+                    f"  Candidate's answer: {answer.answer}\n\n"
+                )
             else:
                 answers_text += f"Additional info: {answer.answer}\n\n"
 
@@ -227,6 +361,9 @@ async def generate_enhancements_preview(
             subtitle=item.get("subtitle", ""),
             current_description=current_desc_text,
             answers=answers_text.strip(),
+            resume_context=resume_context,
+            questions_context=questions_context_text.strip()
+            or "(No specific question context)",
             output_language=output_language,
         )
 
@@ -247,6 +384,64 @@ async def generate_enhancements_preview(
             )
         except Exception as error:
             logger.warning("Failed to enhance item %s: %s", item_id, error)
+
+    return EnhancementPreview(enhancements=enhancements)
+
+
+async def refine_enhancements(
+    resume_data: dict,
+    request: RefineEnhancementsRequest,
+    *,
+    llm,
+    language: str = "en",
+) -> EnhancementPreview:
+    """Re-generate rejected enhancements using user feedback."""
+    output_language = get_language_name(language)
+    resume_context = json.dumps(resume_data, indent=1, ensure_ascii=False)
+
+    enhancements: list[EnhancedDescription] = []
+
+    for refinement in request.refinements:
+        current_desc_text = (
+            "\n".join(f"- {d}" for d in refinement.original_description)
+            if refinement.original_description
+            else "(No description)"
+        )
+
+        rejected_bullets_text = (
+            "\n".join(f"- {b}" for b in refinement.rejected_enhancement)
+            if refinement.rejected_enhancement
+            else "(No rejected bullets)"
+        )
+
+        prompt = REFINE_ENHANCEMENT_PROMPT.format(
+            item_type=refinement.item_type,
+            title=refinement.title,
+            subtitle=refinement.subtitle or "",
+            current_description=current_desc_text,
+            rejected_bullets=rejected_bullets_text,
+            user_feedback=refinement.user_feedback,
+            resume_context=resume_context,
+            output_language=output_language,
+        )
+
+        try:
+            result = await llm_complete_json_async(llm=llm, prompt=prompt)
+            additional_bullets = result.get("additional_bullets", [])
+            if not additional_bullets:
+                additional_bullets = result.get("enhanced_description", [])
+
+            enhancements.append(
+                EnhancedDescription(
+                    item_id=refinement.item_id,
+                    item_type=refinement.item_type,
+                    title=refinement.title,
+                    original_description=refinement.original_description,
+                    enhanced_description=additional_bullets,
+                )
+            )
+        except Exception as error:
+            logger.warning("Failed to refine item %s: %s", refinement.item_id, error)
 
     return EnhancementPreview(enhancements=enhancements)
 
@@ -305,6 +500,87 @@ def apply_enhancements_to_resume(
                     )
             else:
                 logger.warning("Could not apply project enhancement %s", item_id)
+
+        elif item_type == "publication":
+            _, index = _map_enrichment_item_id(item_id)
+            if index is None:
+                logger.warning("Could not parse publication item id %s", item_id)
+                continue
+            if "publications" in updated_data and index < len(
+                updated_data["publications"]
+            ):
+                entry = updated_data["publications"][index]
+                existing = entry.get("authors", "") or ""
+                new_text = "; ".join(additional_bullets)
+                entry["authors"] = f"{existing}; {new_text}" if existing else new_text
+            else:
+                logger.warning("Could not apply publication enhancement %s", item_id)
+
+        elif item_type == "position":
+            _, index = _map_enrichment_item_id(item_id)
+            if index is None:
+                logger.warning("Could not parse position item id %s", item_id)
+                continue
+            if "positions_of_responsibility" in updated_data and index < len(
+                updated_data["positions_of_responsibility"]
+            ):
+                entry = updated_data["positions_of_responsibility"][index]
+                existing = entry.get("description", "") or ""
+                new_text = " ".join(additional_bullets)
+                entry["description"] = (
+                    f"{existing} {new_text}".strip() if existing else new_text
+                )
+            else:
+                logger.warning("Could not apply position enhancement %s", item_id)
+
+        elif item_type == "certification":
+            _, index = _map_enrichment_item_id(item_id)
+            if index is None:
+                logger.warning("Could not parse certification item id %s", item_id)
+                continue
+            if "certifications" in updated_data and index < len(
+                updated_data["certifications"]
+            ):
+                entry = updated_data["certifications"][index]
+                existing = entry.get("credential_id", "") or ""
+                new_text = "; ".join(additional_bullets)
+                entry["credential_id"] = (
+                    f"{existing}; {new_text}" if existing else new_text
+                )
+            else:
+                logger.warning("Could not apply certification enhancement %s", item_id)
+
+        elif item_type == "achievement":
+            _, index = _map_enrichment_item_id(item_id)
+            if index is None:
+                logger.warning("Could not parse achievement item id %s", item_id)
+                continue
+            if "achievements" in updated_data and index < len(
+                updated_data["achievements"]
+            ):
+                entry = updated_data["achievements"][index]
+                existing = entry.get("description", "") or ""
+                new_text = " ".join(additional_bullets)
+                entry["description"] = (
+                    f"{existing} {new_text}".strip() if existing else new_text
+                )
+            else:
+                logger.warning("Could not apply achievement enhancement %s", item_id)
+
+        elif item_type == "education":
+            _, index = _map_enrichment_item_id(item_id)
+            if index is None:
+                logger.warning("Could not parse education item id %s", item_id)
+                continue
+            if "education" in updated_data and index < len(updated_data["education"]):
+                entry = updated_data["education"][index]
+                existing = entry.get("education_detail", "") or ""
+                new_text = " ".join(additional_bullets)
+                entry["education_detail"] = (
+                    f"{existing} {new_text}".strip() if existing else new_text
+                )
+            else:
+                logger.warning("Could not apply education enhancement %s", item_id)
 
     return updated_data
 
@@ -581,6 +857,203 @@ async def apply_regenerated_items(
                 }
                 for index, skill in enumerate(new_content)
             ]
+
+        elif item_type == "publication":
+            publications = updated_data.get("publications", [])
+            if not isinstance(publications, list):
+                apply_failures.append(item_id)
+                continue
+
+            index = _parse_index(item_id, r"publication-(\d+)")
+            if index is None:
+                apply_failures.append(item_id)
+                continue
+
+            resolved_index = None
+            if 0 <= index < len(publications):
+                entry = (
+                    publications[index] if isinstance(publications[index], dict) else {}
+                )
+                entry_title = _normalize_match_value(str(entry.get("title", "")))
+                if entry_title == _normalize_match_value(item.title):
+                    resolved_index = index
+
+            if resolved_index is None:
+                resolved_index = _find_unique_index_by_metadata(
+                    publications,
+                    title_key="title",
+                    subtitle_key="journal_conference",
+                    expected_title=item.title,
+                    expected_subtitle=item.subtitle,
+                    expected_original_content=item.original_content,
+                    content_key="authors",
+                )
+
+            if resolved_index is None:
+                apply_failures.append(item_id)
+                continue
+
+            entry = publications[resolved_index]
+            if isinstance(entry, dict):
+                new_text = " ".join(new_content).strip()
+                entry["authors"] = new_text if new_text else entry.get("authors", "")
+            else:
+                apply_failures.append(item_id)
+
+        elif item_type == "position":
+            positions = updated_data.get("positions_of_responsibility", [])
+            if not isinstance(positions, list):
+                apply_failures.append(item_id)
+                continue
+
+            index = _parse_index(item_id, r"position-(\d+)")
+            if index is None:
+                apply_failures.append(item_id)
+                continue
+
+            resolved_index = None
+            if 0 <= index < len(positions):
+                entry = positions[index] if isinstance(positions[index], dict) else {}
+                entry_title = _normalize_match_value(str(entry.get("title", "")))
+                if entry_title == _normalize_match_value(item.title):
+                    resolved_index = index
+
+            if resolved_index is None:
+                resolved_index = _find_unique_index_by_metadata(
+                    positions,
+                    title_key="title",
+                    subtitle_key="organization",
+                    expected_title=item.title,
+                    expected_subtitle=item.subtitle,
+                    expected_original_content=item.original_content,
+                    content_key="description",
+                )
+
+            if resolved_index is None:
+                apply_failures.append(item_id)
+                continue
+
+            entry = positions[resolved_index]
+            if isinstance(entry, dict):
+                new_text = " ".join(new_content).strip()
+                entry["description"] = (
+                    new_text if new_text else entry.get("description", "")
+                )
+            else:
+                apply_failures.append(item_id)
+
+        elif item_type == "certification":
+            certifications = updated_data.get("certifications", [])
+            if not isinstance(certifications, list):
+                apply_failures.append(item_id)
+                continue
+
+            index = _parse_index(item_id, r"certification-(\d+)")
+            if index is None:
+                apply_failures.append(item_id)
+                continue
+
+            resolved_index = None
+            if 0 <= index < len(certifications):
+                entry = (
+                    certifications[index]
+                    if isinstance(certifications[index], dict)
+                    else {}
+                )
+                entry_name = _normalize_match_value(str(entry.get("name", "")))
+                if entry_name == _normalize_match_value(item.title):
+                    resolved_index = index
+
+            if resolved_index is None:
+                resolved_index = _find_unique_index_by_metadata(
+                    certifications,
+                    title_key="name",
+                    subtitle_key="issuing_organization",
+                    expected_title=item.title,
+                    expected_subtitle=item.subtitle,
+                    expected_original_content=item.original_content,
+                    content_key="credential_id",
+                )
+
+            if resolved_index is None:
+                apply_failures.append(item_id)
+                continue
+
+            entry = certifications[resolved_index]
+            if isinstance(entry, dict):
+                new_text = " ".join(new_content).strip()
+                entry["credential_id"] = (
+                    new_text if new_text else entry.get("credential_id", "")
+                )
+            else:
+                apply_failures.append(item_id)
+
+        elif item_type == "achievement":
+            achievements = updated_data.get("achievements", [])
+            if not isinstance(achievements, list):
+                apply_failures.append(item_id)
+                continue
+
+            index = _parse_index(item_id, r"achievement-(\d+)")
+            if index is None:
+                apply_failures.append(item_id)
+                continue
+
+            resolved_index = None
+            if 0 <= index < len(achievements):
+                entry = (
+                    achievements[index] if isinstance(achievements[index], dict) else {}
+                )
+                entry_title = _normalize_match_value(str(entry.get("title", "")))
+                if entry_title == _normalize_match_value(item.title):
+                    resolved_index = index
+
+            if resolved_index is None:
+                resolved_index = _find_unique_index_by_metadata(
+                    achievements,
+                    title_key="title",
+                    subtitle_key="category",
+                    expected_title=item.title,
+                    expected_subtitle=item.subtitle,
+                    expected_original_content=item.original_content,
+                    content_key="description",
+                )
+
+            if resolved_index is None:
+                apply_failures.append(item_id)
+                continue
+
+            entry = achievements[resolved_index]
+            if isinstance(entry, dict):
+                new_text = " ".join(new_content).strip()
+                entry["description"] = (
+                    new_text if new_text else entry.get("description", "")
+                )
+            else:
+                apply_failures.append(item_id)
+
+        elif item_type == "education":
+            education = updated_data.get("education", [])
+            if not isinstance(education, list):
+                apply_failures.append(item_id)
+                continue
+
+            index = _parse_index(item_id, r"education-(\d+)")
+            if index is None:
+                apply_failures.append(item_id)
+                continue
+
+            if 0 <= index < len(education):
+                entry = education[index]
+                if isinstance(entry, dict):
+                    new_text = " ".join(new_content).strip()
+                    entry["education_detail"] = (
+                        new_text if new_text else entry.get("education_detail", "")
+                    )
+                else:
+                    apply_failures.append(item_id)
+            else:
+                apply_failures.append(item_id)
 
     if apply_failures:
         raise ValueError(
