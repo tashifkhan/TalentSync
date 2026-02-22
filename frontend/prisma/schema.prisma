@@ -85,9 +85,16 @@ model Resume {
     rawText       String   @db.Text
     uploadDate    DateTime @default(now())
     showInCentral Boolean  @default(false)
+    source        String   @default("UPLOADED") // "UPLOADED" | "MANUAL"
+    isMaster      Boolean  @default(false)
+    parentId      String?
 
     user     User      @relation(fields: [userId], references: [id])
     analysis Analysis?
+    parent   Resume?   @relation("ResumeTailored", fields: [parentId], references: [id], onDelete: SetNull)
+    children Resume[]  @relation("ResumeTailored")
+
+    @@index([userId, isMaster])
 }
 
 model Analysis {
@@ -112,6 +119,7 @@ model Analysis {
     certifications            Json?
     achievements              Json?
     uploadedAt                DateTime @default(now())
+    updatedAt                 DateTime @default(now()) @updatedAt
 
     resume Resume @relation(fields: [resumeId], references: [id])
 }

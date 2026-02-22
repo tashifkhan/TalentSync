@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 interface DashboardData {
 	user: {
@@ -29,6 +27,8 @@ interface DashboardData {
 		uploadDate: string;
 		predictedField?: string;
 		candidateName?: string;
+		source?: string;
+		isMaster?: boolean;
 	}>;
 }
 
@@ -129,6 +129,8 @@ export async function GET(request: NextRequest) {
 				uploadDate: resume.uploadDate.toISOString(),
 				predictedField: resume.analysis?.predictedField || undefined,
 				candidateName: resume.analysis?.name || undefined,
+				source: resume.source,
+				isMaster: resume.isMaster,
 			})),
 		};
 
@@ -147,7 +149,5 @@ export async function GET(request: NextRequest) {
 			},
 			{ status: 500 }
 		);
-	} finally {
-		await prisma.$disconnect();
 	}
 }
