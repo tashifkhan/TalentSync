@@ -35,7 +35,6 @@ export default function ColdMailGenerator() {
 
 	// Resume selection states
 	const [selectedResumeId, setSelectedResumeId] = useState<string>("");
-	const [showResumeDropdown, setShowResumeDropdown] = useState(false);
 	const [resumeSelectionMode, setResumeSelectionMode] = useState<
 		"existing" | "upload" | "customDraft"
 	>("existing");
@@ -63,23 +62,6 @@ export default function ColdMailGenerator() {
 
 	const isGenerating = generateColdMailMutation.isPending;
 	const isEditing = editColdMailMutation.isPending;
-
-	// Close dropdown when clicking outside
-	useEffect(() => {
-		const handleClickOutside = (event: MouseEvent) => {
-			if (showResumeDropdown) {
-				setShowResumeDropdown(false);
-			}
-		};
-
-		if (showResumeDropdown) {
-			document.addEventListener("mousedown", handleClickOutside);
-		}
-
-		return () => {
-			document.removeEventListener("mousedown", handleClickOutside);
-		};
-	}, [showResumeDropdown]);
 
 	// Simulate page load and check for pre-populated data
 	useEffect(() => {
@@ -575,8 +557,6 @@ export default function ColdMailGenerator() {
 												selectedResumeId={selectedResumeId}
 												setSelectedResumeId={setSelectedResumeId}
 												isLoadingResumes={isLoadingResumes}
-												showResumeDropdown={showResumeDropdown}
-												setShowResumeDropdown={setShowResumeDropdown}
 												resumeFile={resumeFile}
 												setResumeFile={setResumeFile}
 												resumeText={resumeText}

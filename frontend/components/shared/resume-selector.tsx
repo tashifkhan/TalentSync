@@ -5,17 +5,14 @@ import {
   Upload,
   CheckCircle,
   FileText,
-  ChevronDown,
-  User,
-  Calendar,
 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader } from "@/components/ui/loader";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useUserResumes } from "@/hooks/queries";
 import { haptic } from "@/lib/haptics";
+import { ResumeCombobox } from "@/components/shared/resume-combobox";
 
 export interface UserResumeSummary {
   id: string;
@@ -57,7 +54,6 @@ export function ResumeSelector({
   className,
 }: ResumeSelectorProps) {
   const [inputMode, setInputMode] = useState<"resumeId" | "file">("resumeId");
-  const [showDropdown, setShowDropdown] = useState(false);
   const [internalSelectedId, setInternalSelectedId] = useState("");
 
   // Fetch internally only when props are not provided
@@ -74,8 +70,6 @@ export function ResumeSelector({
     onSelect(resumeId);
   };
 
-  const selectedResume = userResumes.find((r) => r.id === selectedResumeId);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && onFileUpload) {
@@ -85,7 +79,7 @@ export function ResumeSelector({
 
   return (
     <div className={cn("space-y-3", className)}>
-      {/* Mode toggle — only show when upload is allowed */}
+      {/* Mode toggle -- only show when upload is allowed */}
       {allowUpload && (
         <div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
           <button
@@ -121,103 +115,13 @@ export function ResumeSelector({
             Select Resume *
           </Label>
           <div className="relative mt-2">
-            <button
-              type="button"
-              onClick={() => setShowDropdown((v) => !v)}
-              className="relative flex items-center justify-between w-full h-12 px-4 border border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-300 cursor-pointer group"
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="h-4 w-4 text-brand-primary" />
-                <div className="text-left">
-                  {selectedResume ? (
-                    <div>
-                      <p className="text-brand-light text-sm font-medium">
-                        {selectedResume.customName}
-                      </p>
-                      <p className="text-brand-light/60 text-xs">
-                        {selectedResume.predictedField || "Resume Selected"}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-brand-light/50 text-sm">
-                      {isLoadingResumes ? "Loading resumes..." : "Choose a resume"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <ChevronDown
-                className={`h-4 w-4 text-brand-light/60 transition-transform duration-200 ${
-                  showDropdown ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <AnimatePresence>
-              {showDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-full mt-2 w-full bg-surface border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden"
-                >
-                  {isLoadingResumes ? (
-                    <div className="p-4 text-center">
-                      <Loader variant="spinner" size="sm" className="text-brand-primary" />
-                    </div>
-                  ) : userResumes.length > 0 ? (
-                    <div className="max-h-64 overflow-y-auto">
-                      {userResumes.map((resume) => (
-                        <button
-                          key={resume.id}
-                          type="button"
-                          onClick={() => {
-                            haptic("selection");
-                            handleSelect(resume.id);
-                            setShowDropdown(false);
-                          }}
-                          className="w-full p-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FileText className="h-4 w-4 text-brand-primary flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-brand-light text-sm font-medium truncate">
-                                {resume.customName}
-                              </p>
-                              <div className="flex items-center space-x-2 mt-1">
-                                {resume.candidateName && (
-                                  <div className="flex items-center space-x-1">
-                                    <User className="h-3 w-3 text-brand-light/40" />
-                                    <span className="text-brand-light/60 text-xs">
-                                      {resume.candidateName}
-                                    </span>
-                                  </div>
-                                )}
-                                {resume.predictedField && (
-                                  <span className="px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-xs rounded-full">
-                                    {resume.predictedField}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-1 mt-1">
-                                <Calendar className="h-3 w-3 text-brand-light/40" />
-                                <span className="text-brand-light/40 text-xs">
-                                  {new Date(resume.uploadDate).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 text-center text-brand-light/60 text-sm">
-                      No resumes found. Upload one to get started!
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ResumeCombobox
+              resumes={userResumes}
+              selectedResumeId={selectedResumeId}
+              onSelect={handleSelect}
+              isLoading={isLoadingResumes}
+              emptyDescription="Upload one to get started!"
+            />
           </div>
         </div>
       )}

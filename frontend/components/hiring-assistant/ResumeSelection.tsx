@@ -1,19 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   FileText,
   CheckCircle,
   Upload,
-  ChevronDown,
-  Calendar,
-  User,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader } from "@/components/ui/loader";
+import { motion } from "framer-motion";
+import { ResumeCombobox } from "@/components/shared/resume-combobox";
 
 export interface UserResume {
   id: string;
@@ -30,8 +25,6 @@ interface ResumeSelectionProps {
   selectedResumeId: string;
   setSelectedResumeId: (id: string) => void;
   isLoadingResumes: boolean;
-  showResumeDropdown: boolean;
-  setShowResumeDropdown: (show: boolean) => void;
   resumeFile: File | null;
   setResumeFile: (file: File | null) => void;
   resumeText: string;
@@ -49,8 +42,6 @@ export default function ResumeSelection({
   selectedResumeId,
   setSelectedResumeId,
   isLoadingResumes,
-  showResumeDropdown,
-  setShowResumeDropdown,
   resumeFile,
   setResumeFile,
   resumeText,
@@ -80,6 +71,17 @@ export default function ResumeSelection({
           )} KB) - ${fileExtension?.toUpperCase()} file selected`,
         );
       }
+    }
+  };
+
+  const handleResumeSelect = (resumeId: string) => {
+    setSelectedResumeId(resumeId);
+    const resume = userResumes.find((r) => r.id === resumeId);
+    if (resume?.predictedField && !formData.role) {
+      setFormData((prev: any) => ({
+        ...prev,
+        role: resume.predictedField || "",
+      }));
     }
   };
 
@@ -116,124 +118,13 @@ export default function ResumeSelection({
             Select Resume *
           </Label>
           <div className="relative">
-            <button
-              onClick={() => setShowResumeDropdown(!showResumeDropdown)}
-              className="relative flex items-center justify-between w-full h-12 px-4 border border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-300 cursor-pointer group"
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="h-4 w-4 text-brand-primary" />
-                <div className="text-left">
-                  {selectedResumeId ? (
-                    <div>
-                      <p className="text-brand-light text-sm font-medium">
-                        {
-                          userResumes.find((r) => r.id === selectedResumeId)
-                            ?.customName
-                        }
-                      </p>
-                      <p className="text-brand-light/60 text-xs">
-                        {userResumes.find((r) => r.id === selectedResumeId)
-                          ?.predictedField || "Resume Selected"}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-brand-light/50 text-sm">
-                      {isLoadingResumes
-                        ? "Loading resumes..."
-                        : "Choose a resume"}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <ChevronDown
-                className={`h-4 w-4 text-brand-light/60 transition-transform duration-200 ${
-                  showResumeDropdown ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {/* Dropdown */}
-            <AnimatePresence>
-              {showResumeDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="absolute top-full mt-2 w-full bg-brand-dark border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden"
-                >
-                  {isLoadingResumes ? (
-                    <div className="p-4 text-center">
-                      <Loader
-                        variant="spinner"
-                        size="sm"
-                        className="text-brand-primary"
-                      />
-                    </div>
-                  ) : userResumes.length > 0 ? (
-                    <div className="max-h-64 overflow-y-auto">
-                      {userResumes.map((resume) => (
-                        <button
-                          key={resume.id}
-                          onClick={() => {
-                            setSelectedResumeId(resume.id);
-                            setShowResumeDropdown(false);
-                            if (resume.predictedField && !formData.role) {
-                              setFormData((prev: any) => ({
-                                ...prev,
-                                role: resume.predictedField || "",
-                              }));
-                            }
-                          }}
-                          className="w-full p-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
-                        >
-                          <div className="flex items-center space-x-3">
-                            <FileText className="h-4 w-4 text-brand-primary flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-brand-light text-sm font-medium truncate">
-                                {resume.customName}
-                              </p>
-                              <div className="flex items-center space-x-2 mt-1">
-                                {resume.candidateName && (
-                                  <div className="flex items-center space-x-1">
-                                    <User className="h-3 w-3 text-brand-light/40" />
-                                    <span className="text-brand-light/60 text-xs">
-                                      {resume.candidateName}
-                                    </span>
-                                  </div>
-                                )}
-                                {resume.predictedField && (
-                                  <span className="px-2 py-0.5 bg-brand-primary/20 text-brand-primary text-xs rounded-full">
-                                    {resume.predictedField}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center space-x-1 mt-1">
-                                <Calendar className="h-3 w-3 text-brand-light/40" />
-                                <span className="text-brand-light/40 text-xs">
-                                  {new Date(
-                                    resume.uploadDate,
-                                  ).toLocaleDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="p-4 text-center">
-                      <FileText className="h-8 w-8 text-brand-light/30 mx-auto mb-2" />
-                      <p className="text-brand-light/60 text-sm">
-                        No resumes found
-                      </p>
-                      <p className="text-brand-light/40 text-xs mt-1">
-                        Upload a resume first in the analysis section
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <ResumeCombobox
+              resumes={userResumes}
+              selectedResumeId={selectedResumeId}
+              onSelect={handleResumeSelect}
+              isLoading={isLoadingResumes}
+              emptyDescription="Upload a resume first in the analysis section"
+            />
           </div>
         </div>
       ) : (
@@ -275,10 +166,11 @@ export default function ResumeSelection({
                     <p className="text-brand-light text-sm font-medium mb-1 max-w-44 truncate">
                       {resumeFile?.name || "Pre-loaded Resume"}
                     </p>
-                    <p className="text-brand-primary text-xs font-medium">
+                    <p className="text-brand-primary text-xs font-medium flex items-center gap-1">
+                      <CheckCircle className="h-3 w-3" />
                       {isPreloaded
-                        ? "✓ Pre-loaded from analysis"
-                        : "✓ Ready for analysis"}
+                        ? "Pre-loaded from analysis"
+                        : "Ready for analysis"}
                     </p>
                     {isPreloaded && (
                       <p className="text-brand-light/60 text-xs mt-1">
