@@ -3,6 +3,7 @@ import { Plus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { actionItems } from "@/lib/navigation";
+import { haptic } from "@/lib/haptics";
 
 interface FloatingActionButtonProps {
   className?: string;
@@ -15,10 +16,12 @@ const FloatingActionButton: React.FC<FloatingActionButtonProps> = ({
   const router = useRouter();
 
   const handleToggle = () => {
+    haptic("heavy");
     setIsOpen(!isOpen);
   };
 
   const handleAction = (href: string) => {
+    haptic("light");
     setIsOpen(false);
     router.push(href);
   };

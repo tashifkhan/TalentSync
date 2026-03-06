@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, ChevronDown, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type { ResumeData, WorkExperience } from "@/types/resume";
 
 interface WorkExperienceFormProps {
@@ -96,7 +97,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
             {/* Header */}
             <button
               type="button"
-              onClick={() => setExpandedIndex(isExpanded ? null : index)}
+              onClick={() => { haptic("selection"); setExpandedIndex(isExpanded ? null : index); }}
               className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
             >
               <div
@@ -134,6 +135,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                 className="h-7 w-7 p-0 text-muted-foreground/40 hover:text-destructive shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
+                  haptic("heavy");
                   removeExperience(index);
                 }}
               >
@@ -204,7 +206,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                           variant="ghost"
                           size="sm"
                           className="h-7 w-7 p-0 mt-0.5 text-muted-foreground/30 hover:text-destructive shrink-0"
-                          onClick={() => removeBulletPoint(index, bpIndex)}
+                          onClick={() => { haptic("heavy"); removeBulletPoint(index, bpIndex); }}
                         >
                           <X className="h-3 w-3" />
                         </Button>
@@ -216,7 +218,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
                     variant="ghost"
                     size="sm"
                     className="text-xs text-brand-primary/70 hover:text-brand-primary hover:bg-brand-primary/5 h-7 px-2"
-                    onClick={() => addBulletPoint(index)}
+                    onClick={() => { haptic("medium"); addBulletPoint(index); }}
                   >
                     <Plus className="h-3 w-3 mr-1" />
                     Add bullet point
@@ -233,7 +235,7 @@ export function WorkExperienceForm({ data, onChange }: WorkExperienceFormProps) 
         variant="outline"
         size="sm"
         className="w-full border-dashed border-border/60 text-muted-foreground hover:text-brand-primary hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-        onClick={addExperience}
+        onClick={() => { haptic("medium"); addExperience(); }}
       >
         <Plus className="h-3.5 w-3.5 mr-1.5" />
         Add Experience

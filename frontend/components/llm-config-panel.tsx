@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { haptic } from "@/lib/haptics";
 import {
   Card,
   CardContent,
@@ -364,6 +365,7 @@ function ConfigEditorForm({
                 />
                 <button
                   onClick={() => {
+                    haptic("light");
                     setIsCustomModel(false);
                     setModel(currentProviderConfig?.defaultModel || "");
                   }}
@@ -429,15 +431,16 @@ function ConfigEditorForm({
       {/* Actions */}
       <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-white/10 mt-6">
         <Button
-          onClick={() =>
+          onClick={() => {
+            haptic("medium");
             onTest({
               provider,
               model,
               apiKey,
               apiBase,
               configId: initialData?.id,
-            })
-          }
+            });
+          }}
           disabled={
             isTesting ||
             (!apiKey && !initialData?.hasApiKey && provider !== "ollama")
@@ -459,7 +462,7 @@ function ConfigEditorForm({
         </Button>
 
         <Button
-          onClick={() => onSave({ label, provider, model, apiKey, apiBase })}
+          onClick={() => { haptic("medium"); onSave({ label, provider, model, apiKey, apiBase }); }}
           disabled={isSaving || !label.trim() || !model}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white flex-1 h-11 shadow-[0_0_20px_rgba(var(--brand-primary-rgb),0.3)] hover:shadow-[0_0_25px_rgba(var(--brand-primary-rgb),0.5)] transition-all duration-300"
         >
@@ -573,7 +576,7 @@ function ConfigCard({
       <div className="flex items-center gap-2 relative z-10 self-start sm:self-auto">
         {!config.isActive && (
           <Button
-            onClick={onActivate}
+            onClick={() => { haptic("medium"); onActivate(); }}
             disabled={isActivating}
             variant="ghost"
             size="sm"
@@ -591,7 +594,7 @@ function ConfigCard({
         
         <div className="flex items-center gap-1 border-l border-white/10 pl-2 ml-1">
           <Button
-            onClick={onEdit}
+            onClick={() => { haptic("light"); onEdit(); }}
             variant="ghost"
             size="icon"
             className="h-9 w-9 text-brand-light/40 hover:text-brand-light hover:bg-white/10 transition-colors rounded-lg"
@@ -600,7 +603,7 @@ function ConfigCard({
             <Settings2 className="h-4 w-4" />
           </Button>
           <Button
-            onClick={onDelete}
+            onClick={() => { haptic("heavy"); onDelete(); }}
             variant="ghost"
             size="icon"
             className="h-9 w-9 text-brand-light/40 hover:text-rose-400 hover:bg-rose-500/10 transition-colors rounded-lg"
@@ -675,6 +678,7 @@ export function LlmConfigPanel() {
 
   // Open create dialog
   const handleOpenCreate = () => {
+    haptic("medium");
     setDialogMode("create");
     setEditingConfig(undefined);
     setFormMessage(null);
@@ -683,6 +687,7 @@ export function LlmConfigPanel() {
 
   // Open edit dialog
   const handleOpenEdit = (config: LlmConfigItem) => {
+    haptic("light");
     setDialogMode("edit");
     setEditingConfig(config);
     setFormMessage(null);
@@ -1041,7 +1046,7 @@ export function LlmConfigPanel() {
           </DialogHeader>
           <DialogFooter className="grid grid-cols-2 gap-3 sm:space-x-0 mt-6">
             <Button
-              onClick={() => setDeleteTarget(null)}
+              onClick={() => { haptic("light"); setDeleteTarget(null); }}
               variant="outline"
               className="border-white/10 text-brand-light hover:bg-white/5 h-11"
               disabled={isDeleting}
@@ -1049,7 +1054,7 @@ export function LlmConfigPanel() {
               Cancel
             </Button>
             <Button
-              onClick={handleDelete}
+              onClick={() => { haptic("heavy"); handleDelete(); }}
               disabled={isDeleting}
               className="bg-rose-500 hover:bg-rose-600 text-white h-11 shadow-lg shadow-rose-500/20"
             >

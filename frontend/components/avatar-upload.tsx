@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { haptic } from "@/lib/haptics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar } from "@/components/ui/avatar";
@@ -57,6 +58,7 @@ export function AvatarUpload({
       return;
     }
 
+    haptic("medium");
     setIsLoading(true);
     setError("");
 
@@ -89,6 +91,7 @@ export function AvatarUpload({
   };
 
   const handleCancel = () => {
+    haptic("light");
     setShowForm(false);
     setAvatarUrl("");
     setPreviewUrl("");
@@ -102,7 +105,7 @@ export function AvatarUpload({
         <div className="flex flex-col space-y-2">
           <p className="text-brand-light font-medium">Profile Picture</p>
           <Button
-            onClick={() => setShowForm(true)}
+            onClick={() => { haptic("light"); setShowForm(true); }}
             variant="outline"
             className="border-brand-primary text-brand-primary hover:bg-brand-primary/10"
             size="sm"

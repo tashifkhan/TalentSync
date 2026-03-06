@@ -22,6 +22,7 @@ import {
 	useEditCoverLetter,
 } from "@/hooks/queries";
 import { CoverLetterResponseData } from "@/types";
+import { haptic } from "@/lib/haptics";
 
 export default function CoverLetterGenerator() {
 	const [isPageLoading, setIsPageLoading] = useState(true);
@@ -425,7 +426,7 @@ export default function CoverLetterGenerator() {
 												whileTap={{ scale: 0.99 }}
 											>
 												<Button
-													onClick={generateCoverLetter}
+													onClick={() => { haptic("medium"); generateCoverLetter(); }}
 													disabled={
 														isGenerating ||
 														(resumeSelectionMode === "resumeId"

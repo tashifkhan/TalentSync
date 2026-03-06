@@ -1,6 +1,7 @@
 import { FileText, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { haptic } from "@/lib/haptics";
 
 interface LatexOutputProps {
 	latexOutput: string;
@@ -30,21 +31,21 @@ export default function LatexOutput({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div className="flex gap-2">
-					<Button
-						onClick={copyLatexToClipboard}
-						variant="outline"
-						size="sm"
-						className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50"
-					>
+				<Button
+					onClick={() => { haptic("success"); copyLatexToClipboard(); }}
+					variant="outline"
+					size="sm"
+					className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50"
+				>
 						<Copy className="h-4 w-4 mr-2" />
 						Copy LaTeX
 					</Button>
-					<Button
-						onClick={openInOverleaf}
-						variant="outline"
-						size="sm"
-						className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50"
-					>
+				<Button
+					onClick={() => { haptic("medium"); openInOverleaf(); }}
+					variant="outline"
+					size="sm"
+					className="bg-white/5 border-white/20 text-brand-light hover:bg-white/10 hover:border-brand-primary/50"
+				>
 						Open in Overleaf
 					</Button>
 				</div>

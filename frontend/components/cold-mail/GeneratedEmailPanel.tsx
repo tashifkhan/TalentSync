@@ -15,6 +15,7 @@ import {
 import { motion } from "framer-motion";
 import { Loader } from "@/components/ui/loader";
 import MarkdownRenderer from "@/components/ui/markdown-renderer";
+import { haptic } from "@/lib/haptics";
 
 interface GeneratedEmailPanelProps {
   generatedEmail: {
@@ -62,7 +63,7 @@ export default function GeneratedEmailPanel({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setEditMode(!editMode)}
+                onClick={() => { haptic("selection"); setEditMode(!editMode); }}
                 className="text-brand-primary hover:text-brand-primary/80 hover:bg-white/10 rounded-lg p-2"
                 title={editMode ? "Cancel edit" : "Edit email"}
               >
@@ -75,11 +76,12 @@ export default function GeneratedEmailPanel({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() =>
+                onClick={() => {
+                  haptic("success");
                   copyToClipboard(
                     `Subject: ${generatedEmail.subject}\n\n${generatedEmail.body}`,
-                  )
-                }
+                  );
+                }}
                 className="text-brand-primary hover:text-brand-primary/80 hover:bg-white/10 rounded-lg p-2"
                 title="Copy to clipboard"
               >
@@ -88,7 +90,7 @@ export default function GeneratedEmailPanel({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={downloadAsText}
+                onClick={() => { haptic("medium"); downloadAsText(); }}
                 className="text-brand-primary hover:text-brand-primary/80 hover:bg-white/10 rounded-lg p-2"
                 title="Download as text"
               >
@@ -123,7 +125,7 @@ export default function GeneratedEmailPanel({
                 />
                 <div className="flex space-x-3">
                   <Button
-                    onClick={editColdMail}
+                    onClick={() => { haptic("medium"); editColdMail(); }}
                     disabled={isEditing || !editInstructions.trim()}
                     className="bg-brand-primary hover:bg-brand-primary/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 disabled:cursor-not-allowed"
                   >
@@ -141,6 +143,7 @@ export default function GeneratedEmailPanel({
                   </Button>
                   <Button
                     onClick={() => {
+                      haptic("light");
                       setEditMode(false);
                       setEditInstructions("");
                     }}

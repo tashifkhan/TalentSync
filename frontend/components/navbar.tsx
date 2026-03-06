@@ -22,6 +22,7 @@ import { useSession, signOut } from "next-auth/react";
 import MobileBottomNav from "./mobile-bottom-nav";
 import { useSidebar } from "./sidebar-provider";
 import { navItems, actionItems } from "@/lib/navigation";
+import { haptic } from "@/lib/haptics";
 
 import banner from "@/public/banner-dark.svg";
 
@@ -32,6 +33,7 @@ export function Navbar() {
   const { data: session, status } = useSession();
 
   const handleSignOut = async () => {
+    haptic("heavy");
     await signOut({ callbackUrl: "/" });
   };
 
@@ -62,7 +64,7 @@ export function Navbar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => { haptic("light"); setIsCollapsed(!isCollapsed); }}
               className="text-brand-light/70 hover:text-brand-primary hover:bg-brand-primary/10 p-2"
             >
               {isCollapsed ? (
@@ -250,7 +252,7 @@ export function Navbar() {
 
               <button
                 className="text-brand-light/50"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                onClick={() => { haptic("light"); setIsMobileMenuOpen(!isMobileMenuOpen); }}
               >
                 {isMobileMenuOpen ? (
                   <X className="h-6 w-6" />

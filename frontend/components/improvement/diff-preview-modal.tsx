@@ -22,6 +22,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type {
   ResumeFieldDiff,
   ResumeDiffSummary,
@@ -85,7 +86,7 @@ export function DiffPreviewModal({
   isApplying = false,
 }: DiffPreviewModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { haptic("light"); onClose(); } }}>
       <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-hidden flex flex-col p-0">
         {/* Teal gradient accent bar */}
         <div className="h-[3px] w-full bg-gradient-to-r from-teal-500 via-cyan-400 to-teal-600 rounded-t-xl flex-shrink-0" />
@@ -295,7 +296,7 @@ export function DiffPreviewModal({
           <div className="flex justify-between pt-4 border-t border-white/10 flex-shrink-0">
             <Button
               variant="outline"
-              onClick={onReject}
+              onClick={() => { haptic("heavy"); onReject(); }}
               disabled={isApplying}
               className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 bg-transparent"
             >
@@ -303,7 +304,7 @@ export function DiffPreviewModal({
               Reject Changes
             </Button>
             <Button
-              onClick={onApply}
+              onClick={() => { haptic("success"); onApply(); }}
               disabled={isApplying}
               className="bg-teal-600 hover:bg-teal-500 text-white border-0"
             >

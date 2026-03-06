@@ -44,6 +44,7 @@ import ExportTab from "@/components/pdf-resume/ExportTab";
 import { ResumeEditorTab } from "@/components/resume-editor/resume-editor-tab";
 import type { SelectableItem } from "@/types/enrichment";
 import type { JDEditResponse } from "@/types/jd-editor";
+import { haptic } from "@/lib/haptics";
 
 type WorkspaceTab =
   | "overview"
@@ -245,7 +246,7 @@ export default function AnalysisPage() {
         >
           <div className="backdrop-blur-sm bg-background-overlay/80 rounded-lg p-4 flex justify-between items-center">
             <Button
-              onClick={() => router.back()}
+              onClick={() => { haptic("light"); router.back(); }}
               variant="ghost"
               className="text-brand-light hover:text-brand-primary"
             >
@@ -255,6 +256,7 @@ export default function AnalysisPage() {
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => {
+                  haptic("medium");
                   window.open(`/api/resumes/${id}/download`, "_blank");
                 }}
                 className="bg-brand-primary hover:bg-brand-primary/90"
@@ -753,7 +755,7 @@ export default function AnalysisPage() {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={() => setIsEnrichmentOpen(true)}
+                    onClick={() => { haptic("medium"); setIsEnrichmentOpen(true); }}
                     className="w-full bg-brand-primary hover:bg-brand-primary/90"
                   >
                     <Sparkles className="mr-2 h-4 w-4" />
@@ -801,7 +803,7 @@ export default function AnalysisPage() {
                 </CardHeader>
                 <CardContent>
                   <Button
-                    onClick={() => setIsRegenerateOpen(true)}
+                    onClick={() => { haptic("medium"); setIsRegenerateOpen(true); }}
                     disabled={selectableItems.length === 0}
                     className="w-full bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50"
                   >

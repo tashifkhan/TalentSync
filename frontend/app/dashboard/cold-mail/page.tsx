@@ -19,6 +19,7 @@ import {
 	useEditColdMail,
 } from "@/hooks/queries";
 import { ColdMailResponseData, ColdMailRequest } from "@/types";
+import { haptic } from "@/lib/haptics";
 
 export default function ColdMailGenerator() {
 	const [isPageLoading, setIsPageLoading] = useState(true);
@@ -613,7 +614,7 @@ export default function ColdMailGenerator() {
 												whileTap={{ scale: 0.99 }}
 											>
 												<Button
-													onClick={generateColdMail}
+													onClick={() => { haptic("medium"); generateColdMail(); }}
 													disabled={
 														isGenerating ||
 														(resumeSelectionMode === "existing"

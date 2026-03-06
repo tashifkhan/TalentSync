@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader } from "@/components/ui/loader";
 import { useToast } from "@/hooks/use-toast";
 import { Download, Eye, Code, FileText } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 import TailoringForm from "@/components/pdf-resume/TailoringForm";
 import ConfigurationForm from "@/components/pdf-resume/ConfigurationForm";
 import ResumePreview from "@/components/pdf-resume/ResumePreview";
@@ -78,12 +79,14 @@ export default function ExportTab({ resumeId }: ExportTabProps) {
   };
 
   const handlePreview = async () => {
+    haptic("light");
     setIsGenerating(true);
     await getResumeData();
     setIsGenerating(false);
   };
 
   const generateLatex = async () => {
+    haptic("light");
     setIsGenerating(true);
     setGenerationType("latex");
     try {
@@ -113,6 +116,7 @@ export default function ExportTab({ resumeId }: ExportTabProps) {
   };
 
   const downloadPdf = async () => {
+    haptic("medium");
     setIsGenerating(true);
     setGenerationType("pdf");
     try {

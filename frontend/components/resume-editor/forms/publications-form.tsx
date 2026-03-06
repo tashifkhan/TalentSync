@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type { ResumeData, Publication } from "@/types/resume";
 
 interface PublicationsFormProps {
@@ -59,7 +60,7 @@ export function PublicationsForm({ data, onChange }: PublicationsFormProps) {
           >
             <button
               type="button"
-              onClick={() => setExpandedIndex(isExpanded ? null : index)}
+              onClick={() => { haptic("selection"); setExpandedIndex(isExpanded ? null : index); }}
               className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left"
             >
               <div
@@ -94,6 +95,7 @@ export function PublicationsForm({ data, onChange }: PublicationsFormProps) {
                 className="h-7 w-7 p-0 text-muted-foreground/40 hover:text-destructive shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
+                  haptic("heavy");
                   removeItem(index);
                 }}
               >
@@ -172,7 +174,7 @@ export function PublicationsForm({ data, onChange }: PublicationsFormProps) {
         variant="outline"
         size="sm"
         className="w-full border-dashed border-border/60 text-muted-foreground hover:text-brand-primary hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-        onClick={addItem}
+        onClick={() => { haptic("medium"); addItem(); }}
       >
         <Plus className="h-3.5 w-3.5 mr-1.5" />
         Add Publication

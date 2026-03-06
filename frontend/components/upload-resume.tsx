@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { haptic } from "@/lib/haptics";
 
 interface UploadResumeProps {
 	onSuccess?: (result: any) => void;
@@ -17,6 +18,7 @@ export default function UploadResume({
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const selectedFile = e.target.files?.[0];
 		if (selectedFile) {
+			haptic("selection");
 			setFile(selectedFile);
 			// Set default custom name to file name without extension
 			const nameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
@@ -32,6 +34,7 @@ export default function UploadResume({
 			return;
 		}
 
+		haptic("medium");
 		setIsUploading(true);
 
 		try {

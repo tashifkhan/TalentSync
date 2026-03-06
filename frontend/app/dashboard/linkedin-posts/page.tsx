@@ -35,6 +35,7 @@ import {
 import MarkdownRenderer from "@/components/ui/markdown-renderer";
 import { useGenerateLinkedInPosts } from "@/hooks/queries";
 import { GeneratedPost } from "@/services/linkedin.service";
+import { haptic } from "@/lib/haptics";
 
 export default function LinkedInPostsGenerator() {
 	const { toast } = useToast();
@@ -507,7 +508,7 @@ export default function LinkedInPostsGenerator() {
 													whileTap={{ scale: 0.99 }}
 												>
 													<Button
-														onClick={generate}
+														onClick={() => { haptic("medium"); generate(); }}
 														disabled={isGenerating || !form.topic.trim()}
 														className="relative w-full h-12 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl transition-all duration-300 overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
 													>
@@ -567,12 +568,12 @@ export default function LinkedInPostsGenerator() {
 												</p>
 											</div>
 											<div className="flex gap-2">
-												<Button
-													variant="outline"
-													size="sm"
-													disabled={!posts.length}
-													onClick={downloadAll}
-													className="border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 backdrop-blur-sm transition-all duration-200 hover:scale-105 disabled:opacity-50"
+											<Button
+												variant="outline"
+												size="sm"
+												disabled={!posts.length}
+												onClick={() => { haptic("medium"); downloadAll(); }}
+												className="border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 backdrop-blur-sm transition-all duration-200 hover:scale-105 disabled:opacity-50"
 												>
 													<Download className="h-4 w-4 mr-1" />
 													<span className="hidden sm:inline">All</span>
@@ -640,11 +641,11 @@ export default function LinkedInPostsGenerator() {
 																		POST {i + 1}
 																	</h3>
 																</div>
-																<Button
-																	size="sm"
-																	variant="outline"
-																	onClick={() => copyPost(processedPost)}
-																	className="opacity-0 group-hover:opacity-100 transition-all duration-200 border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary backdrop-blur-sm hover:scale-105"
+															<Button
+																size="sm"
+																variant="outline"
+																onClick={() => { haptic("success"); copyPost(processedPost); }}
+																className="opacity-0 group-hover:opacity-100 transition-all duration-200 border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10 hover:border-brand-primary backdrop-blur-sm hover:scale-105"
 																>
 																	<Copy className="h-4 w-4 mr-1.5" />
 																	<span className="text-xs">Copy</span>

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "@/components/ui/loader";
 import { useState } from "react";
+import { haptic } from "@/lib/haptics";
 
 interface UserResume {
 	id: string;
@@ -47,26 +48,26 @@ export default function ResumeSourceSelector({
 		<div className="space-y-3">
 			{/* Resume Selection Mode Toggle */}
 			<div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
-				<button
-					onClick={() => setInputMode("resumeId")}
-					className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-						inputMode === "resumeId"
-							? "bg-brand-primary text-white shadow-lg"
-							: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-					}`}
-				>
-					Use Existing Resume
-				</button>
-				<button
-					onClick={() => setInputMode("file")}
-					className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-						inputMode === "file"
-							? "bg-brand-primary text-white shadow-lg"
-							: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-					}`}
-				>
-					Upload New Resume
-				</button>
+			<button
+				onClick={() => { haptic("selection"); setInputMode("resumeId"); }}
+				className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
+					inputMode === "resumeId"
+						? "bg-brand-primary text-white shadow-lg"
+						: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
+				}`}
+			>
+				Use Existing Resume
+			</button>
+			<button
+				onClick={() => { haptic("selection"); setInputMode("file"); }}
+				className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
+					inputMode === "file"
+						? "bg-brand-primary text-white shadow-lg"
+						: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
+				}`}
+			>
+				Upload New Resume
+			</button>
 			</div>
 
 			{/* Resume Selection */}
@@ -134,12 +135,13 @@ export default function ResumeSourceSelector({
 									) : userResumes.length > 0 ? (
 										<div className="max-h-64 overflow-y-auto">
 											{userResumes.map((resume) => (
-												<button
-													key={resume.id}
-													onClick={() => {
-														handleResumeSelection(resume.id);
-														setShowResumeDropdown(false);
-													}}
+					<button
+						key={resume.id}
+						onClick={() => {
+							haptic("selection");
+							handleResumeSelection(resume.id);
+							setShowResumeDropdown(false);
+						}}
 													className="w-full p-3 text-left hover:bg-white/10 transition-colors border-b border-white/10 last:border-b-0"
 												>
 													<div className="flex items-center space-x-3">
@@ -203,12 +205,13 @@ export default function ResumeSourceSelector({
 							onChange={handleFileUpload}
 							className="hidden"
 						/>
-						<motion.label
-							htmlFor="file-upload"
-							whileHover={{ scale: 1.01 }}
-							whileTap={{ scale: 0.99 }}
-							className="relative flex items-center justify-center w-full h-28 border-2 border-dashed border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-500 cursor-pointer group overflow-hidden"
-						>
+					<motion.label
+						htmlFor="file-upload"
+						whileHover={{ scale: 1.01 }}
+						whileTap={{ scale: 0.99 }}
+						onClick={() => haptic("selection")}
+						className="relative flex items-center justify-center w-full h-28 border-2 border-dashed border-white/20 rounded-xl bg-gradient-to-br from-white/5 to-white/10 hover:from-brand-primary/10 hover:to-brand-primary/5 transition-all duration-500 cursor-pointer group overflow-hidden"
+					>
 							{/* Animated background gradient */}
 							<div className="absolute inset-0 bg-gradient-to-r from-brand-primary/0 via-brand-primary/5 to-brand-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 

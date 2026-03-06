@@ -5,6 +5,7 @@ import { User } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { mobileNavItems } from "@/lib/navigation";
 import FloatingActionButton from "./floating-action-button";
+import { haptic } from "@/lib/haptics";
 import "./ui/modern-mobile-menu.css";
 
 // Extended interface for navigation items with href
@@ -108,6 +109,7 @@ const InteractiveMenuWithNavigation: React.FC<
 	}, [activeIndex]);
 
 	const handleItemClick = (index: number) => {
+		haptic("light");
 		setInternalActiveIndex(index);
 		onItemClick(index);
 	};

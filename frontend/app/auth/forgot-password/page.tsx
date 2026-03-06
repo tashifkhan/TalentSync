@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Send, AlertCircle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 export default function ForgotPasswordPage() {
 	const [isPageLoading, setIsPageLoading] = useState(true);
@@ -35,6 +36,7 @@ export default function ForgotPasswordPage() {
 			setError("Please enter your email address.");
 			return;
 		}
+		haptic("medium");
 		setIsLoading(true);
 		setError(null);
 		setSuccess(null);
@@ -170,14 +172,15 @@ export default function ForgotPasswordPage() {
 											</Link>
 										</div>
 										<div className="text-center">
-											<Button
-												variant="ghost"
-												onClick={() => {
-													setSuccess(null);
-													setEmail("");
-												}}
-												className="text-brand-light hover:text-brand-primary"
-											>
+										<Button
+											variant="ghost"
+											onClick={() => {
+												haptic("light");
+												setSuccess(null);
+												setEmail("");
+											}}
+											className="text-brand-light hover:text-brand-primary"
+										>
 												Send Another Email
 											</Button>
 										</div>

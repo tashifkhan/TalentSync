@@ -15,6 +15,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Users, UserCheck } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 export default function SelectRolePage() {
 	const { data: session, update } = useSession();
@@ -36,6 +37,7 @@ export default function SelectRolePage() {
 			return;
 		}
 
+		haptic("medium");
 		setIsLoading(true);
 		setError("");
 

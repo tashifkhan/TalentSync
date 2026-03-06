@@ -3,6 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, X } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 import type { ResumeData } from "@/types/resume";
 
 interface RecommendedRolesFormProps {
@@ -42,7 +43,7 @@ export function RecommendedRolesForm({ data, onChange }: RecommendedRolesFormPro
             variant="ghost"
             size="sm"
             className="h-7 w-7 p-0 text-muted-foreground/30 opacity-0 group-hover:opacity-100 hover:text-destructive shrink-0 transition-opacity"
-            onClick={() => removeRole(index)}
+            onClick={() => { haptic("heavy"); removeRole(index); }}
           >
             <X className="h-3.5 w-3.5" />
           </Button>
@@ -54,7 +55,7 @@ export function RecommendedRolesForm({ data, onChange }: RecommendedRolesFormPro
         variant="outline"
         size="sm"
         className="w-full border-dashed border-border/60 text-muted-foreground hover:text-brand-primary hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-        onClick={addRole}
+        onClick={() => { haptic("medium"); addRole(); }}
       >
         <Plus className="h-3.5 w-3.5 mr-1.5" />
         Add Role

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 function ResetPasswordContent() {
 	const router = useRouter();
@@ -71,6 +72,7 @@ function ResetPasswordContent() {
 			return;
 		}
 
+		haptic("medium");
 		setIsLoading(true);
 		setError(null);
 		setSuccess(null);
@@ -234,11 +236,11 @@ function ResetPasswordContent() {
 													required
 													className="pl-10 pr-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
-												<button
-													type="button"
-													onClick={() => setShowPassword(!showPassword)}
-													className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
-												>
+											<button
+												type="button"
+												onClick={() => { haptic("selection"); setShowPassword(!showPassword); }}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
+											>
 													{showPassword ? (
 														<EyeOff className="h-4 w-4" />
 													) : (
@@ -266,13 +268,13 @@ function ResetPasswordContent() {
 													required
 													className="pl-10 pr-10 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15"
 												/>
-												<button
-													type="button"
-													onClick={() =>
-														setShowConfirmPassword(!showConfirmPassword)
-													}
-													className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
-												>
+											<button
+												type="button"
+												onClick={() =>
+													{ haptic("selection"); setShowConfirmPassword(!showConfirmPassword); }
+												}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
+											>
 													{showConfirmPassword ? (
 														<EyeOff className="h-4 w-4" />
 													) : (

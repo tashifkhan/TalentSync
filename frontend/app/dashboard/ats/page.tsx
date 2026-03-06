@@ -15,6 +15,7 @@ import EvaluationResults from "@/components/ats/EvaluationResults";
 import LoadingOverlay from "@/components/ats/LoadingOverlay";
 import PageLoader from "@/components/ats/PageLoader";
 import { useEvaluateResume } from "@/hooks/queries";
+import { haptic } from "@/lib/haptics";
 
 export default function ATSEvaluationPage() {
 	const router = useRouter();
@@ -230,7 +231,7 @@ export default function ATSEvaluationPage() {
 												whileTap={{ scale: 0.99 }}
 											>
 												<Button
-													onClick={evaluateATS}
+													onClick={() => { haptic("medium"); evaluateATS(); }}
 										disabled={
 											isEvaluating ||
 											(resumeSelectionMode === "resumeId"

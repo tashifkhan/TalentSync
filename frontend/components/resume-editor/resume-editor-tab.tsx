@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { EditorLayout } from "./editor-layout";
 import { useUpdateResumeAnalysis } from "@/hooks/queries/use-resume-editor";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type { ResumeData, SectionMeta } from "@/types/resume";
 import { DEFAULT_SECTION_ORDER } from "@/types/resume";
 
@@ -206,7 +207,7 @@ export function ResumeEditorTab({ resumeId, analysis }: ResumeEditorTabProps) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={handleDiscard}
+              onClick={() => { haptic("light"); handleDiscard(); }}
               className="h-8 text-muted-foreground hover:text-foreground text-xs px-3 rounded-lg"
             >
               <RotateCcw className="h-3.5 w-3.5 mr-1.5" />
@@ -215,7 +216,7 @@ export function ResumeEditorTab({ resumeId, analysis }: ResumeEditorTabProps) {
           )}
           <Button
             size="sm"
-            onClick={handleSave}
+            onClick={() => { haptic("medium"); handleSave(); }}
             disabled={!hasChanges || updateMutation.isPending}
             className={cn(
               "h-8 text-xs px-4 rounded-lg font-medium transition-all",

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { haptic } from "@/lib/haptics";
 
 interface QuestionsEditorProps {
 	questions: string[];
@@ -23,11 +24,11 @@ export default function QuestionsEditor({
 			<CardHeader className="pb-4 flex-shrink-0">
 				<CardTitle className="text-brand-light text-lg md:text-xl font-semibold flex items-center justify-between">
 					Interview Questions
-					<Button
-						size="sm"
-						onClick={addQuestion}
-						className="bg-brand-primary/20 hover:bg-brand-primary/30 text-brand-primary border border-brand-primary/30 h-8 px-3"
-					>
+				<Button
+					size="sm"
+					onClick={() => { haptic("medium"); addQuestion(); }}
+					className="bg-brand-primary/20 hover:bg-brand-primary/30 text-brand-primary border border-brand-primary/30 h-8 px-3"
+				>
 						<Plus className="h-3 w-3 mr-1" />
 						Add
 					</Button>
@@ -50,12 +51,12 @@ export default function QuestionsEditor({
 								className="flex-1 h-16 px-3 py-2 bg-white/5 border border-white/20 rounded-lg text-brand-light placeholder:text-brand-light/50 resize-none hover:bg-white/10 transition-all duration-300 focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20 text-sm"
 							/>
 							{questions.length > 1 && (
-								<Button
-									size="sm"
-									variant="ghost"
-									onClick={() => removeQuestion(index)}
-									className="text-destructive hover:text-destructive hover:bg-destructive/20 border border-destructive/20 hover:border-destructive/40 transition-all duration-300 h-8 w-8 p-0 flex-shrink-0"
-								>
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={() => { haptic("heavy"); removeQuestion(index); }}
+								className="text-destructive hover:text-destructive hover:bg-destructive/20 border border-destructive/20 hover:border-destructive/40 transition-all duration-300 h-8 w-8 p-0 flex-shrink-0"
+							>
 									<Trash2 className="h-3 w-3" />
 								</Button>
 							)}
@@ -66,11 +67,11 @@ export default function QuestionsEditor({
 							<p className="text-brand-light/60 mb-4 text-sm">
 								No questions added yet
 							</p>
-							<Button
-								onClick={addQuestion}
-								size="sm"
-								className="bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white"
-							>
+						<Button
+							onClick={() => { haptic("medium"); addQuestion(); }}
+							size="sm"
+							className="bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white"
+						>
 								<Plus className="mr-2 h-3 w-3" />
 								Add Question
 							</Button>

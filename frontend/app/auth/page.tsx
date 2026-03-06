@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 interface Role {
   id: string;
@@ -143,6 +144,7 @@ function AuthContent() {
   }, [searchParams]);
 
   const handleOAuthSignIn = async (provider: string) => {
+    haptic("medium");
     setIsLoading(true);
     await signIn(provider, { callbackUrl: "/dashboard" });
     setIsLoading(false);
@@ -150,6 +152,7 @@ function AuthContent() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    haptic("medium");
     setIsLoading(true);
     setError("");
 
@@ -187,6 +190,7 @@ function AuthContent() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    haptic("medium");
     setIsLoading(true);
     setError("");
 
@@ -534,7 +538,7 @@ function AuthContent() {
                             />
                             <button
                               type="button"
-                              onClick={() => setShowPassword(!showPassword)}
+                              onClick={() => { haptic("selection"); setShowPassword(!showPassword); }}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
                             >
                               {showPassword ? (
@@ -803,23 +807,23 @@ function AuthContent() {
                                 required
                                 className="pl-10 pr-12 h-12 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15 focus:border-brand-primary/50 transition-all duration-300 rounded-xl"
                               />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </button>
-                            </div>
-                          </div>
+                               <button
+                                 type="button"
+                                 onClick={() => { haptic("selection"); setShowPassword(!showPassword); }}
+                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
+                               >
+                                 {showPassword ? (
+                                   <EyeOff className="h-4 w-4" />
+                                 ) : (
+                                   <Eye className="h-4 w-4" />
+                                 )}
+                               </button>
+                             </div>
+                           </div>
 
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="register-confirm-password"
+                           <div className="space-y-2">
+                             <Label
+                               htmlFor="register-confirm-password"
                               className="text-brand-light font-medium"
                             >
                               Confirm Password
@@ -840,13 +844,14 @@ function AuthContent() {
                                 required
                                 className="pl-10 pr-12 h-12 bg-white/10 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:bg-white/15 focus:border-brand-primary/50 transition-all duration-300 rounded-xl"
                               />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
-                              >
+                               <button
+                                 type="button"
+                                 onClick={() => {
+                                   haptic("selection");
+                                   setShowConfirmPassword(!showConfirmPassword)
+                                 }}
+                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-primary hover:text-brand-light transition-colors"
+                               >
                                 {showConfirmPassword ? (
                                   <EyeOff className="h-4 w-4" />
                                 ) : (

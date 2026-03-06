@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Sparkles, AlertCircle, CheckCircle2, Zap } from "lucide-react";
 import { useEnrichmentWizard } from "@/hooks/use-enrichment-wizard";
+import { haptic } from "@/lib/haptics";
 import { EnrichmentQuestionStep } from "./question-step";
 import { EnrichmentPreviewStep } from "./preview-step";
 import { EnrichmentLoadingStep } from "./loading-step";
@@ -31,16 +32,19 @@ export function EnrichmentModal({
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      haptic("light");
       wizard.reset();
       onClose();
     }
   };
 
   const handleStart = () => {
+    haptic("medium");
     wizard.startAnalysis(resumeId);
   };
 
   const handleComplete = () => {
+    haptic("success");
     if (onComplete) {
       onComplete();
     }
@@ -110,8 +114,7 @@ export function EnrichmentModal({
                 >
                   <Zap className="h-4 w-4" />
                   Start Analysis
-                </Button>
-              </motion.div>
+                </Button>              </motion.div>
             )}
 
             {/* Analyzing State */}
@@ -236,14 +239,14 @@ export function EnrichmentModal({
                 <div className="flex gap-3 justify-center">
                   <Button
                     variant="outline"
-                    onClick={wizard.reset}
+                    onClick={() => { haptic("medium"); wizard.reset(); }}
                     className="border-white/15 text-white hover:bg-white/8 hover:border-white/25"
                   >
                     Try Again
                   </Button>
                   <Button
                     variant="ghost"
-                    onClick={() => handleOpenChange(false)}
+                    onClick={() => { haptic("light"); handleOpenChange(false); }}
                     className="text-white/40 hover:text-white"
                   >
                     Close

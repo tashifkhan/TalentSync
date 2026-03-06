@@ -21,6 +21,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import type { RegeneratedItem, RegenerateItemError } from "@/types/enrichment";
+import { haptic } from "@/lib/haptics";
 
 interface RegeneratePreviewStepProps {
   regeneratedItems: RegeneratedItem[];
@@ -259,14 +260,14 @@ export function RegeneratePreviewStep({
       <div className="flex justify-between pt-4 border-t border-white/10">
         <Button
           variant="ghost"
-          onClick={onBack}
+          onClick={() => { haptic("light"); onBack(); }}
           className="text-brand-light/60 hover:text-brand-light"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
         <Button
-          onClick={onApply}
+          onClick={() => { haptic("success"); onApply(); }}
           disabled={!canApply}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white"
         >

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { JDEditDiffView } from "./jd-edit-diff-view";
 import { useJDEditWizard } from "@/hooks/use-jd-edit-wizard";
+import { haptic } from "@/lib/haptics";
 import type { JDEditResponse } from "@/types/jd-editor";
 
 interface JDEditPanelProps {
@@ -50,6 +51,7 @@ export function JDEditPanel({
 
   const handleApply = async () => {
     if (!state.response || !onApply) return;
+    haptic("success");
     wizard.markApplying();
     try {
       await onApply(state.response);
@@ -80,7 +82,7 @@ export function JDEditPanel({
         <Button
           variant="outline"
           size="sm"
-          onClick={reset}
+          onClick={() => { haptic("medium"); reset(); }}
           className="border-white/20 text-brand-light hover:bg-white/5 mt-2"
         >
           <RotateCcw className="h-4 w-4 mr-2" />
@@ -153,7 +155,7 @@ export function JDEditPanel({
             )}
 
             <Button
-              onClick={() => startEditing(resumeId)}
+              onClick={() => { haptic("medium"); startEditing(resumeId); }}
               disabled={!wizard.canEdit}
               className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-medium"
             >
@@ -212,7 +214,7 @@ export function JDEditPanel({
             )}
             <Button
               variant="outline"
-              onClick={reset}
+              onClick={() => { haptic("medium"); reset(); }}
               disabled={state.step === "applying"}
               className="border-white/20 text-brand-light hover:bg-white/5"
             >

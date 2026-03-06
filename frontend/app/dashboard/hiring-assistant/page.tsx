@@ -16,6 +16,7 @@ import GeneratedAnswersPanel from "@/components/hiring-assistant/GeneratedAnswer
 import LoadingOverlay from "@/components/hiring-assistant/LoadingOverlay";
 import PageLoader from "@/components/hiring-assistant/PageLoader";
 import { useUserResumes, useGenerateAnswer } from "@/hooks/queries";
+import { haptic } from "@/lib/haptics";
 
 export default function HiringAssistant() {
 	const [isPageLoading, setIsPageLoading] = useState(true);
@@ -400,7 +401,7 @@ export default function HiringAssistant() {
 											whileTap={{ scale: 0.99 }}
 										>
 											<Button
-												onClick={generateAnswers}
+												onClick={() => { haptic("medium"); generateAnswers(); }}
 												disabled={
 													isGenerating ||
 													(resumeSelectionMode === "existing"

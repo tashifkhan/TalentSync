@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 interface CommonQuestionsPanelProps {
   commonQuestions: string[];
@@ -27,7 +28,7 @@ export default function CommonQuestionsPanel({
               key={index}
               variant="ghost"
               size="sm"
-              onClick={() => addCommonQuestion(question)}
+              onClick={() => { haptic("light"); addCommonQuestion(question); }}
               className="text-left justify-start text-brand-light/80 hover:text-brand-primary hover:bg-white/10 text-xs p-2 h-auto rounded-lg transition-all duration-300 border border-transparent hover:border-brand-primary/30"
             >
               <Plus className="mr-2 h-3 w-3 flex-shrink-0" />

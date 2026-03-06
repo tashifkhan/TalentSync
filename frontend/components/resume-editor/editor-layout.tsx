@@ -4,6 +4,7 @@ import { useState } from "react";
 import { PanelRightClose, PanelRightOpen, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import { ResumeForm } from "./resume-form";
 import { ResumePreviewPanel } from "./resume-preview-panel";
 import type { ResumeData, SectionMeta } from "@/types/resume";
@@ -60,7 +61,7 @@ export function EditorLayout({
       <Button
         variant="outline"
         size="sm"
-        onClick={() => setShowPreview(!showPreview)}
+        onClick={() => { haptic("selection"); setShowPreview(!showPreview); }}
         className={cn(
           "sticky top-4 shrink-0 h-8 gap-1.5 rounded-lg border-border text-xs font-medium transition-all",
           showPreview

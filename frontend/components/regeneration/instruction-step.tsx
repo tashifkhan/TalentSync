@@ -18,6 +18,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import type { RegenerateItemInput } from "@/types/enrichment";
+import { haptic } from "@/lib/haptics";
 
 interface RegenerateInstructionStepProps {
   selectedItems: RegenerateItemInput[];
@@ -177,7 +178,7 @@ export function RegenerateInstructionStep({
           {suggestionPrompts.map((prompt, index) => (
             <button
               key={index}
-              onClick={() => onInstructionChange(prompt)}
+              onClick={() => { haptic("selection"); onInstructionChange(prompt); }}
               className="px-3 py-1.5 text-xs rounded-full bg-white/5 border border-white/10 text-brand-light/70 hover:bg-white/10 hover:text-brand-light transition-colors"
             >
               {prompt}
@@ -190,14 +191,14 @@ export function RegenerateInstructionStep({
       <div className="flex justify-between pt-4 border-t border-white/10">
         <Button
           variant="ghost"
-          onClick={onBack}
+          onClick={() => { haptic("light"); onBack(); }}
           className="text-brand-light/60 hover:text-brand-light"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
         <Button
-          onClick={onSubmit}
+          onClick={() => { haptic("medium"); onSubmit(); }}
           disabled={!canSubmit}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white"
         >

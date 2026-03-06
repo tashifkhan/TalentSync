@@ -16,6 +16,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type {
   EnhancedDescription,
   PatchStatus,
@@ -109,7 +110,7 @@ export function EnrichmentPreviewStep({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onApproveAll}
+            onClick={() => { haptic("success"); onApproveAll(); }}
             className="text-xs text-brand-light/50 hover:text-brand-light h-7 px-2"
           >
             <CheckCheck className="h-3.5 w-3.5 mr-1" />
@@ -160,9 +161,10 @@ export function EnrichmentPreviewStep({
                 <div className="flex items-center gap-0.5 shrink-0">
                   <button
                     type="button"
-                    onClick={() =>
-                      onPatchStatusChange(enhancement.item_id, "approved")
-                    }
+                    onClick={() => {
+                      haptic("selection");
+                      onPatchStatusChange(enhancement.item_id, "approved");
+                    }}
                     className={cn(
                       "flex items-center gap-1 px-2.5 py-1.5 rounded-l-md text-xs font-medium transition-all duration-150",
                       isApproved
@@ -176,6 +178,7 @@ export function EnrichmentPreviewStep({
                   <button
                     type="button"
                     onClick={() => {
+                      haptic("selection");
                       onPatchStatusChange(enhancement.item_id, "rejected");
                       // Auto-expand comment when rejecting
                       if (!expandedComments[enhancement.item_id]) {
@@ -248,7 +251,7 @@ export function EnrichmentPreviewStep({
                 {isApproved && !showComment && (
                   <button
                     type="button"
-                    onClick={() => toggleComment(enhancement.item_id)}
+                    onClick={() => { haptic("selection"); toggleComment(enhancement.item_id); }}
                     className="flex items-center gap-1.5 px-4 py-2 w-full text-xs text-brand-light/30 hover:text-brand-light/50 transition-colors"
                   >
                     <MessageSquare className="h-3 w-3" />
@@ -293,6 +296,7 @@ export function EnrichmentPreviewStep({
                           <button
                             type="button"
                             onClick={() => {
+                              haptic("light");
                               toggleComment(enhancement.item_id);
                               onPatchCommentChange(enhancement.item_id, "");
                             }}
@@ -315,7 +319,7 @@ export function EnrichmentPreviewStep({
       <div className="flex items-center justify-between pt-4 border-t border-white/10 gap-3">
         <Button
           variant="ghost"
-          onClick={onBack}
+          onClick={() => { haptic("light"); onBack(); }}
           disabled={isApplying || isRefining}
           className="text-brand-light/60 hover:text-brand-light"
         >
@@ -327,7 +331,7 @@ export function EnrichmentPreviewStep({
           {rejectedWithCommentsCount > 0 && (
             <Button
               variant="outline"
-              onClick={onRefineRejected}
+              onClick={() => { haptic("medium"); onRefineRejected(); }}
               disabled={isApplying || isRefining}
               className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 hover:text-amber-300"
             >
@@ -341,7 +345,7 @@ export function EnrichmentPreviewStep({
             </Button>
           )}
           <Button
-            onClick={onApply}
+            onClick={() => { haptic("success"); onApply(); }}
             disabled={isApplying || isRefining || approvedCount === 0}
             className="bg-brand-primary hover:bg-brand-primary/90 text-white"
           >

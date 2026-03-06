@@ -10,6 +10,7 @@ import {
   GripVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 import type { SectionMeta } from "@/types/resume";
 
 interface SectionHeaderProps {
@@ -66,6 +67,7 @@ export function SectionHeader({
           "cursor-grab active:cursor-grabbing p-0.5 rounded transition-colors",
           "text-muted-foreground/30 hover:text-muted-foreground/70 hover:bg-muted/50"
         )}
+        onPointerDown={() => haptic("tick")}
         {...attributes}
         {...listeners}
       >
@@ -75,7 +77,7 @@ export function SectionHeader({
       {/* Expand/collapse + name */}
       <button
         type="button"
-        onClick={onToggleExpand}
+        onClick={() => { haptic("selection"); onToggleExpand(); }}
         className="flex flex-1 items-center gap-2 text-left min-w-0"
       >
         <div
@@ -117,7 +119,7 @@ export function SectionHeader({
       {/* Visibility toggle */}
       <button
         type="button"
-        onClick={onToggleVisibility}
+        onClick={() => { haptic("selection"); onToggleVisibility(); }}
         className={cn(
           "p-1 rounded transition-all",
           section.isVisible

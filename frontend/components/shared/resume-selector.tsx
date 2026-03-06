@@ -15,6 +15,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "@/components/ui/loader";
 import { cn } from "@/lib/utils";
 import { useUserResumes } from "@/hooks/queries";
+import { haptic } from "@/lib/haptics";
 
 export interface UserResumeSummary {
   id: string;
@@ -89,7 +90,7 @@ export function ResumeSelector({
         <div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
           <button
             type="button"
-            onClick={() => { setInputMode("resumeId"); onModeChange?.("resumeId"); }}
+            onClick={() => { haptic("selection"); setInputMode("resumeId"); onModeChange?.("resumeId"); }}
             className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
               inputMode === "resumeId"
                 ? "bg-brand-primary text-white shadow-lg"
@@ -100,7 +101,7 @@ export function ResumeSelector({
           </button>
           <button
             type="button"
-            onClick={() => { setInputMode("file"); onModeChange?.("file"); }}
+            onClick={() => { haptic("selection"); setInputMode("file"); onModeChange?.("file"); }}
             className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
               inputMode === "file"
                 ? "bg-brand-primary text-white shadow-lg"
@@ -171,6 +172,7 @@ export function ResumeSelector({
                           key={resume.id}
                           type="button"
                           onClick={() => {
+                            haptic("selection");
                             handleSelect(resume.id);
                             setShowDropdown(false);
                           }}

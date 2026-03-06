@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useRegenerateWizard } from "@/hooks/use-regenerate-wizard";
+import { haptic } from "@/lib/haptics";
 import type { SelectableItem } from "@/types/enrichment";
 import { RegenerateSelectionStep } from "./selection-step";
 import { RegenerateInstructionStep } from "./instruction-step";
@@ -43,6 +44,7 @@ export function RegenerateDialog({
   };
 
   const handleComplete = () => {
+    haptic("success");
     if (onComplete) {
       onComplete();
     }
@@ -181,14 +183,14 @@ export function RegenerateDialog({
               <div className="flex gap-3 justify-center">
                 <Button
                   variant="outline"
-                  onClick={wizard.goBack}
+                  onClick={() => { haptic("light"); wizard.goBack(); }}
                   className="border-white/15 text-white hover:bg-white/8 hover:border-white/25"
                 >
                   Go Back
                 </Button>
                 <Button
                   variant="ghost"
-                  onClick={() => handleOpenChange(false)}
+                  onClick={() => { haptic("light"); handleOpenChange(false); }}
                   className="text-white/40 hover:text-white"
                 >
                   Close

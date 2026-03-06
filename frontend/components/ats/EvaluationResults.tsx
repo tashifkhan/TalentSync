@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Target, CheckCircle, Lightbulb, Wand2 } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 interface EvaluationResultsProps {
 	evaluationResult: {
@@ -157,9 +158,9 @@ export default function EvaluationResults({
 								className="pt-2 border-t border-white/10"
 							>
 								<Button
-									onClick={onOptimize}
-									className="w-full h-12 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
-								>
+								onClick={() => { haptic("medium"); onOptimize!(); }}
+								className="w-full h-12 bg-gradient-to-r from-brand-primary to-brand-primary/80 hover:from-brand-primary/90 hover:to-brand-primary/70 text-white font-semibold rounded-xl shadow-lg transition-all duration-300"
+							>
 									<Wand2 className="mr-2 h-4 w-4" />
 									Optimize Resume for this JD
 								</Button>

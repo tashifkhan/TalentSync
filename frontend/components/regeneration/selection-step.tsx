@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { SelectableItem } from "@/types/enrichment";
+import { haptic } from "@/lib/haptics";
 
 interface RegenerateSelectionStepProps {
   items: SelectableItem[];
@@ -112,7 +113,7 @@ export function RegenerateSelectionStep({
         <Button
           variant="ghost"
           size="sm"
-          onClick={allSelected ? onDeselectAll : onSelectAll}
+          onClick={() => { haptic("selection"); allSelected ? onDeselectAll() : onSelectAll(); }}
           className="text-brand-light/60 hover:text-brand-light h-8 px-2"
         >
           {allSelected ? (
@@ -146,7 +147,7 @@ export function RegenerateSelectionStep({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.03 }}
-              onClick={() => onToggle(item.id)}
+              onClick={() => { haptic("selection"); onToggle(item.id); }}
               className={cn(
                 "group px-3 py-3 rounded-lg border cursor-pointer transition-all duration-150",
                 item.selected
@@ -193,13 +194,13 @@ export function RegenerateSelectionStep({
       <div className="flex justify-between pt-4 border-t border-white/10">
         <Button
           variant="ghost"
-          onClick={onCancel}
+          onClick={() => { haptic("light"); onCancel(); }}
           className="text-brand-light/60 hover:text-brand-light"
         >
           Cancel
         </Button>
         <Button
-          onClick={onProceed}
+          onClick={() => { haptic("medium"); onProceed(); }}
           disabled={!canProceed}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white"
         >

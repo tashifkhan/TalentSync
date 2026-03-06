@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, ArrowRight, AlertTriangle } from "lucide-react";
 import type { EnrichmentQuestion, EnrichmentItem } from "@/types/enrichment";
+import { haptic } from "@/lib/haptics";
 
 interface EnrichmentQuestionStepProps {
   questions: EnrichmentQuestion[];
@@ -124,7 +125,7 @@ export function EnrichmentQuestionStep({
       <div className="flex justify-between pt-4 border-t border-white/10">
         <Button
           variant="ghost"
-          onClick={onBack}
+          onClick={() => { haptic("light"); onBack(); }}
           disabled={isSubmitting}
           className="text-brand-light/60 hover:text-brand-light"
         >
@@ -132,7 +133,7 @@ export function EnrichmentQuestionStep({
           Cancel
         </Button>
         <Button
-          onClick={onSubmit}
+          onClick={() => { haptic("medium"); onSubmit(); }}
           disabled={!allAnswered || isSubmitting}
           className="bg-brand-primary hover:bg-brand-primary/90 text-white"
         >

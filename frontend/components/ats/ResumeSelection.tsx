@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 export interface UserResume {
   id: string;
@@ -53,6 +54,7 @@ export default function ResumeSelection({
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      haptic("selection");
       setResumeFile(file);
       const fileExtension = file.name.toLowerCase().split(".").pop();
       if (fileExtension === "txt" || fileExtension === "md") {
@@ -77,7 +79,7 @@ export default function ResumeSelection({
       {/* Resume Selection Mode Toggle */}
       <div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
         <button
-          onClick={() => setResumeSelectionMode("existing")}
+          onClick={() => { haptic("selection"); setResumeSelectionMode("existing"); }}
           className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
             resumeSelectionMode === "existing"
               ? "bg-brand-primary text-white shadow-lg"
@@ -87,7 +89,7 @@ export default function ResumeSelection({
           Use Existing Resume
         </button>
         <button
-          onClick={() => setResumeSelectionMode("upload")}
+          onClick={() => { haptic("selection"); setResumeSelectionMode("upload"); }}
           className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
             resumeSelectionMode === "upload"
               ? "bg-brand-primary text-white shadow-lg"
@@ -166,6 +168,7 @@ export default function ResumeSelection({
                         <button
                           key={resume.id}
                           onClick={() => {
+                            haptic("selection");
                             setSelectedResumeId(resume.id);
                             setShowResumeDropdown(false);
                           }}

@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { ArrowLeft, Mail, Send, AlertCircle, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 function ResendVerificationContent() {
 	const searchParams = useSearchParams();
@@ -47,6 +48,7 @@ function ResendVerificationContent() {
 			setError("Please enter your email address.");
 			return;
 		}
+		haptic("medium");
 		setIsLoading(true);
 		setError(null);
 		setSuccess(null);
@@ -202,14 +204,14 @@ function ResendVerificationContent() {
 											</Link>
 										</div>
 										<div className="text-center">
-											<Button
-												variant="ghost"
-												onClick={() => handleResend()}
-												disabled={isLoading}
-												className="text-brand-light hover:text-brand-primary"
-											>
-												{isLoading ? "Sending..." : "Send Another Email"}
-											</Button>
+										<Button
+											variant="ghost"
+											onClick={() => { haptic("light"); handleResend(); }}
+											disabled={isLoading}
+											className="text-brand-light hover:text-brand-primary"
+										>
+											{isLoading ? "Sending..." : "Send Another Email"}
+										</Button>
 										</div>
 									</div>
 								) : !searchParams.get("email") ? (
@@ -248,13 +250,13 @@ function ResendVerificationContent() {
 												: "Processing your request..."}
 										</div>
 										{!isLoading && (
-											<Button
-												variant="ghost"
-												onClick={() => handleResend()}
-												className="text-brand-primary hover:text-brand-primary/80"
-											>
-												Resend Email
-											</Button>
+										<Button
+											variant="ghost"
+											onClick={() => { haptic("light"); handleResend(); }}
+											className="text-brand-primary hover:text-brand-primary/80"
+										>
+											Resend Email
+										</Button>
 										)}
 									</div>
 								)}

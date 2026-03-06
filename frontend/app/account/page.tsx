@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 import { LlmConfigPanel } from "@/components/llm-config-panel";
 import { cn } from "@/lib/utils";
 
@@ -72,6 +73,7 @@ export default function AccountPage() {
   }, []);
 
   const handleSignOut = async () => {
+    haptic("heavy");
     await signOut({ callbackUrl: "/" });
   };
 
@@ -84,6 +86,7 @@ export default function AccountPage() {
       return;
     }
 
+    haptic("medium");
     setIsResettingPassword(true);
     setResetMessage(null);
 
@@ -125,6 +128,7 @@ export default function AccountPage() {
       return;
     }
 
+    haptic("heavy");
     setIsDeleting(true);
     setResetMessage(null);
 
@@ -384,7 +388,7 @@ export default function AccountPage() {
                         This action cannot be undone.
                       </p>
                       <Button
-                        onClick={() => setShowDeleteDialog(true)}
+                        onClick={() => { haptic("heavy"); setShowDeleteDialog(true); }}
                         variant="destructive"
                         className="bg-white text-rose-600 hover:bg-rose-50 border-none h-9 text-sm font-semibold"
                       >
@@ -471,13 +475,13 @@ export default function AccountPage() {
                  </div>
 
                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                        onClick={() => setShowDeleteDialog(false)}
-                        variant="outline"
-                        className="h-12 border-white/10 hover:bg-white/5"
-                    >
-                        Cancel
-                    </Button>
+                     <Button
+                         onClick={() => { haptic("light"); setShowDeleteDialog(false); }}
+                         variant="outline"
+                         className="h-12 border-white/10 hover:bg-white/5"
+                     >
+                         Cancel
+                     </Button>
                     <Button
                         onClick={handleDeleteAccount}
                         disabled={isDeleting || deleteConfirmation !== "DELETE"}

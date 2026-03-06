@@ -14,6 +14,7 @@ import {
   Upload,
   CheckCircle,
 } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 interface JobDescriptionFormProps {
   formData: {
@@ -46,6 +47,7 @@ export default function JobDescriptionForm({
   const [jdMode, setJdMode] = useState<JdMode>(getInitialMode);
 
   const switchMode = (mode: JdMode) => {
+    haptic("selection");
     setJdMode(mode);
     // Clear the other fields so only one is ever sent
     if (mode !== "url") handleInputChange("jd_link", "");
@@ -54,7 +56,10 @@ export default function JobDescriptionForm({
   };
 
   const handleFileSelect = (file?: File | null) => {
-    if (file) setJdFile(file);
+    if (file) {
+      haptic("selection");
+      setJdFile(file);
+    }
   };
 
   const tabs: { key: JdMode; icon: React.ReactNode; label: string }[] = [
@@ -215,6 +220,7 @@ export default function JobDescriptionForm({
                 whileTap={{ scale: 0.99 }}
                 onDragOver={(event) => {
                   event.preventDefault();
+                  if (!isDragging) haptic("selection");
                   setIsDragging(true);
                 }}
                 onDragLeave={() => setIsDragging(false)}

@@ -61,6 +61,7 @@ import { DashboardResume, InterviewSession, ColdMailSession } from "@/types";
 import { actionItems } from "@/lib/navigation";
 import { createEmptyResumeData } from "@/lib/resume-to-text";
 import { cn } from "@/lib/utils";
+import { haptic } from "@/lib/haptics";
 
 // Animated Counter Component
 const CountUp = ({ end, duration = 2 }: { end: number; duration?: number }) => {
@@ -400,7 +401,7 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                onClick={() => setShowResumesModal(true)}
+                onClick={() => { haptic("light"); setShowResumesModal(true); }}
                 className="cursor-pointer"
               >
                 <Card className="group relative backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-brand-primary/5 h-full">
@@ -433,7 +434,7 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                onClick={() => setShowColdMailsModal(true)}
+                onClick={() => { haptic("light"); setShowColdMailsModal(true); }}
                 className="cursor-pointer"
               >
                 <Card className="group relative backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-info/5 h-full">
@@ -466,7 +467,7 @@ export default function DashboardPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
-                onClick={() => setShowInterviewsModal(true)}
+                onClick={() => { haptic("light"); setShowInterviewsModal(true); }}
                 className="cursor-pointer"
               >
                 <Card className="group relative backdrop-blur-sm bg-brand-dark/40 border-border-subtle/30 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-success/5 h-full">
@@ -514,7 +515,7 @@ export default function DashboardPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={handleCreateFromScratch}
+                        onClick={() => { haptic("light"); handleCreateFromScratch(); }}
                         disabled={createManualResumeMutation.isPending}
                         className="text-brand-light hover:text-brand-primary hover:bg-white/5"
                       >
@@ -589,7 +590,7 @@ export default function DashboardPage() {
                       {dashboardData.resumes.length > 4 && (
                         <div className="text-center">
                           <Button
-                            onClick={() => setShowResumesModal(true)}
+                            onClick={() => { haptic("light"); setShowResumesModal(true); }}
                             variant="outline"
                             className="border-white/10 text-brand-light hover:bg-white/5 hover:text-white w-full"
                           >
@@ -823,7 +824,7 @@ export default function DashboardPage() {
                 </div>
                 <button
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                  onClick={() => setShowResumesModal(false)}
+                  onClick={() => { haptic("light"); setShowResumesModal(false); }}
                 >
                   <X className="h-5 w-5 text-brand-light" />
                 </button>
@@ -862,9 +863,10 @@ export default function DashboardPage() {
                               />
                               <Button
                                 size="sm"
-                                onClick={() =>
-                                  handleRenameResume(resume.id, newResumeName)
-                                }
+                                onClick={() => {
+                                  haptic("medium");
+                                  handleRenameResume(resume.id, newResumeName);
+                                }}
                                 className="bg-brand-primary text-white h-9"
                               >
                                 Save
@@ -872,7 +874,7 @@ export default function DashboardPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => setEditingResume(null)}
+                                onClick={() => { haptic("light"); setEditingResume(null); }}
                                 className="h-9"
                               >
                                 Cancel
@@ -921,9 +923,10 @@ export default function DashboardPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() =>
-                                  setMasterResumeMutation.mutate(resume.id)
-                                }
+                                onClick={() => {
+                                  haptic("medium");
+                                  setMasterResumeMutation.mutate(resume.id);
+                                }}
                                 disabled={setMasterResumeMutation.isPending}
                                 className="h-8 w-8 p-0 text-brand-light/70 hover:text-amber-400"
                                 title="Set as Master Resume"
@@ -935,6 +938,7 @@ export default function DashboardPage() {
                               size="sm"
                               variant="ghost"
                               onClick={() => {
+                                haptic("light");
                                 setEditingResume({
                                   id: resume.id,
                                   name: resume.customName,
@@ -948,12 +952,13 @@ export default function DashboardPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() =>
+                              onClick={() => {
+                                haptic("heavy");
                                 setDeletingResume({
                                   id: resume.id,
                                   name: resume.customName,
-                                })
-                              }
+                                });
+                              }}
                               className="h-8 w-8 p-0 text-brand-light/70 hover:text-destructive"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -1024,9 +1029,9 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <button
+                 <button
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                  onClick={() => setShowInterviewsModal(false)}
+                  onClick={() => { haptic("light"); setShowInterviewsModal(false); }}
                 >
                   <X className="h-5 w-5 text-brand-light" />
                 </button>
@@ -1088,13 +1093,14 @@ export default function DashboardPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() =>
+                            onClick={() => {
+                              haptic("heavy");
                               setDeletingInterview({
                                 id: session.id,
                                 role: session.role,
                                 companyName: session.companyName,
-                              })
-                            }
+                              });
+                            }}
                             className="text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -1156,9 +1162,9 @@ export default function DashboardPage() {
                     </p>
                   </div>
                 </div>
-                <button
+                 <button
                   className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                  onClick={() => setShowColdMailsModal(false)}
+                  onClick={() => { haptic("light"); setShowColdMailsModal(false); }}
                 >
                   <X className="h-5 w-5 text-brand-light" />
                 </button>
@@ -1207,13 +1213,14 @@ export default function DashboardPage() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() =>
+                            onClick={() => {
+                              haptic("heavy");
                               setDeletingColdMail({
                                 id: session.id,
                                 recipientName: session.recipientName,
                                 companyName: session.companyName,
-                              })
-                            }
+                              });
+                            }}
                             className="text-destructive hover:bg-destructive/10"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -1229,14 +1236,15 @@ export default function DashboardPage() {
                                 <p className="text-sm font-semibold text-white">
                                   Subject: {email.subject}
                                 </p>
-                                <Button
+                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  onClick={() =>
+                                  onClick={() => {
+                                    haptic("success");
                                     copyToClipboard(
                                       `Subject: ${email.subject}\n\n${email.body}`,
-                                    )
-                                  }
+                                    );
+                                  }}
                                   className="h-6 px-2 text-xs hover:bg-white/10"
                                 >
                                   <Copy className="h-3 w-3 mr-1" /> Copy
@@ -1282,9 +1290,10 @@ export default function DashboardPage() {
                 undone.
               </p>
               <div className="flex justify-end gap-3">
-                <Button
+                 <Button
                   variant="ghost"
                   onClick={() => {
+                    haptic("light");
                     setDeletingResume(null);
                     setDeletingInterview(null);
                     setDeletingColdMail(null);
@@ -1296,6 +1305,7 @@ export default function DashboardPage() {
                 <Button
                   variant="destructive"
                   onClick={() => {
+                    haptic("heavy");
                     if (deletingResume) handleDeleteResume(deletingResume.id);
                     if (deletingInterview)
                       handleDeleteInterview(deletingInterview.id);

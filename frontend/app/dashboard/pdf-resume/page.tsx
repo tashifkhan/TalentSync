@@ -12,6 +12,7 @@ import { ResumeSelector } from "@/components/shared/resume-selector";
 import { useCreateManualResume } from "@/hooks/queries/use-resume-editor";
 import { createEmptyResumeData } from "@/lib/resume-to-text";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 export default function PdfResumePage() {
   const router = useRouter();
@@ -150,7 +151,7 @@ export default function PdfResumePage() {
               <CardContent className="pt-6">
                 <button
                   type="button"
-                  onClick={handleCreateFromScratch}
+                  onClick={() => { haptic("light"); handleCreateFromScratch(); }}
                   disabled={createManualResumeMutation.isPending}
                   className="w-full group flex items-center gap-4 rounded-lg border border-dashed border-white/15 bg-white/[0.02] px-5 py-4 text-left transition-all hover:border-brand-primary/30 hover:bg-brand-primary/5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

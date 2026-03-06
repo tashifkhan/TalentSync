@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { haptic } from "@/lib/haptics";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
@@ -78,6 +79,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0];
     if (selectedFile) {
+      haptic("selection");
       setFile(selectedFile);
       // Set default custom name to file name without extension
       const nameWithoutExt = selectedFile.name.replace(/\.[^/.]+$/, "");
@@ -89,6 +91,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDragEnter: () => haptic("selection"),
     accept: {
       "application/pdf": [".pdf"],
       "text/plain": [".txt"],
@@ -102,6 +105,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const handleUpload = async () => {
     if (!file || !customName.trim()) return;
 
+    haptic("medium");
     setError(null);
 
     try {
@@ -129,11 +133,13 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const handleDetailedAnalysis = async () => {
     if (!analysisResult?.resumeId) return;
 
+    haptic("light");
     // Navigate directly to the analysis page using the resume ID
     router.push(`/dashboard/analysis/${analysisResult.resumeId}`);
   };
 
   const handleGetTips = () => {
+    haptic("light");
     const jobCategory = analysisResult?.analysis.predictedField || "";
     const skills =
       analysisResult?.analysis.skillsAnalysis
@@ -147,6 +153,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   };
 
   const handleColdMailGenerator = () => {
+    haptic("light");
     // Store the file and analysis data in localStorage to pass to cold-mail page
     if (file && analysisResult) {
       localStorage.setItem(
@@ -167,6 +174,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   };
 
   const handleHiringAssistant = () => {
+    haptic("light");
     // Store the file and analysis data in localStorage to pass to hiring-assistant page
     if (file && analysisResult) {
       localStorage.setItem(
@@ -187,6 +195,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   };
 
   const handleCoverLetterGenerator = () => {
+    haptic("light");
     // Store the file and analysis data in localStorage to pass to cover-letter page
     if (file && analysisResult) {
       localStorage.setItem(

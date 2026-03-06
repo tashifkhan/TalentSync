@@ -28,6 +28,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useRecruiterResumes } from "@/hooks/queries";
 import { RecruiterResume } from "@/services/recruiter.service";
+import { haptic } from "@/lib/haptics";
 
 // We'll use the RecruiterResume type from service, but need to handle analysis structure
 // defined in the original file if needed, or rely on 'any' for now since it's complex.
@@ -139,7 +140,7 @@ export default function RecruiterDashboard() {
 										{(error as Error).message}
 									</p>
 									<Button
-										onClick={() => refetch()}
+										onClick={() => { haptic("medium"); refetch(); }}
 										className="mt-4 mx-auto block bg-red-500/20 hover:bg-red-500/30 text-red-400"
 									>
 										Try Again
@@ -180,7 +181,7 @@ export default function RecruiterDashboard() {
 																	</p>
 																</div>
 																<Button
-																	onClick={() => setSelectedResume(resume)}
+																	onClick={() => { haptic("light"); setSelectedResume(resume); }}
 																	size="sm"
 																	className="bg-brand-primary/20 hover:bg-brand-primary/30 text-brand-primary"
 																>
@@ -320,8 +321,8 @@ export default function RecruiterDashboard() {
 					initial={{ opacity: 0 }}
 					animate={{ opacity: 1 }}
 					exit={{ opacity: 0 }}
-					className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-					onClick={() => setSelectedResume(null)}
+				className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+				onClick={() => { haptic("light"); setSelectedResume(null); }}
 				>
 					<motion.div
 						initial={{ scale: 0.95, opacity: 0 }}
@@ -332,7 +333,7 @@ export default function RecruiterDashboard() {
 					>
 						{/* Close Button */}
 						<button
-							onClick={() => setSelectedResume(null)}
+							onClick={() => { haptic("light"); setSelectedResume(null); }}
 							className="absolute right-4 top-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
 						>
 							<X className="h-4 w-4 text-brand-light" />

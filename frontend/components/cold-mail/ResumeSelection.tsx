@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader } from "@/components/ui/loader";
+import { haptic } from "@/lib/haptics";
 
 export interface UserResume {
 	id: string;
@@ -81,6 +82,7 @@ export default function ResumeSelection({
 	const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
+			haptic("selection");
 			setResumeFile(file);
 			setIsPreloaded(false);
 			const fileExtension = file.name.toLowerCase().split(".").pop();
@@ -105,36 +107,36 @@ export default function ResumeSelection({
 		<div className="space-y-3">
 			{/* Resume Selection Mode Toggle */}
 			<div className="flex space-x-1 bg-white/5 p-1 rounded-lg">
-				<button
-					onClick={() => setResumeSelectionMode("existing")}
-					className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-						resumeSelectionMode === "existing"
-							? "bg-brand-primary text-white shadow-lg"
-							: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-					}`}
-				>
-					Use Existing Resume
-				</button>
-				<button
-					onClick={() => setResumeSelectionMode("upload")}
-					className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-						resumeSelectionMode === "upload"
-							? "bg-brand-primary text-white shadow-lg"
-							: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-					}`}
-				>
-					Upload New Resume
-				</button>
-				<button
-					onClick={() => setResumeSelectionMode("customDraft")}
-					className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
-						resumeSelectionMode === "customDraft"
-							? "bg-brand-primary text-white shadow-lg"
-							: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
-					}`}
-				>
-					Edit My Own Draft
-				</button>
+			<button
+				onClick={() => { haptic("selection"); setResumeSelectionMode("existing"); }}
+				className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
+					resumeSelectionMode === "existing"
+						? "bg-brand-primary text-white shadow-lg"
+						: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
+				}`}
+			>
+				Use Existing Resume
+			</button>
+			<button
+				onClick={() => { haptic("selection"); setResumeSelectionMode("upload"); }}
+				className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
+					resumeSelectionMode === "upload"
+						? "bg-brand-primary text-white shadow-lg"
+						: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
+				}`}
+			>
+				Upload New Resume
+			</button>
+			<button
+				onClick={() => { haptic("selection"); setResumeSelectionMode("customDraft"); }}
+				className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all duration-300 ${
+					resumeSelectionMode === "customDraft"
+						? "bg-brand-primary text-white shadow-lg"
+						: "text-brand-light/70 hover:text-brand-light hover:bg-white/10"
+				}`}
+			>
+				Edit My Own Draft
+			</button>
 			</div>
 
 			{/* Resume Selection */}
@@ -205,6 +207,7 @@ export default function ResumeSelection({
 												<button
 													key={resume.id}
 													onClick={() => {
+														haptic("selection");
 														setSelectedResumeId(resume.id);
 														setShowResumeDropdown(false);
 														// Auto-populate sender name if available
@@ -447,14 +450,15 @@ export default function ResumeSelection({
 										) : userResumes.length > 0 ? (
 											<div className="max-h-64 overflow-y-auto">
 												{userResumes.map((resume) => (
-													<button
-														key={resume.id}
-														onClick={() => {
-															setSelectedResumeId(resume.id);
-															setShowResumeDropdown(false);
-															if (
-																resume.candidateName &&
-																!formData.sender_name
+												<button
+													key={resume.id}
+													onClick={() => {
+														haptic("selection");
+														setSelectedResumeId(resume.id);
+														setShowResumeDropdown(false);
+														if (
+															resume.candidateName &&
+															!formData.sender_name
 															) {
 																setFormData((prev: any) => ({
 																	...prev,

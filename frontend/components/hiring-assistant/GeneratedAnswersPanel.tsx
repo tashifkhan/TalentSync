@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Users, Download, Copy } from "lucide-react";
 import { motion } from "framer-motion";
 import MarkdownRenderer from "@/components/ui/markdown-renderer";
+import { haptic } from "@/lib/haptics";
 
 interface GeneratedAnswersPanelProps {
   generatedAnswers: { [key: string]: string } | null;
@@ -36,7 +37,7 @@ export default function GeneratedAnswersPanel({
             <Button
               size="sm"
               variant="ghost"
-              onClick={downloadAsText}
+              onClick={() => { haptic("medium"); downloadAsText(); }}
               className="text-brand-primary hover:text-brand-primary/80 hover:bg-brand-primary/20 border border-brand-primary/20 hover:border-brand-primary/40 transition-all duration-300 h-8 w-8 p-0"
             >
               <Download className="h-3 w-3" />
@@ -66,7 +67,7 @@ export default function GeneratedAnswersPanel({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => copyToClipboard(answer)}
+                      onClick={() => { haptic("success"); copyToClipboard(answer); }}
                       className="text-brand-primary hover:text-brand-primary/80 hover:bg-brand-primary/20 border border-brand-primary/20 hover:border-brand-primary/40 transition-all duration-300 flex-shrink-0 h-6 w-6 p-0"
                     >
                       <Copy className="h-3 w-3" />

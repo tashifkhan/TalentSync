@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link2, FileText } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 
 interface CoverLetterDetailsFormProps {
 	formData: {
@@ -32,6 +33,7 @@ export default function CoverLetterDetailsForm({
 	);
 
 	const switchMode = (mode: JdMode) => {
+		haptic("selection");
 		setJdMode(mode);
 		// Clear the other field when switching so only one is sent
 		if (mode === "url") {

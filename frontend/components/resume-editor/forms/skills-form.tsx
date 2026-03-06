@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Plus, Trash2 } from "lucide-react";
+import { haptic } from "@/lib/haptics";
 import type { ResumeData, Skill } from "@/types/resume";
 
 interface SkillsFormProps {
@@ -77,7 +78,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
                 variant="ghost"
                 size="sm"
                 className="h-7 w-7 p-0 text-muted-foreground/30 hover:text-destructive shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeSkill(index)}
+                onClick={() => { haptic("heavy"); removeSkill(index); }}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -91,7 +92,7 @@ export function SkillsForm({ data, onChange }: SkillsFormProps) {
         variant="outline"
         size="sm"
         className="w-full border-dashed border-border/60 text-muted-foreground hover:text-brand-primary hover:border-brand-primary/30 hover:bg-brand-primary/5 transition-colors"
-        onClick={addSkill}
+        onClick={() => { haptic("medium"); addSkill(); }}
       >
         <Plus className="h-3.5 w-3.5 mr-1.5" />
         Add Skill
