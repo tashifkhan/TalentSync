@@ -217,7 +217,7 @@ export default function LinkedInPostsGenerator() {
 									<Hash className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
 								<div className="flex items-center justify-center gap-3 mb-3 sm:mb-4">
-									<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light leading-tight">
+									<h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light leading-tight">
 										LinkedIn Post Generator
 									</h1>
 									<Badge className="bg-brand-primary/20 text-brand-primary border-brand-primary/30 text-xs font-medium">

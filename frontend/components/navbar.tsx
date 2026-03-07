@@ -241,7 +241,7 @@ export function Navbar() {
       <motion.div
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-40 sm:block md:hidden"
+        className="fixed top-0 left-0 right-0 z-40 sm:block md:hidden pt-[env(safe-area-inset-top)]"
       >
         <div className="backdrop-blur-xl bg-black/20 border-b border-white/10">
           <div className="container mx-auto px-4 sm:px-6">

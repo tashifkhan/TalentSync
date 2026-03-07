@@ -197,7 +197,7 @@ export default function AccountPage() {
           className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12"
         >
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-2">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2">
               Settings & Account
             </h1>
             <p className="text-brand-light/60 text-lg max-w-xl">

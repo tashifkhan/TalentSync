@@ -72,7 +72,7 @@ export default function SeekerDashboard() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-center mb-12"
               >
-                <h1 className="text-4xl md:text-5xl font-bold text-brand-light mb-4">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light mb-4">
                   Upload Your Resume
                 </h1>
                 <p className="text-brand-light/70 text-lg mb-8 max-w-2xl mx-auto">

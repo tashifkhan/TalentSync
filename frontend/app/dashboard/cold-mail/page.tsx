@@ -521,7 +521,7 @@ export default function ColdMailGenerator() {
 								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
 									<Mail className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
 								</div>
-								<h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
+								<h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 									Cold Mail Generator
 								</h1>
 								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">

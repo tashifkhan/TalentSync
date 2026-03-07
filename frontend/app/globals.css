@@ -184,10 +184,12 @@
 @layer base {
 	* {
 		@apply border-border;
+		-webkit-tap-highlight-color: transparent;
 	}
 	body {
 		@apply bg-background text-foreground font-sans;
 		overflow-x: hidden; /* Hide horizontal scrollbar */
+		overscroll-behavior-y: none; /* Prevent rubber-banding on mobile */
 	}
 
 	/* Hide horizontal scrollbar for webkit browsers */
@@ -211,7 +213,7 @@
 	/* Mobile bottom navigation spacing */
 	@media (max-width: 640px) {
 		body {
-			padding-bottom: 90px; /* Space for mobile bottom navigation */
+			padding-bottom: calc(90px + env(safe-area-inset-bottom)); /* Space for mobile bottom navigation */
 		}
 	}
 
@@ -225,7 +227,7 @@
 
 	/* Mobile navigation utilities */
 	.mobile-nav-spacing {
-		padding-bottom: 90px;
+		padding-bottom: calc(90px + env(safe-area-inset-bottom));
 	}
 
 	.mobile-safe-area {

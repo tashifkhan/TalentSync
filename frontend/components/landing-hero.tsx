@@ -90,7 +90,7 @@ function LandingHero() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="relative z-10 mb-8"
         >
-          <h1 className="text-5xl font-bold tracking-tight text-white leading-[1.05] mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white leading-[1.05] mb-4">
             Turn Resumes <br />
             <span className="text-brand-primary relative">
               {currentText}
