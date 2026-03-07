@@ -76,7 +76,7 @@ export default function PdfResumePage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-6 sm:mb-8"
+          className="mb-6 sm:mb-8 hidden sm:block"
         >
           <Link href="/dashboard/seeker">
             <Button
@@ -96,7 +96,7 @@ export default function PdfResumePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center mb-8"
+            className="hidden sm:block text-center mb-8"
           >
             <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-primary/10 rounded-2xl mb-4">
               <FileText className="h-8 w-8 text-brand-primary" />
@@ -104,7 +104,7 @@ export default function PdfResumePage() {
             <h1 className="text-3xl sm:text-4xl font-bold text-brand-light mb-3">
               PDF Resume Generator
             </h1>
-            <p className="text-brand-light/70 text-base sm:text-lg max-w-xl mx-auto">
+            <p className="text-brand-light/70 text-base sm:text-lg max-w-xl mx-auto hidden sm:block">
               Select a saved resume, upload a new one, or create from scratch to generate a professional PDF or LaTeX document.
             </p>
           </motion.div>

@@ -343,8 +343,7 @@ export default function CoverLetterGenerator() {
 							initial={{ opacity: 0, x: -20 }}
 							animate={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.5 }}
-							className="mb-6 sm:mb-8"
-						>
+							className="hidden sm:block mb-6 sm:mb-8">
 							<Link href="/dashboard/seeker">
 								<Button
 									variant="ghost"
@@ -364,7 +363,7 @@ export default function CoverLetterGenerator() {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ duration: 0.8, delay: 0.2 }}
-								className="text-center mb-8 sm:mb-12"
+								className="hidden sm:block text-center mb-8 sm:mb-12"
 							>
 								<div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-brand-primary/10 rounded-2xl mb-4 sm:mb-6">
 									<FileText className="h-8 w-8 sm:h-10 sm:w-10 text-brand-primary" />
@@ -372,7 +371,7 @@ export default function CoverLetterGenerator() {
 								<h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light mb-3 sm:mb-4 leading-tight">
 									Cover Letter Generator
 								</h1>
-								<p className="text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
+								<p className="hidden sm:block text-brand-light/70 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed px-4">
 									Generate personalized cover letters using AI tailored to
 									specific job descriptions and companies.
 								</p>

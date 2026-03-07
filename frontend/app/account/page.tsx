@@ -176,7 +176,7 @@ export default function AccountPage() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-8"
+          className="mb-8 hidden sm:block"
         >
           <Link href="/dashboard">
             <Button
@@ -194,7 +194,7 @@ export default function AccountPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12"
+          className="hidden sm:flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12"
         >
           <div>
             <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight mb-2">

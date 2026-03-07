@@ -13,7 +13,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
       <Navbar />
       <main
         className={cn(
-          "pt-[calc(4rem+env(safe-area-inset-top))] md:pt-0 transition-all duration-300",
+          "pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0 transition-all duration-300",
           isCollapsed ? "md:pl-16" : "md:pl-72",
         )}
       >

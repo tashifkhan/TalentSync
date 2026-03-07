@@ -51,8 +51,7 @@ export default function SeekerDashboard() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="mb-8"
-            >
+              className="hidden sm:block mb-8">
               <Link href="/">
                 <Button
                   variant="ghost"
@@ -72,10 +71,10 @@ export default function SeekerDashboard() {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="text-center mb-12"
               >
-                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light mb-4">
+                <h1 className="hidden sm:block text-2xl md:text-4xl lg:text-5xl font-bold text-brand-light mb-4">
                   Upload Your Resume
                 </h1>
-                <p className="text-brand-light/70 text-lg mb-8 max-w-2xl mx-auto">
+                <p className="hidden sm:block text-brand-light/70 text-lg mb-8 max-w-2xl mx-auto">
                   Get instant AI-powered analysis of your resume with detailed
                   insights and career recommendations
                 </p>
@@ -141,10 +140,10 @@ export default function SeekerDashboard() {
                 transition={{ duration: 0.8, delay: 0.8 }}
                 className="text-center mb-8"
               >
-                <h2 className="text-2xl md:text-3xl font-bold text-brand-light mb-4">
+                <h2 className="hidden sm:block text-2xl md:text-3xl font-bold text-brand-light mb-4">
                   Additional Services
                 </h2>
-                <p className="text-brand-light/70 text-lg mb-8 max-w-2xl mx-auto">
+                <p className="hidden sm:block text-brand-light/70 text-lg mb-8 max-w-2xl mx-auto">
                   Enhance your job search with our AI-powered tools
                 </p>
 
