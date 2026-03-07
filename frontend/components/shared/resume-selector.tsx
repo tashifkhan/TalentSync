@@ -110,11 +110,11 @@ export function ResumeSelector({
       {/* Resume dropdown */}
       {(!allowUpload || inputMode === "resumeId") && (
         <div>
-          <Label className="text-brand-light text-sm font-medium flex items-center">
+          <Label className="text-brand-light/90 text-sm font-semibold flex items-center mb-3">
             <FileText className="h-4 w-4 mr-2 text-brand-primary" />
-            Select Resume *
+            Select Resume <span className="text-red-400 ml-1">*</span>
           </Label>
-          <div className="relative mt-2">
+          <div className="relative">
             <ResumeCombobox
               resumes={userResumes}
               selectedResumeId={selectedResumeId}

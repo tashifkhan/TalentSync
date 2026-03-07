@@ -60,10 +60,10 @@ export function ResumeCombobox({
 					aria-expanded={open}
 					aria-label="Select a resume"
 					className={cn(
-						"relative flex items-center justify-between w-full h-12 px-4",
-						"border border-white/20 rounded-xl",
-						"bg-gradient-to-br from-white/5 to-white/10",
-						"hover:from-brand-primary/10 hover:to-brand-primary/5",
+						"relative flex items-center justify-between w-full h-14 px-4",
+						"border border-white/10 rounded-xl backdrop-blur-md shadow-sm",
+						"bg-white/5 hover:bg-white/10",
+						"focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary/50",
 						"transition-all duration-300 cursor-pointer group",
 						className
 					)}
@@ -96,16 +96,17 @@ export function ResumeCombobox({
 				</button>
 			</PopoverTrigger>
 			<PopoverContent
-				className="w-[var(--radix-popover-trigger-width)] p-0 border-white/20 bg-surface shadow-2xl rounded-xl overflow-hidden"
+				className="w-[var(--radix-popover-trigger-width)] p-0 border border-white/10 backdrop-blur-2xl bg-brand-dark/90 shadow-[0_8px_32px_rgba(0,0,0,0.5)] rounded-xl overflow-hidden ring-1 ring-white/5"
 				align="start"
 				sideOffset={8}
 			>
 				<Command className="bg-transparent">
 					<CommandInput
 						placeholder="Search resumes..."
-						className="text-brand-light placeholder:text-brand-light/40"
+						className="text-brand-light placeholder:text-brand-light/40 border-none focus:ring-0 px-4 py-3 bg-transparent w-full outline-none"
 					/>
-					<CommandList className="max-h-64">
+					<div className="h-px bg-white/10 w-full" />
+					<CommandList className="max-h-64 p-1">
 						{isLoading ? (
 							<div className="p-4 text-center">
 								<Loader
@@ -139,7 +140,12 @@ export function ResumeCombobox({
 												onSelect(resume.id);
 												setOpen(false);
 											}}
-											className="p-3 cursor-pointer rounded-lg data-[selected=true]:bg-white/10"
+											className={cn(
+												"p-3 cursor-pointer rounded-lg transition-all duration-200 mx-1 mb-1 border",
+												selectedResumeId === resume.id 
+													? "bg-brand-primary/10 border-brand-primary/30" 
+													: "border-transparent data-[selected=true]:bg-white/5 data-[selected=true]:border-white/10"
+											)}
 										>
 											<div className="flex items-center space-x-3 w-full">
 												<div className="relative flex-shrink-0">
