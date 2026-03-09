@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 
 format_analyse_prompt_template_str = """
@@ -167,4 +167,7 @@ format_analyse_prompt = PromptTemplate(
     template=format_analyse_prompt_template_str,
 )
 
-format_analyse_chain = format_analyse_prompt | llm
+
+def build_format_analyse_chain(llm: BaseChatModel):
+    """Build a format analyse chain with the given LLM instance."""
+    return format_analyse_prompt | llm

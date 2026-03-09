@@ -1,14 +1,18 @@
 import json
+
 from fastapi import HTTPException
-from app.models.schemas import TipsResponse, TipsData, Tip
-from app.data.prompt.tips_generator import tips_generator_chain
+from langchain_core.language_models import BaseChatModel
+
+from app.data.prompt.tips_generator import build_tips_generator_chain
+from app.models.schemas import Tip, TipsData, TipsResponse
 
 
 def tips_llm(
     job_category: str,
     skills: list[str] | str,
+    llm: BaseChatModel,
 ) -> TipsData:
-    if not tips_generator_chain:
+    if not llm:
         raise HTTPException(
             status_code=503,
             detail="LLM service is not available.",
@@ -24,7 +28,8 @@ def tips_llm(
         skills = ", ".join(skills)
 
     try:
-        result = tips_generator_chain.invoke(
+        chain = build_tips_generator_chain(llm)
+        result = chain.invoke(
             {
                 "job_category": job_category,
                 "skills_list_str": skills,
@@ -95,9 +100,10 @@ def tips_llm(
 def get_career_tips_service(
     job_category: str,
     skills: list[str] | str,
+    llm: BaseChatModel,
 ) -> TipsResponse:
     try:
-        tips_data = tips_llm(job_category, skills)
+        tips_data = tips_llm(job_category, skills, llm)
 
     except HTTPException:
         raise

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "TalentSync Normies API"
     APP_VERSION: str = "1.5.8"
     DEBUG: bool = False
+    LOG_LEVEL: str = "DEBUG"
 
     # LLM Configuration
     GOOGLE_API_KEY: Optional[str] = None
@@ -23,11 +24,24 @@ class Settings(BaseSettings):
     FASTER_MODEL_NAME: str = "gemini-2.5-flash-lite"
     MODEL_TEMPERATURE: float = 0.1
 
+    # New Multi-Provider LLM Configuration
+    LLM_PROVIDER: str = "google"
+    LLM_MODEL: str = "gemini-2.5-flash"
+    LLM_API_KEY: Optional[str] = None
+    LLM_API_BASE: Optional[str] = None
+    ENCRYPTION_KEY: Optional[str] = None  # Required for encrypted API keys
+
     # External Services
     TAVILY_API_KEY: Optional[str] = None
 
     # CORS
     CORS_ORIGINS: List[str] = ["*"]
+
+    # Interview Configuration
+    INTERVIEW_MAX_QUESTIONS: int = 20
+    INTERVIEW_DEFAULT_QUESTIONS: int = 5
+    INTERVIEW_CODE_EXECUTION_TIMEOUT: int = 10  # seconds
+    INTERVIEW_SESSION_MAX_AGE_HOURS: int = 24
 
 
 @lru_cache

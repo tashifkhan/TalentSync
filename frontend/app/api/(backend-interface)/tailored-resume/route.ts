@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-options";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getLlmHeaders } from "@/lib/llm-headers";
 
-const prisma = new PrismaClient();
+export const maxDuration = 1800;
 
 interface TailoredResumeRequest {
   resume_text?: string;
@@ -49,6 +50,9 @@ export async function POST(request: NextRequest) {
         { status: 401 }
       );
     }
+
+    const userId = (session.user as any).id;
+    const llmHeaders = await getLlmHeaders(userId);
 
     // Parse form data
     const formData = await request.formData();
@@ -128,7 +132,8 @@ export async function POST(request: NextRequest) {
         backendResponse = await fetch(`${backendUrl}/api/v1/resume/tailor`, {
           method: 'POST',
           body: backendFormData,
-          signal: AbortSignal.timeout(60000), // 60 second timeout for resume analysis
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
+          headers: { ...llmHeaders },
         });
       } else if (resumeId) {
         // Scenario 2: Use existing resume from database - use v2 endpoint
@@ -193,9 +198,9 @@ export async function POST(request: NextRequest) {
 
         backendResponse = await fetch(`${backendUrl}/api/v2/resume/tailor`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...llmHeaders },
           body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(60000), // 60 second timeout for resume analysis
+          signal: AbortSignal.timeout(1_800_000), // 30 minute timeout
         });
       } else {
         // This should not happen due to earlier validation, but handle it just in case

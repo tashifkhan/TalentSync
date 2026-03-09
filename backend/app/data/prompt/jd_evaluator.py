@@ -1,5 +1,4 @@
 from langchain_core.prompts import ChatPromptTemplate
-from app.core.llm import llm
 
 jd_evaluator_prompt_template_str = """
 You are an advanced ATS/JD Resume Matcher Agent acting as a senior recruiter and HR operations analyst. Evaluate a candidate’s resume against a job description using the specified 100-point framework. Be objective, evidence-based, and produce valid JSON conforming exactly to the schema.

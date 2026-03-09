@@ -1,17 +1,29 @@
 import os
+import re
+
 import fitz
 import pymupdf4llm
-import re
-from app.core.llm import MODEL_NAME
+
 from app.core.settings import get_settings
 
 settings = get_settings()
 
 
 def _fallback_convert_to_text(file_bytes: bytes) -> str:
-    """Fallback method to convert document bytes to plain text."""
+    """Fallback method to convert document bytes to plain text using Google GenAI.
+
+    This fallback only works when the server-default provider is Google/Gemini,
+    because it uses the raw Google GenAI SDK (not LangChain) with multimodal input.
+    """
     from google import genai
     from google.genai import types
+
+    provider = settings.LLM_PROVIDER
+    if provider not in ("google", "gemini"):
+        raise RuntimeError(
+            f"PDF fallback conversion requires Google provider (current: {provider}). "
+            "Upload a text-based resume instead."
+        )
 
     api_key = settings.GOOGLE_API_KEY
     if not api_key:
@@ -19,14 +31,15 @@ def _fallback_convert_to_text(file_bytes: bytes) -> str:
             "GOOGLE_API_KEY is not configured; cannot perform fallback document conversion."
         )
 
+    model_name = settings.MODEL_NAME
     client = genai.Client(api_key=api_key)
     prompt = (
-        "Youn are a document conversion AI. Convert the following document to plain text.\n",
+        "You are a document conversion AI. Convert the following document to plain text.\n",
         "You don't talk about the conversion process, just provide the plain text output.\n",
         "MIND IT YOU ARE JUST SUPPOSED TO RETURN THE PLAIN OUTPUT.\n",
     )
     response = client.models.generate_content(
-        model=MODEL_NAME + "-lite",
+        model=model_name + "-lite",
         contents=[
             types.Part.from_bytes(
                 data=file_bytes,

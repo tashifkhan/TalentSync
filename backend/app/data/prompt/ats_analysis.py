@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 ats_analysis_prompt_template_str = """
 You are an expert ATS (Applicant Tracking System) and resume analysis assistant.
@@ -62,4 +62,7 @@ ats_analysis_prompt = PromptTemplate(
     template=ats_analysis_prompt_template_str,
 )
 
-ats_analysis_chain = ats_analysis_prompt | llm
+
+def build_ats_analysis_chain(llm: BaseChatModel):
+    """Build an ATS analysis chain with the given LLM instance."""
+    return ats_analysis_prompt | llm

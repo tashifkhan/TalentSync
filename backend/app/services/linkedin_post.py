@@ -1,14 +1,14 @@
 import re
-from fastapi import HTTPException
 from datetime import datetime
 
+from fastapi import HTTPException
+from langchain_core.language_models import BaseChatModel
+
 from app.models.schemas import (
-    PostGenerationRequest,
     GeneratedPost,
+    PostGenerationRequest,
     PostGenerationResponse,
 )
-from app.core.llm import llm
-
 
 try:
     from app.agents.websearch_agent import WebSearchAgent
@@ -80,7 +80,9 @@ def scrape_github_project_info(repo_url: str) -> dict:
     }
 
 
-async def research_topic_with_web(topic: str, context: str = "") -> dict:
+async def research_topic_with_web(
+    topic: str, context: str = "", llm: BaseChatModel | None = None
+) -> dict:
     """Research a topic using web search agent"""
     if not HAS_AGENTS:
         return {
@@ -89,7 +91,7 @@ async def research_topic_with_web(topic: str, context: str = "") -> dict:
         }
 
     try:
-        agent = WebSearchAgent()
+        agent = WebSearchAgent(llm=llm) if llm else WebSearchAgent()
         research = await agent.research_topic(topic, context)
         return research
 
@@ -106,11 +108,10 @@ async def generate_single_post(
     post_number: int = 1,
     github_context: str = "",
     research_context: str = "",
+    *,
+    llm: BaseChatModel,
 ) -> GeneratedPost:
     """Generate a single LinkedIn post with enhanced context"""
-
-    if not llm:
-        raise HTTPException(status_code=500, detail="LLM is not available")
 
     # Map emoji levels to descriptions
     emoji_map = {
@@ -224,6 +225,7 @@ async def generate_single_post(
 
 async def generate_linkedin_posts_service(
     request: PostGenerationRequest,
+    llm: BaseChatModel,
 ) -> PostGenerationResponse:
     """Generate LinkedIn posts using the core LLM with enhanced research capabilities"""
 
@@ -232,7 +234,7 @@ async def generate_linkedin_posts_service(
         research_context = ""
         if HAS_AGENTS and request.topic:
             try:
-                research_data = await research_topic_with_web(request.topic)
+                research_data = await research_topic_with_web(request.topic, llm=llm)
                 research_context = research_data.get("research_summary", "")
 
             except Exception as e:
@@ -253,6 +255,7 @@ async def generate_linkedin_posts_service(
                 i + 1,
                 github_context,
                 research_context,
+                llm=llm,
             )
             posts.append(post)
 
@@ -270,14 +273,8 @@ async def generate_linkedin_posts_service(
         )
 
 
-async def edit_post_llm_service(payload: dict) -> dict:
+async def edit_post_llm_service(payload: dict, llm: BaseChatModel) -> dict:
     """Edit a post using LLM according to user instruction"""
-
-    if not llm:
-        raise HTTPException(
-            status_code=500,
-            detail="LLM is not available",
-        )
 
     try:
         post = payload.get("post", {})

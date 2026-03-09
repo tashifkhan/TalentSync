@@ -1,70 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { LoaderOverlay } from "@/components/ui/loader";
-import {
-	ArrowLeft,
-	Lightbulb,
-	FileText,
-	Users,
-	AlertCircle,
-} from "lucide-react";
+import { ArrowLeft, FileText, Users, AlertCircle } from "lucide-react";
 import Link from "next/link";
-
-interface Tip {
-	category: string;
-	advice: string;
-}
-
-interface TipsData {
-	resume_tips: Tip[];
-	interview_tips: Tip[];
-}
+import { useTips } from "@/hooks/queries";
+import { Tip } from "@/services/tips.service";
 
 export default function TipsClient() {
-	const [tipsData, setTipsData] = useState<TipsData | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const searchParams = useSearchParams();
+	const category = searchParams.get("category") || "";
+	const skills = searchParams.get("skills") || "";
 
-	useEffect(() => {
-		const fetchTips = async () => {
-			try {
-				await new Promise((resolve) => setTimeout(resolve, 1000));
-
-				const category = searchParams.get("category") || "";
-				const skills = searchParams.get("skills") || "";
-
-				const params = new URLSearchParams();
-				if (category) params.append("job_category", category);
-				if (skills) params.append("skills", skills);
-
-				const response = await fetch(`/api/tips/?${params.toString()}`);
-
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
-
-				const result = await response.json();
-
-				if (result.success) {
-					setTipsData(result.data);
-				} else {
-					throw new Error(result.message || "Failed to fetch tips");
-				}
-			} catch (err) {
-				setError(err instanceof Error ? err.message : "Failed to fetch tips");
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchTips();
-	}, [searchParams]);
+	const {
+		data: tipsData,
+		isLoading: loading,
+		error,
+	} = useTips(category, skills);
 
 	return (
 		<>
@@ -79,7 +35,7 @@ export default function TipsClient() {
 			</AnimatePresence>
 
 			{!loading && (
-				<div className="min-h-screen bg-gradient-to-br from-[#222831] via-[#31363F] to-[#222831]">
+				<div className="min-h-screen">
 					<div className="container mx-auto px-4 py-8">
 						<motion.div
 							initial={{ opacity: 0, x: -20 }}
@@ -89,7 +45,7 @@ export default function TipsClient() {
 							<Link href="/dashboard/seeker">
 								<Button
 									variant="ghost"
-									className="text-[#EEEEEE] hover:text-[#76ABAE]"
+									className="text-brand-light hover:text-brand-primary"
 								>
 									<ArrowLeft className="mr-2 h-4 w-4" />
 									Back to Dashboard
@@ -106,11 +62,17 @@ export default function TipsClient() {
 										transition={{ duration: 0.5 }}
 									>
 										<AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
-										<div className="text-[#EEEEEE] text-xl mb-4">
+										<div className="text-brand-light text-xl mb-4">
 											Error loading tips
 										</div>
-										<div className="text-[#EEEEEE]/60 mb-4"></div>
-										<Link href="/dashboard/seeker"></Link>
+										<div className="text-brand-light/60 mb-4">
+											{(error as Error).message}
+										</div>
+										<Link href="/dashboard/seeker">
+											<Button className="bg-brand-primary hover:bg-brand-primary/90">
+												Go Back
+											</Button>
+										</Link>
 									</motion.div>
 								</div>
 							</div>
@@ -122,10 +84,10 @@ export default function TipsClient() {
 								className="mt-12"
 							>
 								<div className="text-center mb-12">
-									<h1 className="text-4xl font-bold text-[#EEEEEE] mb-4">
+									<h1 className="text-4xl font-bold text-brand-light mb-4">
 										Career Tips & Advice
 									</h1>
-									<p className="text-[#EEEEEE]/60 text-lg max-w-2xl mx-auto">
+									<p className="text-brand-light/60 text-lg max-w-2xl mx-auto">
 										Personalized tips to help you improve your resume and ace
 										your interviews
 									</p>
@@ -135,8 +97,8 @@ export default function TipsClient() {
 									{/* Resume Tips */}
 									<div className="space-y-6">
 										<div className="flex items-center space-x-3 mb-6">
-											<FileText className="h-8 w-8 text-[#76ABAE]" />
-											<h2 className="text-2xl text-[#EEEEEE] font-semibold">
+											<FileText className="h-8 w-8 text-brand-primary" />
+											<h2 className="text-2xl text-brand-light font-semibold">
 												Resume Tips
 											</h2>
 										</div>
@@ -154,14 +116,14 @@ export default function TipsClient() {
 														<Card className="backdrop-blur-lg bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300">
 															<CardContent className="p-6">
 																<div className="flex items-start space-x-3">
-																	<div className="flex-shrink-0 w-8 h-8 bg-[#76ABAE]/20 rounded-full flex items-center justify-center mt-1">
-																		<FileText className="h-4 w-4 text-[#76ABAE]" />
+																	<div className="flex-shrink-0 w-8 h-8 bg-brand-primary/20 rounded-full flex items-center justify-center mt-1">
+																		<FileText className="h-4 w-4 text-brand-primary" />
 																	</div>
 																	<div className="flex-1">
-																		<h3 className="text-[#76ABAE] font-semibold mb-2">
+																		<h3 className="text-brand-primary font-semibold mb-2">
 																			{tip.category}
 																		</h3>
-																		<p className="text-[#EEEEEE] leading-relaxed">
+																		<p className="text-brand-light leading-relaxed">
 																			{tip.advice}
 																		</p>
 																	</div>
@@ -173,8 +135,8 @@ export default function TipsClient() {
 											</div>
 										) : (
 											<div className="text-center py-8">
-												<FileText className="h-12 w-12 text-[#EEEEEE]/30 mx-auto mb-4" />
-												<p className="text-[#EEEEEE]/60">
+												<FileText className="h-12 w-12 text-brand-light/30 mx-auto mb-4" />
+												<p className="text-brand-light/60">
 													No resume tips available
 												</p>
 											</div>
@@ -184,8 +146,8 @@ export default function TipsClient() {
 									{/* Interview Tips */}
 									<div className="space-y-6">
 										<div className="flex items-center space-x-3 mb-6">
-											<Users className="h-8 w-8 text-[#76ABAE]" />
-											<h2 className="text-2xl text-[#EEEEEE] font-semibold">
+											<Users className="h-8 w-8 text-brand-primary" />
+											<h2 className="text-2xl text-brand-light font-semibold">
 												Interview Tips
 											</h2>
 										</div>
@@ -204,14 +166,14 @@ export default function TipsClient() {
 															<Card className="backdrop-blur-lg bg-white/5 border-white/10 hover:bg-white/10 transition-all duration-300">
 																<CardContent className="p-6">
 																	<div className="flex items-start space-x-3">
-																		<div className="flex-shrink-0 w-8 h-8 bg-[#76ABAE]/20 rounded-full flex items-center justify-center mt-1">
-																			<Users className="h-4 w-4 text-[#76ABAE]" />
+																		<div className="flex-shrink-0 w-8 h-8 bg-brand-primary/20 rounded-full flex items-center justify-center mt-1">
+																			<Users className="h-4 w-4 text-brand-primary" />
 																		</div>
 																		<div className="flex-1">
-																			<h3 className="text-[#76ABAE] font-semibold mb-2">
+																			<h3 className="text-brand-primary font-semibold mb-2">
 																				{tip.category}
 																			</h3>
-																			<p className="text-[#EEEEEE] leading-relaxed">
+																			<p className="text-brand-light leading-relaxed">
 																				{tip.advice}
 																			</p>
 																		</div>
@@ -219,13 +181,13 @@ export default function TipsClient() {
 																</CardContent>
 															</Card>
 														</motion.div>
-													)
+													),
 												)}
 											</div>
 										) : (
 											<div className="text-center py-8">
-												<Users className="h-12 w-12 text-[#EEEEEE]/30 mx-auto mb-4" />
-												<p className="text-[#EEEEEE]/60">
+												<Users className="h-12 w-12 text-brand-light/30 mx-auto mb-4" />
+												<p className="text-brand-light/60">
 													No interview tips available
 												</p>
 											</div>
@@ -242,12 +204,12 @@ export default function TipsClient() {
 								>
 									<Card className="backdrop-blur-lg bg-white/5 border-white/10 max-w-2xl mx-auto">
 										<CardContent className="p-6">
-											<h3 className="text-lg font-semibold text-[#EEEEEE] mb-4">
+											<h3 className="text-lg font-semibold text-brand-light mb-4">
 												Want more personalized advice?
 											</h3>
 											<div className="flex flex-col sm:flex-row gap-4 justify-center">
-												<Link href="/dashboard/resume-analysis">
-													<Button className="bg-gradient-to-r from-[#76ABAE] to-[#5A8B8F] hover:from-[#5A8B8F] hover:to-[#76ABAE] text-white">
+												<Link href="/dashboard/seeker">
+													<Button className="bg-gradient-to-r from-brand-primary to-brand-secondary hover:from-brand-secondary hover:to-brand-primary text-white">
 														<FileText className="mr-2 h-4 w-4" />
 														Analyze Resume
 													</Button>
@@ -255,7 +217,7 @@ export default function TipsClient() {
 												<Link href="/dashboard/hiring-assistant">
 													<Button
 														variant="outline"
-														className="border-[#76ABAE]/50 text-[#76ABAE] hover:bg-[#76ABAE]/10"
+														className="border-brand-primary/50 text-brand-primary hover:bg-brand-primary/10"
 													>
 														<Users className="mr-2 h-4 w-4" />
 														Practice Interviews

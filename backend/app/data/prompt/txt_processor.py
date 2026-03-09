@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 
 text_formater_template_str = """
 You are an expert resume text processing assistant.
@@ -32,4 +32,7 @@ text_formater_template = PromptTemplate(
     template=text_formater_template_str,
 )
 
-text_formater_chain = text_formater_template | llm
+
+def build_text_formatter_chain(llm: BaseChatModel):
+    """Build a text formatting chain with the given LLM instance."""
+    return text_formater_template | llm

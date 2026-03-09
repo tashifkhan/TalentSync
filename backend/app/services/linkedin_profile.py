@@ -2,18 +2,19 @@
 LinkedIn Page Generator Service - Creates comprehensive LinkedIn presence content
 """
 
-from typing import Dict, List, Optional, Any
 from datetime import datetime
-from fastapi import HTTPException
-from pydantic import BaseModel, HttpUrl, Field
+from typing import Any, Dict, List, Optional
 
-from app.core.llm import llm
-from app.models.schemas import PostGenerationRequest, GeneratedPost
+from fastapi import HTTPException
+from langchain_core.language_models import BaseChatModel
+from pydantic import BaseModel, Field, HttpUrl
+
+from app.models.schemas import GeneratedPost, PostGenerationRequest
 
 # Import agents with fallback
 try:
-    from app.agents.websearch_agent import WebSearchAgent
     from app.agents.github_agent import GitHubAgent
+    from app.agents.websearch_agent import WebSearchAgent
 
     HAS_AGENTS = True
 except ImportError:
@@ -80,9 +81,10 @@ class LinkedInPageResponse(BaseModel):
 class LinkedInPageGenerator:
     """Service class for generating comprehensive LinkedIn page content"""
 
-    def __init__(self):
-        self.web_agent = WebSearchAgent() if HAS_AGENTS else None
-        self.github_agent = GitHubAgent() if HAS_AGENTS else None
+    def __init__(self, llm: BaseChatModel):
+        self.llm = llm
+        self.web_agent = WebSearchAgent(llm=llm) if HAS_AGENTS else None
+        self.github_agent = GitHubAgent(llm=llm) if HAS_AGENTS else None
 
     async def generate_linkedin_page(
         self, request: LinkedInPageRequest
@@ -161,10 +163,10 @@ Professional Profile Information:
 - Current Role: {request.current_role}
 - Industry: {request.industry}
 - Experience: {request.years_of_experience} years
-- Key Skills: {', '.join(request.key_skills)}
-- Achievements: {'; '.join(request.achievements)}
+- Key Skills: {", ".join(request.key_skills)}
+- Achievements: {"; ".join(request.achievements)}
 - Target Audience: {request.target_audience}
-- Company: {request.company_name or 'Not specified'}
+- Company: {request.company_name or "Not specified"}
 
 Industry Context: {industry_insights}
 
@@ -179,7 +181,7 @@ Create a compelling LinkedIn headline for this professional. Keep it under 220 c
 
 Generate ONLY the headline text, no explanations:"""
 
-        headline_response = await llm.ainvoke(headline_prompt)
+        headline_response = await self.llm.ainvoke(headline_prompt)
         headline = str(
             headline_response.content
             if hasattr(headline_response, "content")
@@ -194,7 +196,7 @@ Create a professional LinkedIn summary/about section (2-3 paragraphs) for this p
 
 Generate ONLY the summary text, no explanations:"""
 
-        summary_response = await llm.ainvoke(summary_prompt)
+        summary_response = await self.llm.ainvoke(summary_prompt)
         summary = str(
             summary_response.content
             if hasattr(summary_response, "content")
@@ -209,7 +211,7 @@ Create a detailed LinkedIn 'About' section for this professional. Include profes
 
 Generate ONLY the about section text, no explanations:"""
 
-        about_response = await llm.ainvoke(about_prompt)
+        about_response = await self.llm.ainvoke(about_prompt)
         about_section = str(
             about_response.content
             if hasattr(about_response, "content")
@@ -291,7 +293,9 @@ Theme: {theme}
                 # Generate individual post
                 from app.services.linkedin_post import generate_single_post
 
-                post = await generate_single_post(post_request, i + 1, post_context)
+                post = await generate_single_post(
+                    post_request, i + 1, post_context, llm=self.llm
+                )
                 posts.append(post)
 
             except Exception as e:
@@ -393,15 +397,13 @@ Theme: {theme}
         return base_tips
 
 
-# Service instance
-linkedin_page_generator = LinkedInPageGenerator()
-
-
 # Main service function
 async def generate_comprehensive_linkedin_page(
     request: LinkedInPageRequest,
+    llm: BaseChatModel,
 ) -> LinkedInPageResponse:
     """
     Generate comprehensive LinkedIn page content
     """
-    return await linkedin_page_generator.generate_linkedin_page(request)
+    generator = LinkedInPageGenerator(llm=llm)
+    return await generator.generate_linkedin_page(request)

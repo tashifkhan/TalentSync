@@ -1,4 +1,4 @@
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
 from langchain_core.prompts import PromptTemplate
 
 
@@ -130,4 +130,7 @@ cold_mail_edit_prompt = PromptTemplate(
     template=cold_mail_edit_prompt_template_str,
 )
 
-cold_mail_edit_chain = cold_mail_edit_prompt | llm
+
+def build_cold_mail_edit_chain(llm: BaseChatModel):
+    """Build a cold mail editor chain with the given LLM instance."""
+    return cold_mail_edit_prompt | llm

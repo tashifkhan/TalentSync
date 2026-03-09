@@ -2,12 +2,14 @@
 GitHub Agent for extracting project information and insights
 """
 
-import re
 import asyncio
-from typing import Dict, List, Optional, Any, Tuple
+import re
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
-from app.core.llm import llm
+from langchain_core.language_models import BaseChatModel
+
+from app.core.llm import get_llm
 
 try:  # Prefer async ingest if available
     from gitingest import ingest_async as _gitingest_async  # type: ignore
@@ -49,7 +51,8 @@ class IngestedContent(BaseModel):
 class GitHubAgent:
     """Agent for extracting information from GitHub repositories"""
 
-    def __init__(self):
+    def __init__(self, llm: Optional[BaseChatModel] = None):
+        self.llm = llm or get_llm()
         self.github_api_base = "https://api.github.com"
         self.headers = {
             "Accept": "application/vnd.github.v3+json",
@@ -65,7 +68,7 @@ class GitHubAgent:
                 return None
             # Normalize (allow user to omit scheme)
             if not re.match(r"^https?://", url):
-                url = f"https://{url.lstrip('/') }"
+                url = f"https://{url.lstrip('/')}"
             # Handle different GitHub URL formats
             patterns = [
                 r"github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$",
@@ -283,7 +286,9 @@ class GitHubAgent:
                 f"Keep each point concise and professional."
             )
 
-            response = await llm.ainvoke(prompt)
+            if not self.llm:
+                raise RuntimeError("LLM is not configured")
+            response = await self.llm.ainvoke(prompt)
             insights_text = (
                 str(response.content) if hasattr(response, "content") else str(response)
             )
@@ -409,9 +414,11 @@ class GitHubAgent:
 
 
 # Convenience function for easy import
-async def analyze_github_for_linkedin(url: str) -> Dict[str, Any]:
+async def analyze_github_for_linkedin(
+    url: str, llm: Optional[BaseChatModel] = None
+) -> Dict[str, Any]:
     """
     Convenience function to analyze a GitHub project for LinkedIn content
     """
-    agent = GitHubAgent()
+    agent = GitHubAgent(llm=llm)
     return await agent.analyze_project_for_linkedin(url)

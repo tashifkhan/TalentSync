@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from typing import Optional
 
 from fastapi import HTTPException
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import END, START, MessagesState, StateGraph
@@ -43,7 +45,7 @@ class ATSEvaluatorGraph:
         jd_text: str,
         company_name: str | None = None,
         company_website: str | None = None,
-        llm: ChatGoogleGenerativeAI | None = None,
+        llm: BaseChatModel | None = None,
         config: GraphConfig | None = None,
     ) -> None:
         self.config = config or GraphConfig()
@@ -116,6 +118,7 @@ def evaluate_ats(
     jd_text: str,
     company_name: str | None = None,
     company_website: str | None = None,
+    llm: Optional[BaseChatModel] = None,
 ) -> dict:
     """Run ATS evaluation and return (structured_json, narrative_text).
 
@@ -127,6 +130,7 @@ def evaluate_ats(
         jd_text=jd_text,
         company_name=company_name,
         company_website=company_website,
+        llm=llm,
     )()
 
     resp = graph.invoke(

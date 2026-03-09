@@ -1,8 +1,11 @@
-from fastapi import APIRouter, File, UploadFile, Form
 from typing import Optional
+
+from fastapi import APIRouter, Depends, File, Form, UploadFile
+from langchain_core.language_models import BaseChatModel
+
+from app.core.deps import get_request_llm
 from app.models.schemas import HiringAssistantResponse
 from app.services import hiring_assiatnat
-
 
 file_based_router = APIRouter()
 
@@ -20,6 +23,7 @@ async def hiring_assistant(
     user_knowledge: Optional[str] = Form(""),
     company_url: Optional[str] = Form(None),
     word_limit: Optional[int] = Form(150),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return hiring_assiatnat.hiring_assistant_service(
         file,
@@ -29,6 +33,7 @@ async def hiring_assistant(
         user_knowledge,
         company_url,
         word_limit,
+        llm,
     )
 
 
@@ -48,6 +53,7 @@ async def hiring_assistant2(
     user_knowledge: Optional[str] = Form(""),
     company_url: Optional[str] = Form(None),
     word_limit: Optional[int] = Form(150),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     return await hiring_assiatnat.hiring_assistant_v2_service(
         resume_text,
@@ -57,4 +63,5 @@ async def hiring_assistant2(
         user_knowledge,
         company_url,
         word_limit,
+        llm,
     )

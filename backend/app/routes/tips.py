@@ -1,5 +1,9 @@
-from fastapi import APIRouter, Query
 from typing import Optional
+
+from fastapi import APIRouter, Depends, Query
+from langchain_core.language_models import BaseChatModel
+
+from app.core.deps import get_request_llm
 from app.models.schemas import TipsResponse
 from app.services import tips
 
@@ -20,6 +24,7 @@ async def get_career_tips(
         None,
         description="Comma-separated skills for tailored tips",
     ),
+    llm: BaseChatModel = Depends(get_request_llm),
 ):
     if job_category:
         job_category = job_category.strip().lower()
@@ -35,4 +40,4 @@ async def get_career_tips(
     else:
         skills_param = skills
 
-    return tips.get_career_tips_service(job_category, skills_param)
+    return tips.get_career_tips_service(job_category, skills_param, llm)

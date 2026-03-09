@@ -6,10 +6,11 @@ import time
 from typing import Any, Dict, List, Optional
 
 import requests
+from langchain_core.language_models import BaseChatModel
 from tavily import TavilyClient
 
 from app.agents.web_content_agent import return_markdown
-from app.core.llm import llm
+from app.core.llm import get_llm
 from app.core.settings import get_settings
 
 settings = get_settings()
@@ -121,8 +122,9 @@ def web_search_pipeline(query: str, max_results: int = 10) -> List[Dict[str, str
 
 
 class WebSearchAgent:
-    def __init__(self, max_results: int = 10):
+    def __init__(self, max_results: int = 10, llm: Optional[BaseChatModel] = None):
         self.max_results = max_results
+        self.llm = llm or get_llm()
 
     def search_web(
         self, query: str, max_results: Optional[int] = None
@@ -165,7 +167,7 @@ class WebSearchAgent:
     async def _summarize_research(
         self, topic: str, search_results: List[Dict[str, str]], contents: List[str]
     ) -> str:
-        if not llm:
+        if not self.llm:
             return (
                 "LLM unavailable; raw content gathered."
                 if contents
@@ -189,7 +191,7 @@ class WebSearchAgent:
                 f"Summarize key insights, trends, and takeaways about '{topic}' for a professional LinkedIn post. "
                 f"Base it ONLY on the following material. Be concise (2-3 sentences).\n\n{research_text}\nSummary:"
             )
-            resp = await llm.ainvoke(prompt)
+            resp = await self.llm.ainvoke(prompt)
             return str(getattr(resp, "content", resp)).strip()
         except Exception as e:
             logger.warning(f"[websearch] summarization failed: {e}")
@@ -197,15 +199,20 @@ class WebSearchAgent:
 
 
 class LinkedInResearcher(WebSearchAgent):
-    def __init__(self, max_results: int = 10, sentences: int = 3):
-        super().__init__(max_results=max_results)
+    def __init__(
+        self,
+        max_results: int = 10,
+        sentences: int = 3,
+        llm: Optional[BaseChatModel] = None,
+    ):
+        super().__init__(max_results=max_results, llm=llm)
         self.sentences = sentences
 
     async def generate_post(self, topic: str):
         research = await self.research_topic(topic)
         summary = research.get("research_summary", "")
 
-        if not llm or not summary:
+        if not self.llm or not summary:
             research["linkedin_post"] = (
                 f"{topic.title()} – Key update: {summary or 'Insights gathered; see sources.'}"[
                     :800
@@ -219,7 +226,7 @@ class LinkedInResearcher(WebSearchAgent):
                 "Avoid hashtags except at most 2 at end if they add clarity. Maintain professional, optimistic tone.\n\n"
                 f"SUMMARY:\n{summary}\n\nPOST:"
             )
-            resp = await llm.ainvoke(prompt)
+            resp = await self.llm.ainvoke(prompt)
             research["linkedin_post"] = str(getattr(resp, "content", resp)).strip()
             return research
 

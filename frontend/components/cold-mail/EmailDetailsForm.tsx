@@ -16,12 +16,12 @@ export default function EmailDetailsForm({
 		<div className="space-y-6">
 			{/* Recipient Section */}
 			<div className="space-y-4">
-				<h3 className="text-[#EEEEEE] font-medium text-base border-b border-white/10 pb-2">
+				<h3 className="text-brand-light font-medium text-base border-b border-white/10 pb-2">
 					Recipient Information
 				</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div className="space-y-2">
-						<Label className="text-[#EEEEEE] text-sm font-medium">
+						<Label className="text-brand-light text-sm font-medium">
 							Recipient Name *
 						</Label>
 						<Input
@@ -30,11 +30,11 @@ export default function EmailDetailsForm({
 							onChange={(e) =>
 								handleInputChange("recipient_name", e.target.value)
 							}
-							className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+							className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label className="text-[#EEEEEE] text-sm font-medium">
+						<Label className="text-brand-light text-sm font-medium">
 							Position
 						</Label>
 						<Input
@@ -43,7 +43,7 @@ export default function EmailDetailsForm({
 							onChange={(e) =>
 								handleInputChange("recipient_designation", e.target.value)
 							}
-							className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+							className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 						/>
 					</div>
 				</div>
@@ -51,12 +51,12 @@ export default function EmailDetailsForm({
 
 			{/* Company & Sender Section */}
 			<div className="space-y-4">
-				<h3 className="text-[#EEEEEE] font-medium text-base border-b border-white/10 pb-2">
+				<h3 className="text-brand-light font-medium text-base border-b border-white/10 pb-2">
 					Company & Personal Details
 				</h3>
 				<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 					<div className="space-y-2">
-						<Label className="text-[#EEEEEE] text-sm font-medium">
+						<Label className="text-brand-light text-sm font-medium">
 							Company Name *
 						</Label>
 						<Input
@@ -65,11 +65,11 @@ export default function EmailDetailsForm({
 							onChange={(e) =>
 								handleInputChange("company_name", e.target.value)
 							}
-							className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+							className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 						/>
 					</div>
 					<div className="space-y-2">
-						<Label className="text-[#EEEEEE] text-sm font-medium">
+						<Label className="text-brand-light text-sm font-medium">
 							Your Name *
 						</Label>
 						<Input
@@ -78,13 +78,13 @@ export default function EmailDetailsForm({
 							onChange={(e) =>
 								handleInputChange("sender_name", e.target.value.toLowerCase())
 							}
-							className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+							className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 						/>
 					</div>
 				</div>
 
 				<div className="space-y-2">
-					<Label className="text-[#EEEEEE] text-sm font-medium">
+					<Label className="text-brand-light text-sm font-medium">
 						Your Goal/Desired Role
 					</Label>
 					<Input
@@ -93,31 +93,31 @@ export default function EmailDetailsForm({
 						onChange={(e) =>
 							handleInputChange("sender_role_or_goal", e.target.value)
 						}
-						className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+						className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 					/>
 				</div>
 
 				<div className="space-y-2">
-					<Label className="text-[#EEEEEE] text-sm font-medium">
+					<Label className="text-brand-light text-sm font-medium">
 						Company Website (Optional)
 					</Label>
 					<Input
 						placeholder="https://talentsync.ai"
 						value={formData.company_url}
 						onChange={(e) => handleInputChange("company_url", e.target.value)}
-						className="h-11 bg-white/5 border-white/20 text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+						className="h-11 bg-white/5 border-white/20 text-brand-light placeholder:text-brand-light/50 focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 					/>
 				</div>
 			</div>
 
 			{/* Content Section */}
 			<div className="space-y-4">
-				<h3 className="text-[#EEEEEE] font-medium text-base border-b border-white/10 pb-2">
+				<h3 className="text-brand-light font-medium text-base border-b border-white/10 pb-2">
 					Email Content
 				</h3>
 
 				<div className="space-y-2">
-					<Label className="text-[#EEEEEE] text-sm font-medium">
+					<Label className="text-brand-light text-sm font-medium">
 						Key Points to Highlight
 					</Label>
 					<textarea
@@ -126,12 +126,12 @@ export default function EmailDetailsForm({
 						onChange={(e) =>
 							handleInputChange("key_points_to_include", e.target.value)
 						}
-						className="w-full h-24 px-3 py-3 bg-white/5 border border-white/20 rounded-lg text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 resize-none focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+						className="w-full h-24 px-3 py-3 bg-white/5 border border-white/20 rounded-lg text-brand-light placeholder:text-brand-light/50 resize-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 					/>
 				</div>
 
 				<div className="space-y-2">
-					<Label className="text-[#EEEEEE] text-sm font-medium">
+					<Label className="text-brand-light text-sm font-medium">
 						Additional Context
 					</Label>
 					<textarea
@@ -140,7 +140,7 @@ export default function EmailDetailsForm({
 						onChange={(e) =>
 							handleInputChange("additional_info_for_llm", e.target.value)
 						}
-						className="w-full h-24 px-3 py-3 bg-white/5 border border-white/20 rounded-lg text-[#EEEEEE] placeholder:text-[#EEEEEE]/50 resize-none focus:border-[#76ABAE] focus:ring-1 focus:ring-[#76ABAE] transition-all"
+						className="w-full h-24 px-3 py-3 bg-white/5 border border-white/20 rounded-lg text-brand-light placeholder:text-brand-light/50 resize-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
 					/>
 				</div>
 			</div>

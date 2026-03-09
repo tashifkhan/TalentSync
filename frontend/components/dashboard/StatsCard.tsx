@@ -38,7 +38,7 @@ export default function StatsCard({
 			transition={{ duration: 0.5, delay }}
 		>
 			<Card
-				className="backdrop-blur-sm bg-gradient-to-br from-[#31363F]/90 to-[#222831]/90 border-slate-600/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
+				className="backdrop-blur-sm bg-brand-dark/90 border-border-subtle/30 shadow-2xl hover:shadow-3xl transition-all duration-300 card-hover group cursor-pointer"
 				onClick={onClick}
 			>
 				<CardContent className="p-6">
@@ -54,9 +54,9 @@ export default function StatsCard({
 						</Badge>
 					</div>
 					<div>
-						<p className="text-slate-300 text-sm font-medium mb-1">{title}</p>
+						<p className="text-text-muted-light text-sm font-medium mb-1">{title}</p>
 						<p className="text-3xl font-bold text-white mb-2">{value}</p>
-						<Progress value={progressValue} className="h-2 bg-slate-600/50" />
+						<Progress value={progressValue} className="h-2 bg-border-subtle/50" />
 					</div>
 				</CardContent>
 			</Card>

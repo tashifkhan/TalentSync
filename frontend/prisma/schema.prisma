@@ -31,11 +31,31 @@ model User {
     bulkUploads         BulkUpload[]
     recruiter           Recruiter?
     coldMailRequests    ColdMailRequest[]
+    coverLetterRequests CoverLetterRequest[]
     interviewRequests   InterviewRequest[]
     emailTokens         EmailVerificationToken[]
     passwordResetTokens PasswordResetToken[]
     accounts            Account[]
     sessions            Session[]
+    llmConfigs          LlmConfig[]
+}
+
+model LlmConfig {
+    id            String   @id @default(cuid())
+    userId        String
+    label         String   @default("Default")
+    provider      String   @default("google")
+    model         String   @default("gemini-2.5-flash")
+    encryptedKey  String?  @db.Text
+    apiBase       String?
+    isActive      Boolean  @default(false)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([userId, label])
+    @@index([userId, isActive])
 }
 
 model EmailVerificationToken {
@@ -65,9 +85,16 @@ model Resume {
     rawText       String   @db.Text
     uploadDate    DateTime @default(now())
     showInCentral Boolean  @default(false)
+    source        String   @default("UPLOADED") // "UPLOADED" | "MANUAL"
+    isMaster      Boolean  @default(false)
+    parentId      String?
 
     user     User      @relation(fields: [userId], references: [id])
     analysis Analysis?
+    parent   Resume?   @relation("ResumeTailored", fields: [parentId], references: [id], onDelete: SetNull)
+    children Resume[]  @relation("ResumeTailored")
+
+    @@index([userId, isMaster])
 }
 
 model Analysis {
@@ -92,6 +119,7 @@ model Analysis {
     certifications            Json?
     achievements              Json?
     uploadedAt                DateTime @default(now())
+    updatedAt                 DateTime @default(now()) @updatedAt
 
     resume Resume @relation(fields: [resumeId], references: [id])
 }
@@ -143,6 +171,33 @@ model ColdMailResponse {
     createdAt DateTime @default(now())
 
     request ColdMailRequest @relation(fields: [requestId], references: [id])
+}
+
+model CoverLetterRequest {
+    id               String   @id @default(uuid())
+    userId           String
+    recipientName    String
+    companyName      String
+    senderName       String
+    senderRoleOrGoal String?
+    jobDescription   String?  @db.Text
+    jdUrl            String?
+    keyPoints        String?
+    additionalInfo   String?
+    companyUrl       String?
+    createdAt        DateTime @default(now())
+
+    user      User                 @relation(fields: [userId], references: [id])
+    responses CoverLetterResponse[]
+}
+
+model CoverLetterResponse {
+    id        String   @id @default(uuid())
+    requestId String
+    body      String   @db.Text
+    createdAt DateTime @default(now())
+
+    request CoverLetterRequest @relation(fields: [requestId], references: [id])
 }
 
 model InterviewRequest {

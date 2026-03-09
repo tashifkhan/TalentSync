@@ -5,18 +5,16 @@ Dependencies:
 - Optional Tavily tool if configured.
 """
 
-from typing import Any, Dict, Optional
 import json
 import logging
+from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
+from langchain_core.language_models import BaseChatModel
 from pydantic import ValidationError
 
+from app.models.schemas import JDEvaluatorRequest, JDEvaluatorResponse
 from app.services.ats_evaluator import evaluate_ats
-
-from app.models.schemas import JDEvaluatorRequest
-from app.models.schemas import JDEvaluatorResponse
-
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +25,7 @@ async def ats_evaluate_service(
     jd_link: str | None = None,
     company_name: Optional[str] = None,
     company_website: Optional[str] = None,
+    llm: Optional[BaseChatModel] = None,
 ) -> JDEvaluatorResponse:
     """Return a detailed ATS analysis including JD matching and suggestions."""
 
@@ -109,6 +108,7 @@ async def ats_evaluate_service(
             jd_text=jd_text,
             company_name=company_name,
             company_website=company_website,
+            llm=llm,
         )
 
         logger.debug(

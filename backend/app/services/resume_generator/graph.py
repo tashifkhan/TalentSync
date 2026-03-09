@@ -4,6 +4,7 @@ import json
 import re
 from typing import List, Optional
 
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import HumanMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -13,6 +14,8 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from app.agents.web_content_agent import return_markdown
 from app.core.llm import MODEL_NAME, get_llm
+from app.core.settings import get_settings
+from app.services.data_processor import polish_resume_json_with_llm
 from app.services.ats import ats_evaluate_service
 
 
@@ -22,6 +25,7 @@ class GraphBuilder:
         system_prompt_messages: List,
         tools: List,
         model_name: str = MODEL_NAME,
+        llm: Optional[BaseChatModel] = None,
     ) -> None:
         """Create a GraphBuilder that will run the state graph with a chat LLM bound to tools.
 
@@ -29,12 +33,16 @@ class GraphBuilder:
             system_prompt_messages: list of Message objects returned from prompt.format_messages(...)
             tools: list of tool instances to expose to the model
             model_name: model identifier for ChatGoogleGenerativeAI
+            llm: optional pre-configured LLM instance
         """
-        llm = get_llm()
-        if llm:
+        if llm is not None:
             self.llm = llm
         else:
-            self.llm = ChatGoogleGenerativeAI(model=model_name)
+            default_llm = get_llm()
+            if default_llm:
+                self.llm = default_llm
+            else:
+                self.llm = ChatGoogleGenerativeAI(model=model_name)
         self.tools = tools or []
         self.llm_with_tools = self.llm.bind_tools(
             tools=self.tools,
@@ -71,6 +79,7 @@ async def run_resume_pipeline(
     jd: Optional[str] = None,
     max_tool_results: int = 3,
     model_name: str = MODEL_NAME,
+    llm: Optional[BaseChatModel] = None,
 ) -> str:
     """Run the end-to-end resume tailoring pipeline and return a JSON string result.
 
@@ -84,6 +93,7 @@ async def run_resume_pipeline(
             jd_link=None,
             company_name=company_name,
             company_website=company_website,
+            llm=llm,
         )
 
         ats_summary = json.dumps(
@@ -143,7 +153,12 @@ async def run_resume_pipeline(
     )
 
     # Prepare tools
-    tavily_search_tool = TavilySearch(max_results=max_tool_results, topic="general")
+    settings = get_settings()
+    tavily_search_tool = TavilySearch(
+        max_results=max_tool_results,
+        topic="general",
+        tavily_api_key=settings.TAVILY_API_KEY,
+    )
     tools = [tavily_search_tool]
 
     # Instantiate graph builder with formatted system prompt messages
@@ -155,6 +170,7 @@ async def run_resume_pipeline(
         system_prompt_messages=system_prompt_messages,
         tools=tools,
         model_name=model_name,
+        llm=llm,
     )
     graph = builder()
 
@@ -199,6 +215,14 @@ async def run_resume_pipeline(
     # Attempt to parse; try simple fixes if necessary
     try:
         parsed = json.loads(json_text)
+        if isinstance(parsed, dict):
+            polished = polish_resume_json_with_llm(
+                resume_json=parsed,
+                master_resume=resume,
+                llm=llm,
+            )
+            if polished:
+                parsed = polished
         return json.dumps(
             parsed,
             indent=2,
@@ -213,6 +237,14 @@ async def run_resume_pipeline(
                 r"(?<=[\\{\\s,])([A-Za-z0-9_+-]+)\\s*:\\s", r'"\\1": ', fixed
             )
             parsed = json.loads(fixed)
+            if isinstance(parsed, dict):
+                polished = polish_resume_json_with_llm(
+                    resume_json=parsed,
+                    master_resume=resume,
+                    llm=llm,
+                )
+                if polished:
+                    parsed = polished
             return json.dumps(
                 parsed,
                 indent=2,
