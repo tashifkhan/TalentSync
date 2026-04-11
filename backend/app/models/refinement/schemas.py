@@ -9,6 +9,7 @@ class RefinementConfig(BaseModel):
     enable_keyword_injection: bool = True
     enable_ai_phrase_removal: bool = True
     enable_master_alignment_check: bool = True
+    enable_final_truthfulness_polish: bool = True
     max_refinement_passes: int = Field(default=2, ge=1, le=5)
 
 

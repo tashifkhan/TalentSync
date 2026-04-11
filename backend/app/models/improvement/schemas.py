@@ -89,3 +89,4 @@ class ResumeRefineResponse(BaseModel):
     message: str = "Resume refined successfully"
     refined_resume: ComprehensiveAnalysisData
     refinement_stats: RefinementStats | None = None
+    warnings: list[str] = Field(default_factory=list)
