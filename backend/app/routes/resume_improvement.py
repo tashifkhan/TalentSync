@@ -1,6 +1,8 @@
 """Resume improvement and refinement endpoints."""
 
-from fastapi import APIRouter, Depends
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException
 from langchain_core.language_models import BaseChatModel
 
 from app.core.deps import get_request_llm
@@ -16,6 +18,7 @@ from app.services.resume_improvement import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.post(
@@ -27,7 +30,16 @@ async def improve_resume_endpoint(
     payload: ResumeImproveRequest,
     llm: BaseChatModel = Depends(get_request_llm),
 ) -> ResumeImproveResponse:
-    return await improve_resume_with_refinement(payload, llm=llm)
+    try:
+        return await improve_resume_with_refinement(payload, llm=llm)
+    except HTTPException:
+        raise
+    except Exception as error:
+        logger.exception("Resume improve endpoint failed")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Resume improvement failed: {error}",
+        ) from error
 
 
 @router.post(
@@ -39,4 +51,13 @@ async def refine_resume_endpoint(
     payload: ResumeRefineRequest,
     llm: BaseChatModel = Depends(get_request_llm),
 ) -> ResumeRefineResponse:
-    return await refine_existing_resume(payload, llm=llm)
+    try:
+        return await refine_existing_resume(payload, llm=llm)
+    except HTTPException:
+        raise
+    except Exception as error:
+        logger.exception("Resume refine endpoint failed")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Resume refinement failed: {error}",
+        ) from error
