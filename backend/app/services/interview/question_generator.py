@@ -11,6 +11,7 @@ from app.data.prompt.interview_question import get_question_generation_prompt
 from app.models.interview.enums import DifficultyLevel, QuestionSource
 from app.models.interview.schemas import InterviewQuestion
 from app.models.interview.templates import QuestionTemplate, get_template
+from app.services.llm_helpers import chain_invoke_text_async
 
 
 class QuestionGenerator:
@@ -174,7 +175,8 @@ class QuestionGenerator:
             chain = self.prompt | self.llm
 
             try:
-                response = await chain.ainvoke(
+                content = await chain_invoke_text_async(
+                    chain,
                     {
                         "role": role,
                         "difficulty": difficulty.value,
@@ -183,16 +185,10 @@ class QuestionGenerator:
                         "candidate_background": candidate_background,
                         "existing_questions": existing_str,
                         "additional_context": "",
-                    }
+                    },
+                    cache_namespace="interview_question_generation",
                 )
 
-                # Parse response
-                if hasattr(response, "content"):
-                    content = response.content
-                else:
-                    content = response
-                if not isinstance(content, str):
-                    content = json.dumps(content, ensure_ascii=True)
                 parsed = self._parse_question_response(content)
 
                 return InterviewQuestion(
