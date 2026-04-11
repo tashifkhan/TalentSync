@@ -17,6 +17,7 @@ from app.models.interview.schemas import (
     EvaluationResult,
     InterviewQuestion,
 )
+from app.services.llm_helpers import chain_invoke_text_async
 
 
 class AnswerEvaluator:
@@ -46,7 +47,8 @@ class AnswerEvaluator:
         chain = self.prompt | self.llm
 
         try:
-            response = await chain.ainvoke(
+            content = await chain_invoke_text_async(
+                chain,
                 {
                     "role": role,
                     "difficulty": question.difficulty.value,
@@ -56,11 +58,8 @@ class AnswerEvaluator:
                     if question.expected_keywords
                     else "N/A",
                     "answer": answer,
-                }
-            )
-
-            content = (
-                response.content if hasattr(response, "content") else str(response)
+                },
+                cache_namespace="interview_answer_evaluation",
             )
             parsed = self._parse_evaluation_response(content)
 
