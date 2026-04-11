@@ -24,6 +24,17 @@ from app.services.refiner import calculate_keyword_match, refine_resume
 logger = logging.getLogger(__name__)
 
 
+def _safe_validate_resume_payload(
+    payload: dict[str, Any],
+    fallback: ComprehensiveAnalysisData,
+) -> tuple[dict[str, Any], str | None]:
+    try:
+        validated = ComprehensiveAnalysisData.model_validate(payload)
+        return validated.model_dump(), None
+    except Exception as error:
+        return fallback.model_dump(), f"Resume payload validation failed: {error}"
+
+
 def _preserve_personal_info(
     original_data: ComprehensiveAnalysisData | dict[str, Any] | None,
     improved_data: dict[str, Any],
@@ -68,6 +79,8 @@ async def improve_resume_with_refinement(
     *,
     llm,
 ) -> ResumeImproveResponse:
+    warnings: list[str] = []
+
     if not request.resume_text.strip():
         return ResumeImproveResponse(
             success=False,
@@ -94,8 +107,13 @@ async def improve_resume_with_refinement(
         language=request.language,
         prompt_id=request.prompt_id,
     )
+    improved_data, validation_warning = _safe_validate_resume_payload(
+        improved_data,
+        request.resume_data,
+    )
+    if validation_warning:
+        warnings.append(validation_warning)
 
-    warnings: list[str] = []
     improved_data, preserve_warnings = _preserve_personal_info(
         request.resume_data,
         improved_data,
@@ -111,6 +129,8 @@ async def improve_resume_with_refinement(
             initial_match = calculate_keyword_match(improved_data, job_keywords)
             refinement_attempted = True
             refinement_config = request.refinement_config or RefinementConfig()
+            if refinement_config.enable_final_truthfulness_polish:
+                warnings.append("final truthfulness polish is enabled")
             refinement_result = await refine_resume(
                 initial_tailored=improved_data,
                 master_resume=request.resume_data.model_dump(),
@@ -125,6 +145,14 @@ async def improve_resume_with_refinement(
         except Exception as error:
             logger.warning("Refinement failed: %s", error)
             warnings.append(f"Refinement failed: {error}")
+
+    if refinement_stats and refinement_stats.ai_phrases_removed:
+        warnings.extend(
+            [
+                f"AI-phrase replacements applied: {phrase}"
+                for phrase in refinement_stats.ai_phrases_removed[:10]
+            ]
+        )
 
     diff_summary = None
     detailed_changes = None
@@ -145,8 +173,15 @@ async def improve_resume_with_refinement(
         for imp in generate_improvements(job_keywords)
     ]
 
+    improved_validated, final_validation_warning = _safe_validate_resume_payload(
+        improved_data,
+        request.resume_data,
+    )
+    if final_validation_warning:
+        warnings.append(final_validation_warning)
+
     return ResumeImproveResponse(
-        improved_resume=ComprehensiveAnalysisData.model_validate(improved_data),
+        improved_resume=ComprehensiveAnalysisData.model_validate(improved_validated),
         improvements=improvements,
         diff_summary=diff_summary,
         detailed_changes=detailed_changes,
@@ -162,6 +197,16 @@ async def refine_existing_resume(
     *,
     llm,
 ) -> ResumeRefineResponse:
+    warnings: list[str] = []
+
+    if not request.job_description.strip():
+        return ResumeRefineResponse(
+            success=False,
+            message="Job description cannot be empty",
+            refined_resume=ComprehensiveAnalysisData(),
+            warnings=warnings,
+        )
+
     if not request.job_keywords:
         job_keywords = await extract_job_keywords(request.job_description, llm=llm)
     else:
@@ -179,9 +224,28 @@ async def refine_existing_resume(
         config=refinement_config,
     )
 
-    return ResumeRefineResponse(
-        refined_resume=ComprehensiveAnalysisData.model_validate(
+    if refinement_config.enable_final_truthfulness_polish:
+        warnings.append("final truthfulness polish is enabled")
+
+    if refinement_result.ai_phrases_removed:
+        warnings.extend(
+            [
+                f"AI-phrase replacements applied: {phrase}"
+                for phrase in refinement_result.ai_phrases_removed[:10]
+            ]
+        )
+
+    try:
+        validated = ComprehensiveAnalysisData.model_validate(
             refinement_result.refined_data
-        ),
+        )
+    except Exception as error:
+        logger.warning("Refined resume validation failed: %s", error)
+        warnings.append(f"Refined resume validation failed: {error}")
+        validated = request.resume_data
+
+    return ResumeRefineResponse(
+        refined_resume=validated,
         refinement_stats=refinement_result.to_stats(initial_match),
+        warnings=warnings,
     )
