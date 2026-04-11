@@ -1,5 +1,6 @@
 """Multi-pass resume refinement service."""
 
+import asyncio
 import copy
 import json
 import logging
@@ -76,6 +77,20 @@ async def refine_resume(
         if not alignment.is_aligned:
             current = fix_alignment_violations(current, alignment.violations)
             passes += 1
+
+    if config.enable_final_truthfulness_polish:
+        try:
+            polished = await _run_polish_resume_json_with_llm(
+                resume_json=current,
+                master_resume=master_resume,
+                llm=llm,
+                max_attempts=max(1, config.max_refinement_passes),
+            )
+            if polished:
+                current = polished
+                passes += 1
+        except Exception as error:
+            logger.warning("Final polish failed: %s", error)
 
     final_match = calculate_keyword_match(current, job_keywords)
 
@@ -404,3 +419,28 @@ def _extract_all_text_cached(data_json: str) -> str:
 
 def _deep_copy(data: dict[str, Any]) -> dict[str, Any]:
     return copy.deepcopy(data)
+
+
+async def _run_polish_resume_json_with_llm(
+    resume_json: dict[str, Any],
+    master_resume: dict[str, Any],
+    llm,
+    *,
+    max_attempts: int,
+) -> dict[str, Any]:
+    from app.services.data_processor import polish_resume_json_with_llm
+
+    attempts = 0
+    current = _deep_copy(resume_json)
+    while attempts < max_attempts:
+        attempts += 1
+        polished = await asyncio.to_thread(
+            polish_resume_json_with_llm,
+            current,
+            _extract_all_text(master_resume),
+            llm,
+        )
+        if isinstance(polished, dict) and polished:
+            current = polished
+            break
+    return current
