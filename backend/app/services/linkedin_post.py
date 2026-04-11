@@ -1,3 +1,4 @@
+import asyncio
 import re
 from datetime import datetime
 
@@ -9,6 +10,7 @@ from app.models.schemas import (
     PostGenerationRequest,
     PostGenerationResponse,
 )
+from app.services.llm_helpers import llm_invoke_text_async
 
 try:
     from app.agents.websearch_agent import WebSearchAgent
@@ -158,23 +160,25 @@ async def generate_single_post(
 
     try:
         # Generate the post content
-        response = await llm.ainvoke(prompt)
-        post_text = clean_post_content(
-            str(response.content) if hasattr(response, "content") else str(response)
+        response = await llm_invoke_text_async(
+            llm,
+            prompt,
+            cache_namespace="linkedin_post_text",
         )
+        post_text = clean_post_content(str(response))
 
         # Generate hashtags if requested
         hashtags = []
         if request.hashtags_option == "suggest":
             hashtag_prompt = f"Suggest exactly 3 simple hashtags for this LinkedIn post (return as plain text separated by commas, no quotes, no # symbols): {post_text}"
-            hashtag_response = await llm.ainvoke(hashtag_prompt)
+            hashtag_response = await llm_invoke_text_async(
+                llm,
+                hashtag_prompt,
+                cache_namespace="linkedin_post_hashtags",
+            )
 
             # Parse hashtags
-            hashtag_text = (
-                str(hashtag_response.content)
-                if hasattr(hashtag_response, "content")
-                else str(hashtag_response)
-            )
+            hashtag_text = str(hashtag_response)
             hashtag_text = hashtag_text.strip()
             for h in hashtag_text.split(",")[:3]:
                 cleaned = (
@@ -192,12 +196,12 @@ async def generate_single_post(
         cta = request.cta_text
         if not cta:
             cta_prompt = f"Suggest a concise call-to-action (CTA) for this LinkedIn post: {post_text}"
-            cta_response = await llm.ainvoke(cta_prompt)
-            cta = (
-                str(cta_response.content)
-                if hasattr(cta_response, "content")
-                else str(cta_response)
+            cta_response = await llm_invoke_text_async(
+                llm,
+                cta_prompt,
+                cache_namespace="linkedin_post_cta",
             )
+            cta = str(cta_response)
             cta = cta.strip()
 
         # Get GitHub project name if available
@@ -248,16 +252,17 @@ async def generate_linkedin_posts_service(
                 github_context = f"\nProject: {github_data.get('project_name')} - {github_data.get('description')}\n"
 
         # Generate multiple posts
-        posts = []
-        for i in range(request.post_count):
-            post = await generate_single_post(
+        post_tasks = [
+            generate_single_post(
                 request,
                 i + 1,
                 github_context,
                 research_context,
                 llm=llm,
             )
-            posts.append(post)
+            for i in range(request.post_count)
+        ]
+        posts = list(await asyncio.gather(*post_tasks))
 
         return PostGenerationResponse(
             success=True,
@@ -291,10 +296,12 @@ async def edit_post_llm_service(payload: dict, llm: BaseChatModel) -> dict:
             "Return only the edited post text without any explanatory comments."
         )
 
-        response = await llm.ainvoke(prompt)
-        edited_text = clean_post_content(
-            str(response.content) if hasattr(response, "content") else str(response)
+        response = await llm_invoke_text_async(
+            llm,
+            prompt,
+            cache_namespace="linkedin_post_edit",
         )
+        edited_text = clean_post_content(str(response))
 
         # Update the post text
         post["text"] = edited_text
