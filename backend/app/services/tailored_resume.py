@@ -12,10 +12,12 @@ from typing import Optional
 
 from langchain_core.language_models import BaseChatModel
 
+from app.core.cache import build_cache_key, get_cached_json, set_cached_json
 from app.models.schemas import (
     ComprehensiveAnalysisData,
     ComprehensiveAnalysisResponse,
 )
+from app.core.streaming import publish_event
 from app.services.resume_generator import generate_tailored_resume
 
 
@@ -40,6 +42,28 @@ async def tailor_resume(
 
     if not job_role or not job_role.strip():
         job_role = "Software Engineer"
+
+    cache_material = json.dumps(
+        {
+            "resume_text": normalized_resume,
+            "job_role": job_role,
+            "company_name": company_name,
+            "company_website": company_website,
+            "job_description": job_description,
+            "llm_model": getattr(llm, "model_name", "unknown") if llm else "none",
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+    cache_key = build_cache_key("tailored_resume", cache_material)
+    cached = await get_cached_json(cache_key)
+    if cached and isinstance(cached.get("data"), dict):
+        return ComprehensiveAnalysisResponse(
+            success=bool(cached.get("success", True)),
+            message=str(cached.get("message", "")),
+            data=ComprehensiveAnalysisData.model_validate(cached["data"]),
+            cleaned_text=cached.get("cleaned_text"),
+        )
 
     # run_resume_pipeline is async (per generator implementation) so await it
     raw_result = await generate_tailored_resume(
@@ -88,6 +112,16 @@ async def tailor_resume(
         # Support older Pydantic versions if required.
         analysis = ComprehensiveAnalysisData.parse_obj(parsed_result)  # type: ignore[attr-defined]
 
-    return ComprehensiveAnalysisResponse(
+    response = ComprehensiveAnalysisResponse(
         data=analysis,
     )
+    payload = response.model_dump()
+    await set_cached_json(cache_key, payload)
+    await publish_event(
+        "resume.tailored",
+        {
+            "job_role": job_role,
+            "company_name": company_name or "",
+        },
+    )
+    return response
