@@ -22,7 +22,7 @@ async def analyze_resume(
     file: UploadFile = File(...),
     llm: BaseChatModel = Depends(get_request_llm),
 ):
-    return resume_analysis.analyze_resume_service(file, llm)
+    return await resume_analysis.analyze_resume_service(file, llm)
 
 
 @file_based_router.post(
