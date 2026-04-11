@@ -22,6 +22,36 @@ services:
       timeout: 3s
       retries: 30
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save 60 1 --loglevel warning
+    networks:
+      - talentsync_internal_network
+
+  kafka:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.10
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp
+      - "1"
+      - --memory
+      - 512M
+      - --reserve-memory
+      - 0M
+      - --check=false
+      - --node-id
+      - "0"
+      - --kafka-addr
+      - PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr
+      - PLAINTEXT://kafka:9092
+    networks:
+      - talentsync_internal_network
+
   backend:
     build:
       context: ./backend
@@ -31,14 +61,105 @@ services:
       - ./.env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ENABLE_REDIS_CACHE: "true"
+      ENABLE_KAFKA_EVENTS: "true"
     volumes:
       - ./backend/uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
     networks:
       - talentsync_internal_network
       - nginxproxyman_network
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ENABLE_REDIS_CACHE: "true"
+      ENABLE_KAFKA_EVENTS: "true"
+    command: sh -lc "uv run celery -A app.core.celery_app:celery_app worker --loglevel=INFO"
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      - talentsync_internal_network
+
+  celery_worker_document:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ENABLE_REDIS_CACHE: "true"
+      ENABLE_KAFKA_EVENTS: "true"
+      CELERY_QUEUE_DEFAULT: default
+      CELERY_QUEUE_DOCUMENT: document
+      CELERY_QUEUE_ANALYSIS: analysis
+    command: sh -lc "uv run celery -A app.core.celery_app:celery_app worker --loglevel=INFO --queues document --hostname=document@%h"
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      - talentsync_internal_network
+
+  celery_worker_analysis:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/2
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ENABLE_REDIS_CACHE: "true"
+      ENABLE_KAFKA_EVENTS: "true"
+      CELERY_QUEUE_DEFAULT: default
+      CELERY_QUEUE_DOCUMENT: document
+      CELERY_QUEUE_ANALYSIS: analysis
+    command: sh -lc "uv run celery -A app.core.celery_app:celery_app worker --loglevel=INFO --queues analysis --hostname=analysis@%h"
+    depends_on:
+      backend:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+    networks:
+      - talentsync_internal_network
 
   # Runs Prisma migrations once, then exits successfully.
   frontend_migrate:
@@ -50,6 +171,7 @@ services:
         NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
         NEXT_PUBLIC_POSTHOG_UI_HOST: ${NEXT_PUBLIC_POSTHOG_UI_HOST:-https://eu.posthog.com}
         NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-https://eu.i.posthog.com}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
     restart: "no"
     env_file:
       - ./.env
@@ -71,6 +193,7 @@ services:
         NEXT_PUBLIC_POSTHOG_KEY: ${NEXT_PUBLIC_POSTHOG_KEY}
         NEXT_PUBLIC_POSTHOG_UI_HOST: ${NEXT_PUBLIC_POSTHOG_UI_HOST:-https://eu.posthog.com}
         NEXT_PUBLIC_POSTHOG_HOST: ${NEXT_PUBLIC_POSTHOG_HOST:-https://eu.i.posthog.com}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY}
     restart: unless-stopped
     env_file:
       - ./.env
