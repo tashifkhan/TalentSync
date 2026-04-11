@@ -30,6 +30,9 @@ dependencies = [
     "langchain-anthropic>=0.3.22",
     "langchain-ollama>=0.3.10",
     "cryptography>=46.0.5",
+    "redis>=6.0.0",
+    "celery[redis]>=5.5.3",
+    "faststream[kafka]>=0.5.53",
 ]
 
 [dependency-groups]
