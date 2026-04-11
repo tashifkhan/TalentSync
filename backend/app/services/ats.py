@@ -13,7 +13,9 @@ from fastapi import HTTPException
 from langchain_core.language_models import BaseChatModel
 from pydantic import ValidationError
 
+from app.core.cache import build_cache_key, get_cached_json, set_cached_json
 from app.models.schemas import JDEvaluatorRequest, JDEvaluatorResponse
+from app.core.streaming import publish_event
 from app.services.ats_evaluator import evaluate_ats
 
 logger = logging.getLogger(__name__)
@@ -71,6 +73,23 @@ async def ats_evaluate_service(
                 status_code=400,
                 detail="Either jd_text or jd_link must be provided.",
             )
+
+    cache_material = json.dumps(
+        {
+            "resume_text": resume_text,
+            "jd_text": jd_text,
+            "jd_link": jd_link,
+            "company_name": company_name,
+            "company_website": company_website,
+            "llm_model": getattr(llm, "model_name", "unknown") if llm else "none",
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+    )
+    cache_key = build_cache_key("ats_evaluation", cache_material)
+    cached = await get_cached_json(cache_key)
+    if cached and isinstance(cached.get("response"), dict):
+        return JDEvaluatorResponse(**cached["response"])
 
     try:
         # Validate inputs using JDEvaluatorRequest Pydantic model
@@ -185,6 +204,16 @@ async def ats_evaluate_service(
                 "company_name": company_name,
                 "score": response_payload.get("score"),
                 "success": response_payload.get("success"),
+            },
+        )
+
+        await set_cached_json(cache_key, {"response": response_payload})
+        await publish_event(
+            "ats.evaluated",
+            {
+                "company_name": company_name or "",
+                "score": response_payload.get("score", 0),
+                "success": bool(response_payload.get("success", False)),
             },
         )
 
