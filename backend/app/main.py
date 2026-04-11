@@ -9,6 +9,7 @@ from starlette.responses import Response
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.cache import close_redis_cache, connect_redis_cache
 from app.core.logging import (
     build_request_id,
     bind_request_id,
@@ -16,10 +17,12 @@ from app.core.logging import (
     setup_logging,
 )
 from app.core.settings import get_settings
+from app.core.streaming import close_kafka, connect_kafka
 from app.routes.ats import file_based_router as ats_file_based_router
 from app.routes.ats import text_based_router as ats_text_based_router
 from app.routes.cold_mail import file_based_router as cold_mail_file_based_router
 from app.routes.cold_mail import text_based_router as cold_mail_text_based_router
+from app.routes.cover_letter import router as cover_letter_router
 from app.routes.hiring_assistant import (
     file_based_router as hiring_file_based_router,
 )
@@ -36,9 +39,8 @@ from app.routes.resume_analysis import (
 from app.routes.resume_analysis import (
     text_based_router as resume_text_based_router,
 )
-from app.routes.resume_improvement import router as resume_improvement_router
 from app.routes.resume_enrichment import router as resume_enrichment_router
-from app.routes.cover_letter import router as cover_letter_router
+from app.routes.resume_improvement import router as resume_improvement_router
 from app.routes.tailored_resume import (
     file_based_router as tailored_resume_file_based_router,
 )
@@ -46,6 +48,7 @@ from app.routes.tailored_resume import (
     text_based_router as tailored_resume_text_based_router,
 )
 from app.routes.jd_editor import router as jd_editor_router
+from app.routes.infrastructure import router as infrastructure_router
 from app.routes.tips import router as tips_router
 
 settings = get_settings()
@@ -55,9 +58,12 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # Startup
     setup_logging()
+    await connect_redis_cache()
+    await connect_kafka()
     yield
     # Shutdown
-    pass
+    await close_redis_cache()
+    await close_kafka()
 
 
 app = FastAPI(
@@ -200,3 +206,6 @@ app.include_router(interview_router, prefix="/api/v1", tags=["Digital Interviewe
 
 # LLM Config Routes (v1)
 app.include_router(llm_router, prefix="/api/v1", tags=["LLM Configuration"])
+
+# Infrastructure Routes (v1)
+app.include_router(infrastructure_router, prefix="/api/v1", tags=["Infrastructure"])
