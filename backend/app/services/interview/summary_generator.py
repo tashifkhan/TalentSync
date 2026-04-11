@@ -12,6 +12,7 @@ from app.data.prompt.interview_summary import (
     get_summary_prompt,
 )
 from app.models.interview.schemas import InterviewSession
+from app.services.llm_helpers import chain_invoke_text_async
 
 
 class SummaryGenerator:
@@ -45,7 +46,8 @@ class SummaryGenerator:
         chain = self.prompt | self.llm
 
         try:
-            response = await chain.ainvoke(
+            content = await chain_invoke_text_async(
+                chain,
                 {
                     "role": session.config.role,
                     "total_questions": len(session.questions),
@@ -53,11 +55,8 @@ class SummaryGenerator:
                     "questions_summary": questions_summary,
                     "tab_switch_count": session.tab_switch_count,
                     "other_events": self._format_events(session),
-                }
-            )
-
-            content = (
-                response.content if hasattr(response, "content") else str(response)
+                },
+                cache_namespace="interview_summary_generation",
             )
             return self._parse_summary_response(content, final_score)
         except Exception as e:
