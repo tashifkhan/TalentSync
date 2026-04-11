@@ -12,7 +12,11 @@ from app.data.prompt.resume_refinement import (
     AI_PHRASE_REPLACEMENTS,
     build_validation_polish_chain,
 )
-from app.services.llm_helpers import _extract_text_from_llm_result, parse_llm_json
+from app.services.llm_helpers import (
+    _extract_text_from_llm_result,
+    chain_invoke_text_sync,
+    parse_llm_json,
+)
 from app.data.prompt.txt_processor import build_text_formatter_chain
 
 
@@ -34,17 +38,13 @@ def format_resume_text_with_llm(
 
     try:
         chain = build_text_formatter_chain(llm)
-        result = chain.invoke(
+        formatted_text = chain_invoke_text_sync(
+            chain,
             {
                 "raw_resume_text": raw_text,
-            }
+            },
+            cache_namespace="resume_text_formatter",
         )
-        try:
-            formatted_text = (
-                result if isinstance(result, str) else getattr(result, "content", "")
-            )
-        except:
-            formatted_text = str(result.content)
         return formatted_text.strip()
 
     except ValueError as ve:
@@ -71,12 +71,14 @@ def format_resume_json_with_llm(
 
     try:
         chain = build_json_formatter_chain(llm)
-        result = chain.invoke(
+        result = chain_invoke_text_sync(
+            chain,
             {
                 "extracted_resume_text": extracted_resume_text,
-            }
+            },
+            cache_namespace="resume_json_formatter",
         )
-        result = str(result.content)
+        result = str(result)
 
         if result.strip().startswith("```json"):
             result = result.strip().removeprefix("```json").removesuffix("```").strip()
@@ -193,10 +195,12 @@ def comprehensive_analysis_llm(
         return {}
 
     chain = build_comprehensive_analysis_chain(llm)
-    result = chain.invoke(
+    result = chain_invoke_text_sync(
+        chain,
         {
             "extracted_resume_text": resume_text,
-        }
+        },
+        cache_namespace="resume_comprehensive_analysis",
     )
     if isinstance(result, dict):
         formatted_json = result
@@ -278,10 +282,12 @@ def format_and_analyse_resumes(
         return {}
 
     chain = build_format_analyse_chain(llm)
-    result = chain.invoke(
+    result = chain_invoke_text_sync(
+        chain,
         {
             "extracted_resume_text": raw_text,
-        }
+        },
+        cache_namespace="resume_format_analyse",
     )
     if isinstance(result, dict):
         formatted_json = result
@@ -354,11 +360,13 @@ def polish_resume_json_with_llm(
 
     if llm is not None:
         chain = build_validation_polish_chain(llm)
-        result = chain.invoke(
+        result = chain_invoke_text_sync(
+            chain,
             {
                 "resume": json.dumps(resume_json, ensure_ascii=True),
                 "master_resume": master_resume,
-            }
+            },
+            cache_namespace="resume_validation_polish",
         )
         raw_response = _extract_text_from_llm_result(result)
         parsed = parse_llm_json(raw_response)
@@ -378,11 +386,13 @@ def ats_analysis_llm(resume_text: str, jd_text: str, llm: BaseChatModel) -> dict
     if not resume_text.strip() or not jd_text.strip():
         return {}
     chain = build_ats_analysis_chain(llm)
-    result = chain.invoke(
+    result = chain_invoke_text_sync(
+        chain,
         {
             "resume_text": resume_text,
             "jd_text": jd_text,
-        }
+        },
+        cache_namespace="ats_analysis",
     )
     if isinstance(result, dict):
         return result
