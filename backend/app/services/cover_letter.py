@@ -7,6 +7,7 @@ from langchain_core.language_models import BaseChatModel
 
 from app.agents.web_content_agent import return_markdown
 from app.services.language import get_language_name
+from app.services.llm_helpers import llm_invoke_text_async
 
 
 def _resolve_job_description(job_description: str, jd_url: Optional[str]) -> str:
@@ -163,12 +164,13 @@ async def generate_cover_letter(
         additional_info=additional_info or "None",
     )
 
-    result = await llm.ainvoke(
+    result = await llm_invoke_text_async(
+        llm,
         f"You are a professional career coach and resume writer. "
-        f"Write compelling, personalized cover letters.\n\n{prompt}"
+        f"Write compelling, personalized cover letters.\n\n{prompt}",
+        cache_namespace="cover_letter_generate",
     )
-
-    return str(getattr(result, "content", result)).strip()
+    return str(result).strip()
 
 
 async def edit_cover_letter(
@@ -203,12 +205,13 @@ async def edit_cover_letter(
         additional_info=additional_info or "None",
     )
 
-    result = await llm.ainvoke(
+    result = await llm_invoke_text_async(
+        llm,
         f"You are a professional career coach and resume writer. "
-        f"Edit cover letters based on user instructions while maintaining quality.\n\n{prompt}"
+        f"Edit cover letters based on user instructions while maintaining quality.\n\n{prompt}",
+        cache_namespace="cover_letter_edit",
     )
-
-    return str(getattr(result, "content", result)).strip()
+    return str(result).strip()
 
 
 async def generate_outreach_message(
@@ -225,12 +228,13 @@ async def generate_outreach_message(
         output_language=output_language,
     )
 
-    result = await llm.ainvoke(
+    result = await llm_invoke_text_async(
+        llm,
         f"You are a professional networking coach. "
-        f"Write genuine, engaging cold outreach messages.\n\n{prompt}"
+        f"Write genuine, engaging cold outreach messages.\n\n{prompt}",
+        cache_namespace="cover_letter_outreach",
     )
-
-    return str(getattr(result, "content", result)).strip()
+    return str(result).strip()
 
 
 async def generate_resume_title(
@@ -245,9 +249,11 @@ async def generate_resume_title(
         output_language=output_language,
     )
 
-    result = await llm.ainvoke(
-        f"You extract job titles and company names from job descriptions.\n\n{prompt}"
+    result = await llm_invoke_text_async(
+        llm,
+        f"You extract job titles and company names from job descriptions.\n\n{prompt}",
+        cache_namespace="cover_letter_title",
     )
 
-    title = str(getattr(result, "content", result)).strip().strip("\"'")
+    title = str(result).strip().strip("\"'")
     return title[:80]

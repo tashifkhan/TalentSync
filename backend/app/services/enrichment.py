@@ -1,5 +1,6 @@
 """AI-powered resume enrichment endpoints service helpers."""
 
+import asyncio
 import copy
 import json
 import logging
@@ -1129,11 +1130,4 @@ async def _regenerate_skills(
 
 
 async def _gather_results(tasks):
-    results = []
-    for task in tasks:
-        try:
-            result = await task
-            results.append(result)
-        except Exception as error:
-            results.append(error)
-    return results
+    return list(await asyncio.gather(*tasks, return_exceptions=True))

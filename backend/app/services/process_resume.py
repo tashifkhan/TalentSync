@@ -1,12 +1,25 @@
+import asyncio
+import base64
+import hashlib
+import logging
 import os
 import re
 
 import fitz
 import pymupdf4llm
 
+from app.core.cache import (
+    build_cache_key,
+    get_cached_json,
+    get_cached_json_sync,
+    set_cached_json,
+    set_cached_json_sync,
+)
 from app.core.settings import get_settings
+from app.core.streaming import publish_event
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 def _fallback_convert_to_text(file_bytes: bytes) -> str:
@@ -65,8 +78,8 @@ def _convert_document_to_markdown(file_bytes: bytes, filetype: str) -> str:
         )
 
 
-def process_document(file_bytes, file_name):
-    file_extension = os.path.splitext(file_name)[1].lower()
+def _process_document_local(file_bytes: bytes, file_name: str | None) -> str | None:
+    file_extension = os.path.splitext(file_name or "")[1].lower()
     try:
         if file_extension in {".txt", ".md"}:
             return file_bytes.decode()
@@ -80,19 +93,112 @@ def process_document(file_bytes, file_name):
 
             return processed_txt
 
-        print(
-            f"Unsupported file type: {file_extension}. Please upload TXT, MD, PDF, or DOCX."
+        logger.warning(
+            "Unsupported file type: %s. Please upload TXT, MD, PDF, or DOCX.",
+            file_extension,
         )
         return None
 
     except Exception as e:
-        print(f"Error processing file {file_name}: {e}")
+        logger.warning("Error processing file %s: %s", file_name, e)
         return None
 
 
-def is_valid_resume(text):
+def _build_document_cache_key(file_bytes: bytes, file_name: str | None) -> str:
+    file_hash = hashlib.sha256(file_bytes).hexdigest()
+    safe_name = (file_name or "unknown").strip().lower()
+    return build_cache_key("document", f"{safe_name}:{file_hash}")
+
+
+def _process_document_with_celery(
+    file_bytes: bytes, file_name: str | None
+) -> str | None:
+    try:
+        from app.core.celery_app import celery_app, is_celery_enabled
+
+        if not is_celery_enabled():
+            return None
+
+        payload_b64 = base64.b64encode(file_bytes).decode("ascii")
+        task = celery_app.send_task(
+            "app.tasks.document_tasks.process_document_task",
+            args=[payload_b64, file_name or ""],
+            queue=settings.CELERY_QUEUE_DOCUMENT,
+        )
+        result = task.get(timeout=settings.CELERY_TASK_TIMEOUT_SECONDS)
+        if isinstance(result, str):
+            return result
+    except Exception as error:
+        logger.debug("Celery document task failed: %s", error)
+
+    return None
+
+
+def process_document(file_bytes: bytes, file_name: str | None) -> str | None:
+    if not file_bytes:
+        return None
+
+    cache_key = _build_document_cache_key(file_bytes, file_name)
+    cached = get_cached_json_sync(cache_key)
+    if cached and isinstance(cached.get("text"), str):
+        return cached.get("text")
+
+    result: str | None = None
+    if settings.USE_CELERY_FOR_DOCUMENT_PROCESSING:
+        result = _process_document_with_celery(file_bytes, file_name)
+
+    if result is None:
+        result = _process_document_local(file_bytes, file_name)
+
+    if result:
+        set_cached_json_sync(cache_key, {"text": result})
+
+    return result
+
+
+async def process_document_async(
+    file_bytes: bytes, file_name: str | None
+) -> str | None:
+    if not file_bytes:
+        return None
+
+    cache_key = _build_document_cache_key(file_bytes, file_name)
+    cached = await get_cached_json(cache_key)
+    if cached and isinstance(cached.get("text"), str):
+        return cached.get("text")
+
+    result: str | None = None
+    if settings.USE_CELERY_FOR_DOCUMENT_PROCESSING:
+        result = await asyncio.to_thread(
+            _process_document_with_celery,
+            file_bytes,
+            file_name,
+        )
+
+    if result is None:
+        result = await asyncio.to_thread(_process_document_local, file_bytes, file_name)
+
+    if result:
+        await set_cached_json(cache_key, {"text": result})
+        await publish_event(
+            "document.processed",
+            {
+                "filename": file_name or "",
+                "size_bytes": len(file_bytes),
+            },
+        )
+
+    return result
+
+
+def process_document_local(file_bytes: bytes, file_name: str | None) -> str | None:
+    return _process_document_local(file_bytes, file_name)
+
+
+def is_valid_resume(text: str) -> bool:
     if not text:
         return False
+
     resume_keywords = [
         "Experience",
         "Education",

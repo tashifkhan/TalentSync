@@ -10,7 +10,7 @@ from starlette.datastructures import UploadFile as StarletteUploadFile
 from app.core.deps import get_request_llm
 from app.models.schemas import JDEvaluatorResponse
 from app.services.ats import ats_evaluate_service
-from app.services.process_resume import process_document
+from app.services.process_resume import process_document_async
 
 file_based_router = APIRouter()
 text_based_router = APIRouter()
@@ -87,7 +87,7 @@ async def evaluate_ats(
                         ),
                     )
                 jd_bytes = await jd_file.read()
-                jd_file_text = process_document(jd_bytes, jd_file.filename)
+                jd_file_text = await process_document_async(jd_bytes, jd_file.filename)
                 if not jd_file_text:
                     raise HTTPException(
                         status_code=400, detail="Failed to process JD file."
@@ -149,7 +149,7 @@ async def evaluate_ats_file_based(
 ) -> JDEvaluatorResponse:
     # Read and process resume file
     resume_bytes = await resume_file.read()
-    resume_text = process_document(resume_bytes, resume_file.filename)
+    resume_text = await process_document_async(resume_bytes, resume_file.filename)
     if not resume_text:
         raise HTTPException(status_code=400, detail="Failed to process resume file.")
 
@@ -162,7 +162,7 @@ async def evaluate_ats_file_based(
                 detail="Unsupported JD file type. Allowed: PDF, DOC, DOCX, TXT, MD.",
             )
         jd_bytes = await jd_file.read()
-        jd_file_text = process_document(jd_bytes, jd_file.filename)
+        jd_file_text = await process_document_async(jd_bytes, jd_file.filename)
         if not jd_file_text:
             raise HTTPException(status_code=400, detail="Failed to process JD file.")
         jd_text = jd_file_text

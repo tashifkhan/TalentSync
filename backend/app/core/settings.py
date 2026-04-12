@@ -34,6 +34,31 @@ class Settings(BaseSettings):
     # External Services
     TAVILY_API_KEY: Optional[str] = None
 
+    # Redis Cache
+    ENABLE_REDIS_CACHE: bool = True
+    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_CACHE_TTL_SECONDS: int = 900
+
+    # Celery
+    CELERY_BROKER_URL: str = "redis://localhost:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+    CELERY_TASK_ALWAYS_EAGER: bool = False
+    CELERY_TASK_RESULT_EXPIRES_SECONDS: int = 3600
+    CELERY_TASK_TIMEOUT_SECONDS: int = 180
+    USE_CELERY_FOR_DOCUMENT_PROCESSING: bool = True
+    CELERY_QUEUE_DEFAULT: str = "default"
+    CELERY_QUEUE_DOCUMENT: str = "document"
+    CELERY_QUEUE_ANALYSIS: str = "analysis"
+    CELERY_WORKER_PREFETCH_MULTIPLIER: int = 1
+
+    # Kafka / FastStream
+    ENABLE_KAFKA_EVENTS: bool = True
+    KAFKA_BOOTSTRAP_SERVERS: str = "localhost:9092"
+    KAFKA_EVENTS_TOPIC: str = "talentsync.backend.events"
+
+    # Concurrency
+    MAX_SERVICE_PARALLELISM: int = 4
+
     # CORS
     CORS_ORIGINS: List[str] = ["*"]
 

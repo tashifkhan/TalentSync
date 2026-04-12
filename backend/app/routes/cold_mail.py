@@ -27,7 +27,7 @@ async def cold_mail_generator(
     company_url: Optional[str] = Form(None),
     llm: BaseChatModel = Depends(get_request_llm),
 ):
-    return cold_mail.cold_mail_generator_service(
+    return await cold_mail.cold_mail_generator_service(
         file,
         recipient_name,
         recipient_designation,
@@ -61,7 +61,7 @@ async def cold_mail_editor(
     edit_inscription: str = Form(""),
     llm: BaseChatModel = Depends(get_request_llm),
 ):
-    return cold_mail.cold_mail_editor_service(
+    return await cold_mail.cold_mail_editor_service(
         file,
         recipient_name,
         recipient_designation,

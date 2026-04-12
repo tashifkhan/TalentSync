@@ -10,7 +10,8 @@ from app.data.prompt.cold_mail_gen import build_cold_mail_chain
 from app.models.schemas import ColdMailResponse, ErrorResponse
 from app.services.data_processor import format_resume_text_with_llm
 from app.services.hiring_assiatnat import get_company_research
-from app.services.process_resume import is_valid_resume, process_document
+from app.services.llm_helpers import chain_invoke_text_sync
+from app.services.process_resume import is_valid_resume, process_document_async
 
 
 def generate_cold_mail_content(
@@ -27,7 +28,8 @@ def generate_cold_mail_content(
 ):
     try:
         chain = build_cold_mail_chain(llm)
-        response = chain.invoke(
+        response = chain_invoke_text_sync(
+            chain,
             {
                 "resume_text": resume_text,
                 "recipient_name": recipient_name,
@@ -38,11 +40,10 @@ def generate_cold_mail_content(
                 "key_points_to_include": key_points_to_include,
                 "additional_info_for_llm": additional_info_for_llm,
                 "company_research": company_research,
-            }
+            },
+            cache_namespace="cold_mail_generate",
         )
-        response_content = (
-            response.content if hasattr(response, "content") else str(response)
-        )
+        response_content = str(response)
         response_content = str(response_content).strip()
         if response_content.startswith("{") and response_content.endswith("}"):
             try:
@@ -145,7 +146,8 @@ def generate_cold_mail_edit_content(
 
     try:
         chain = build_cold_mail_edit_chain(llm)
-        response = chain.invoke(
+        response = chain_invoke_text_sync(
+            chain,
             {
                 "resume_text": resume_text,
                 "recipient_name": recipient_name,
@@ -159,11 +161,10 @@ def generate_cold_mail_edit_content(
                 "previous_email_subject": previous_email_subject,
                 "previous_email_body": previous_email_body,
                 "edit_instructions": edit_instructions,
-            }
+            },
+            cache_namespace="cold_mail_edit",
         )
-        response_content = (
-            response.content if hasattr(response, "content") else str(response)
-        )
+        response_content = str(response)
         response_content = str(response_content).strip()
 
         if response_content.startswith("{") and response_content.endswith("}"):
@@ -247,7 +248,7 @@ def generate_cold_mail_edit_content(
         )
 
 
-def cold_mail_generator_service(
+async def cold_mail_generator_service(
     file: UploadFile,
     recipient_name: str,
     recipient_designation: str,
@@ -273,12 +274,12 @@ def cold_mail_generator_service(
             uploads_dir,
             f"temp_cold_mail_{file.filename}",
         )
-        file_bytes = file.file.read()
+        file_bytes = await file.read()
 
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        resume_text = process_document(file_bytes, file.filename)
+        resume_text = await process_document_async(file_bytes, file.filename)
 
         if resume_text is None:
             os.remove(temp_file_path)
@@ -340,7 +341,7 @@ def cold_mail_generator_service(
         )
 
 
-def cold_mail_editor_service(
+async def cold_mail_editor_service(
     file: UploadFile,
     recipient_name: str,
     recipient_designation: str,
@@ -369,11 +370,11 @@ def cold_mail_editor_service(
             uploads_dir,
             f"temp_cold_mail_{file.filename}",
         )
-        file_bytes = file.file.read()
+        file_bytes = await file.read()
 
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
-        resume_text = process_document(file_bytes, file.filename)
+        resume_text = await process_document_async(file_bytes, file.filename)
 
         if resume_text is None:
             os.remove(temp_file_path)

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 from typing import Optional
@@ -9,7 +10,8 @@ from langchain_core.language_models import BaseChatModel
 from app.data.prompt.hirring_assistant import build_hiring_assistant_chain
 from app.models.schemas import ErrorResponse, HiringAssistantResponse
 from app.services.data_processor import format_resume_text_with_llm
-from app.services.process_resume import is_valid_resume, process_document
+from app.services.llm_helpers import chain_invoke_text_sync
+from app.services.process_resume import is_valid_resume, process_document_async
 
 
 def get_company_research(company_name, company_url):
@@ -47,7 +49,7 @@ def get_company_research(company_name, company_url):
         return f"Research about {company_name}: An unexpected error occurred during company research: {e}"
 
 
-def generate_answers_for_geting_hired(
+async def generate_answers_for_geting_hired(
     resume_text,
     role,
     company,
@@ -67,12 +69,13 @@ def generate_answers_for_geting_hired(
             f"\n\nResearch findings about {company}:\n{company_research.strip()}"
         )
 
-    results = []
     chain = build_hiring_assistant_chain(llm)
 
-    for question in questions_list:
+    async def _answer_question(question: str) -> dict[str, str]:
         try:
-            response_content = chain.invoke(
+            response_content = await asyncio.to_thread(
+                chain_invoke_text_sync,
+                chain,
                 {
                     "resume": resume_text,
                     "role": role,
@@ -80,33 +83,29 @@ def generate_answers_for_geting_hired(
                     "company_context": company_context,
                     "question": question,
                     "word_limit": word_limit,
-                }
+                },
+                cache_namespace="hiring_assistant_answer",
             )
             answer = (
                 response_content
                 if isinstance(response_content, str)
                 else getattr(response_content, "content", "")
             )
-
-            results.append(
-                {
-                    "question": question,
-                    "answer": answer.strip(),
-                }
-            )
+            return {
+                "question": question,
+                "answer": answer.strip(),
+            }
 
         except Exception as e:
-            results.append(
-                {
-                    "question": question,
-                    "answer": f"Error generating answer: {e}",
-                }
-            )
+            return {
+                "question": question,
+                "answer": f"Error generating answer: {e}",
+            }
 
-    return results
+    return list(await asyncio.gather(*[_answer_question(q) for q in questions_list]))
 
 
-def hiring_assistant_service(
+async def hiring_assistant_service(
     file: UploadFile,
     role: str,
     questions: str,
@@ -148,12 +147,12 @@ def hiring_assistant_service(
             uploads_dir,
             f"temp_hr_assist_{file.filename}",
         )
-        file_bytes = file.file.read()
+        file_bytes = await file.read()
 
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        resume_text = process_document(
+        resume_text = await process_document_async(
             file_bytes,
             file.filename,
         )
@@ -188,7 +187,7 @@ def hiring_assistant_service(
         if company_url:
             company_research_info = get_company_research(company_name, company_url)
 
-        generated_answers_list = generate_answers_for_geting_hired(
+        generated_answers_list = await generate_answers_for_geting_hired(
             resume_text=resume_text,
             role=role,
             company=company_name,
@@ -255,7 +254,7 @@ async def hiring_assistant_v2_service(
         if company_url:
             company_research_info = get_company_research(company_name, company_url)
 
-        generated_answers_list = generate_answers_for_geting_hired(
+        generated_answers_list = await generate_answers_for_geting_hired(
             resume_text=resume_text,
             role=role,
             company=company_name,

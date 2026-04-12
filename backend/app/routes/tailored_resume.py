@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.core.deps import get_request_llm
 from app.models.schemas import ComprehensiveAnalysisResponse
-from app.services.process_resume import process_document
+from app.services.process_resume import process_document_async
 from app.services.tailored_resume import tailor_resume
 
 file_based_router = APIRouter()
@@ -64,7 +64,7 @@ async def generate_tailored_resume_file_based(
     llm: BaseChatModel = Depends(get_request_llm),
 ) -> ComprehensiveAnalysisResponse:
     resume_bytes = await resume_file.read()
-    resume_text = process_document(resume_bytes, resume_file.filename)
+    resume_text = await process_document_async(resume_bytes, resume_file.filename)
     if not resume_text:
         raise HTTPException(status_code=400, detail="Failed to process resume file.")
 

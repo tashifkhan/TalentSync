@@ -5,6 +5,7 @@ from langchain_core.language_models import BaseChatModel
 
 from app.data.prompt.tips_generator import build_tips_generator_chain
 from app.models.schemas import Tip, TipsData, TipsResponse
+from app.services.llm_helpers import chain_invoke_text_sync
 
 
 def tips_llm(
@@ -29,13 +30,15 @@ def tips_llm(
 
     try:
         chain = build_tips_generator_chain(llm)
-        result = chain.invoke(
+        result = chain_invoke_text_sync(
+            chain,
             {
                 "job_category": job_category,
                 "skills_list_str": skills,
-            }
+            },
+            cache_namespace="tips_generator",
         )
-        result = str(result.content)
+        result = str(result)
 
         if result.strip().startswith("```json"):
             result = result.strip().removeprefix("```json").removesuffix("```").strip()

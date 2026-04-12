@@ -2,6 +2,7 @@
 LinkedIn Page Generator Service - Creates comprehensive LinkedIn presence content
 """
 
+import asyncio
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -10,6 +11,7 @@ from langchain_core.language_models import BaseChatModel
 from pydantic import BaseModel, Field, HttpUrl
 
 from app.models.schemas import GeneratedPost, PostGenerationRequest
+from app.services.llm_helpers import llm_invoke_text_async
 
 # Import agents with fallback
 try:
@@ -181,12 +183,12 @@ Create a compelling LinkedIn headline for this professional. Keep it under 220 c
 
 Generate ONLY the headline text, no explanations:"""
 
-        headline_response = await self.llm.ainvoke(headline_prompt)
-        headline = str(
-            headline_response.content
-            if hasattr(headline_response, "content")
-            else headline_response
-        ).strip()
+        headline_response = await llm_invoke_text_async(
+            self.llm,
+            headline_prompt,
+            cache_namespace="linkedin_profile_headline",
+        )
+        headline = str(headline_response).strip()
 
         # Generate summary
         summary_prompt = f"""
@@ -196,12 +198,12 @@ Create a professional LinkedIn summary/about section (2-3 paragraphs) for this p
 
 Generate ONLY the summary text, no explanations:"""
 
-        summary_response = await self.llm.ainvoke(summary_prompt)
-        summary = str(
-            summary_response.content
-            if hasattr(summary_response, "content")
-            else summary_response
-        ).strip()
+        summary_response = await llm_invoke_text_async(
+            self.llm,
+            summary_prompt,
+            cache_namespace="linkedin_profile_summary",
+        )
+        summary = str(summary_response).strip()
 
         # Generate about section (longer version)
         about_prompt = f"""
@@ -211,12 +213,12 @@ Create a detailed LinkedIn 'About' section for this professional. Include profes
 
 Generate ONLY the about section text, no explanations:"""
 
-        about_response = await self.llm.ainvoke(about_prompt)
-        about_section = str(
-            about_response.content
-            if hasattr(about_response, "content")
-            else about_response
-        ).strip()
+        about_response = await llm_invoke_text_async(
+            self.llm,
+            about_prompt,
+            cache_namespace="linkedin_profile_about",
+        )
+        about_section = str(about_response).strip()
 
         # Process experience highlights
         experience_highlights = [
@@ -265,21 +267,18 @@ Generate ONLY the about section text, no explanations:"""
             "Technology trends",
         ]
 
-        for i, theme in enumerate(themes[: request.post_count]):
+        async def _generate_theme_post(i: int, theme: str) -> GeneratedPost | None:
             try:
-                # Create context for post generation
                 post_context = f"""
 Professional Background: {request.current_role} in {request.industry}
 Industry Insights: {industry_insights}
 Theme: {theme}
 """
 
-                # Add GitHub context if available
                 if github_insights and i < len(github_insights):
                     project = github_insights[i]
                     post_context += f"\nFeatured Project: {project.get('name')} - {project.get('description')}"
 
-                # Generate post using existing LinkedIn service logic
                 post_request = PostGenerationRequest(
                     topic=f"{theme} in {request.industry}",
                     tone=request.professional_tone,
@@ -290,17 +289,22 @@ Theme: {theme}
                     emoji_level=1 if request.include_personal_touch else 0,
                 )
 
-                # Generate individual post
                 from app.services.linkedin_post import generate_single_post
 
-                post = await generate_single_post(
+                return await generate_single_post(
                     post_request, i + 1, post_context, llm=self.llm
                 )
-                posts.append(post)
-
             except Exception as e:
                 print(f"Error generating post for theme '{theme}': {e}")
-                continue
+                return None
+
+        generated = await asyncio.gather(
+            *[
+                _generate_theme_post(i, theme)
+                for i, theme in enumerate(themes[: request.post_count])
+            ]
+        )
+        posts = [post for post in generated if post is not None]
 
         return posts
 

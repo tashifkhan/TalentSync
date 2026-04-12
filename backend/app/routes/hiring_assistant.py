@@ -25,7 +25,7 @@ async def hiring_assistant(
     word_limit: Optional[int] = Form(150),
     llm: BaseChatModel = Depends(get_request_llm),
 ):
-    return hiring_assiatnat.hiring_assistant_service(
+    return await hiring_assiatnat.hiring_assistant_service(
         file,
         role,
         questions,

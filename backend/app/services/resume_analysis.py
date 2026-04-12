@@ -22,6 +22,7 @@ from app.services.data_processor import (
 from app.services.process_resume import (
     is_valid_resume,
     process_document,
+    process_document_async,
 )
 
 
@@ -45,7 +46,7 @@ async def analyze_resume_service(file: UploadFile, llm: BaseChatModel):
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        resume_text = process_document(
+        resume_text = await process_document_async(
             file_bytes,
             file.filename,
         )
@@ -177,7 +178,7 @@ async def comprehensive_resume_analysis_service(file: UploadFile, llm: BaseChatM
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        resume_text = process_document(
+        resume_text = await process_document_async(
             file_bytes,
             file.filename,
         )
@@ -256,7 +257,7 @@ async def format_and_analyze_resume_service(file: UploadFile, llm: BaseChatModel
         with open(temp_file_path, "wb") as buffer:
             buffer.write(file_bytes)
 
-        raw_resume_text = process_document(
+        raw_resume_text = await process_document_async(
             file_bytes,
             file.filename,
         )
